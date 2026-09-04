@@ -5,6 +5,10 @@ edition = "2024"
 
 [dependencies]
 slint = "1.17.1"
+chrono = { version = "0.4", default-features = true }
+rfd = "0.15.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 
 [build-dependencies]
 slint-build = "1.17.1"

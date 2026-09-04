@@ -1,4 +1,5 @@
-export enum Page { home, timer, summary, tasks }
+export enum Page { home, tracking, note, settings, evaluation }
+export enum Range { day, week, month, year }
 
 export global AppState {
     in property <Page> active-page: Page.home;
@@ -8,6 +9,13 @@ export struct TaskItem {
     id: string,
     title: string,
     completed: bool,
+}
+
+export struct SessionItem {
+    task: string,
+    note: string,
+    duration: string,
+    timestamp: string,
 }
 
 export struct ProjectItem {
