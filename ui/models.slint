@@ -1,0 +1,16 @@
+export enum Page { home, timer, summary, tasks }
+
+export global AppState {
+    in property <Page> active-page: Page.home;
+}
+
+export struct TaskItem {
+    id: string,
+    title: string,
+    completed: bool,
+}
+
+export struct ProjectItem {
+    id: string,
+    name: string,
+}
