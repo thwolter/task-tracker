@@ -1,15 +1,14 @@
+use crate::error::{Result, TrackerError};
 use chrono::{Datelike, Local, TimeZone};
 use serde::{Deserialize, Serialize};
-use std::{
-    fmt,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub(crate) struct Task {
     id: String,
     title: String,
 }
+
 impl Task {
     fn new(id: String, title: String) -> Self {
         Self { id, title }
@@ -29,6 +28,7 @@ pub(crate) struct Session {
     ended: i64,
     note: String,
 }
+
 impl Session {
     pub(crate) fn task_id(&self) -> &str {
         &self.task_id
@@ -50,6 +50,7 @@ pub(crate) struct ActiveSession {
     started: i64,
     checkpoint: i64,
 }
+
 impl ActiveSession {
     pub(crate) fn task_id(&self) -> &str {
         &self.task_id
@@ -65,6 +66,7 @@ pub(crate) struct Data {
     sessions: Vec<Session>,
     active: Option<ActiveSession>,
 }
+
 impl Data {
     pub(crate) fn defaults() -> Self {
         Self {
@@ -172,25 +174,20 @@ impl Range {
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
-pub(crate) struct TaskNameError;
-impl fmt::Display for TaskNameError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("Task name cannot be empty")
-    }
-}
-pub(crate) fn validate_task_name(name: &str) -> Result<String, TaskNameError> {
+pub(crate) fn validate_task_name(name: &str) -> Result<String> {
     let name = name.trim();
     (!name.is_empty())
         .then(|| name.to_owned())
-        .ok_or(TaskNameError)
+        .ok_or(TrackerError::EmptyTaskName)
 }
+
 pub(crate) fn now() -> i64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
         .as_secs() as i64
 }
+
 pub(crate) fn duration(seconds: i64) -> String {
     let minutes = (seconds.max(0) + 30) / 60;
     if minutes >= 60 {
@@ -199,6 +196,7 @@ pub(crate) fn duration(seconds: i64) -> String {
         format!("{minutes} min")
     }
 }
+
 pub(crate) fn in_range(session: &Session, range: Range, timestamp: i64) -> bool {
     let current = Local
         .timestamp_opt(timestamp, 0)
@@ -256,6 +254,8 @@ pub(crate) fn markdown(data: &Data, range: Range, timestamp: i64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::error::TrackerError;
+
     #[test]
     fn task_actions_recover_and_complete_sessions() {
         let mut data = Data::defaults();
@@ -272,15 +272,20 @@ mod tests {
         data.save_note("Brief".into());
         assert_eq!(data.sessions()[1].note(), "Brief");
     }
+
     #[test]
     fn task_names_are_validated_and_tasks_can_be_renamed() {
         let mut data = Data::defaults();
-        assert_eq!(validate_task_name("  "), Err(TaskNameError));
+        assert!(matches!(
+            validate_task_name("  "),
+            Err(TrackerError::EmptyTaskName)
+        ));
         data.rename_task("task-1", validate_task_name("  Planning ").unwrap());
         data.add_task("task-5".into(), validate_task_name("Review").unwrap());
         assert_eq!(data.task_title("task-1"), Some("Planning"));
         assert_eq!(data.tasks()[4].title(), "Review");
     }
+
     #[test]
     fn duration_range_and_markdown_are_readable() {
         let mut data = Data::defaults();

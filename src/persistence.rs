@@ -1,17 +1,25 @@
 use crate::domain::Data;
 use std::{
-    error::Error,
-    fmt, fs,
+    fs,
     path::{Path, PathBuf},
 };
+use crate::error::Result;
 
+/// Stores the tracker data as one JSON file at a fixed filesystem path.
 pub(crate) struct JsonStore {
     path: PathBuf,
 }
+
 impl JsonStore {
+    /// Creates a store that reads from and writes to `path`.
     pub(crate) fn at(path: PathBuf) -> Self {
         Self { path }
     }
+    
+    /// Returns the platform-appropriate location of Tempo's default data file.
+    ///
+    /// Falls back to the system temporary directory when no suitable data-home
+    /// environment variable is available.
     pub(crate) fn default_path() -> PathBuf {
         let base = if cfg!(target_os = "windows") {
             std::env::var_os("APPDATA").map(PathBuf::from)
@@ -28,13 +36,18 @@ impl JsonStore {
         .unwrap_or_else(std::env::temp_dir);
         base.join("Tempo").join("tempo.json")
     }
+    
+    /// Loads the saved data, returning the default data when it cannot be read
+    /// or deserialized.
     pub(crate) fn load_or_default(&self) -> Data {
         fs::read_to_string(&self.path)
             .ok()
             .and_then(|text| serde_json::from_str(&text).ok())
             .unwrap_or_else(Data::defaults)
     }
-    pub(crate) fn save(&self, data: &Data) -> Result<(), PersistenceError> {
+    
+    /// Serializes `data` as formatted JSON, creating parent directories first.
+    pub(crate) fn save(&self, data: &Data) -> Result<()> {
         if let Some(parent) = self.path.parent() {
             fs::create_dir_all(parent)?;
         }
@@ -43,54 +56,32 @@ impl JsonStore {
         Ok(())
     }
 }
-pub(crate) fn export_markdown(path: &Path, report: &str) -> Result<(), PersistenceError> {
+
+/// Writes an already-rendered Markdown report to `path`.
+pub(crate) fn export_markdown(path: &Path, report: &str) -> Result<()> {
     fs::write(path, report)?;
     Ok(())
 }
-#[derive(Debug)]
-pub(crate) enum PersistenceError {
-    Io(std::io::Error),
-    Json(serde_json::Error),
-}
-impl fmt::Display for PersistenceError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Io(error) => error.fmt(f),
-            Self::Json(error) => error.fmt(f),
-        }
-    }
-}
-impl Error for PersistenceError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        match self {
-            Self::Io(error) => Some(error),
-            Self::Json(error) => Some(error),
-        }
-    }
-}
-impl From<std::io::Error> for PersistenceError {
-    fn from(error: std::io::Error) -> Self {
-        Self::Io(error)
-    }
-}
-impl From<serde_json::Error> for PersistenceError {
-    fn from(error: serde_json::Error) -> Self {
-        Self::Json(error)
-    }
-}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::domain::Data;
+    
     #[test]
     fn load_falls_back_and_saved_json_round_trips() {
+
         let path = std::env::temp_dir().join(format!(
             "tempo-persistence-test-{}-{}.json",
             std::process::id(),
             crate::domain::now()
         ));
+
         let store = JsonStore::at(path.clone());
+
         assert_eq!(store.load_or_default().tasks().len(), 4);
+
         store.save(&Data::defaults()).unwrap();
         assert_eq!(store.load_or_default().tasks()[0].id(), "task-1");
         assert!(
@@ -98,6 +89,7 @@ mod tests {
                 .unwrap()
                 .contains("\"active\": null")
         );
+
         fs::remove_file(path).unwrap();
     }
 }
