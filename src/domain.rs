@@ -37,11 +37,17 @@ impl TaskId {
 pub(crate) struct Project {
     id: ProjectId,
     name: String,
+    #[serde(default)]
+    archived: bool,
 }
 
 impl Project {
     fn new(id: ProjectId, name: String) -> Self {
-        Self { id, name }
+        Self {
+            id,
+            name,
+            archived: false,
+        }
     }
 
     pub(crate) fn id(&self) -> &ProjectId {
@@ -50,6 +56,10 @@ impl Project {
 
     pub(crate) fn name(&self) -> &str {
         &self.name
+    }
+
+    pub(crate) fn archived(&self) -> bool {
+        self.archived
     }
 }
 
@@ -302,6 +312,18 @@ impl Data {
             project.name = name;
         }
     }
+
+    pub(crate) fn archive_project(&mut self, id: &ProjectId) {
+        if let Some(project) = self.projects.iter_mut().find(|project| project.id == *id) {
+            project.archived = true;
+        }
+    }
+
+    pub(crate) fn unarchive_project(&mut self, id: &ProjectId) {
+        if let Some(project) = self.projects.iter_mut().find(|project| project.id == *id) {
+            project.archived = false;
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -433,6 +455,25 @@ mod tests {
         );
         assert_eq!(data.project_name_by_str("project-1"), Some("Planning"));
         assert_eq!(data.projects()[4].name(), "Review");
+    }
+
+    #[test]
+    fn projects_can_be_archived_without_removing_their_history() {
+        let mut data = Data::defaults();
+        let project_id = ProjectId::new("project-1");
+
+        data.start_tracking(project_id.clone(), 10);
+        assert!(data.end_tracking(70));
+        data.archive_project(&project_id);
+
+        assert!(data.projects()[0].archived());
+        assert_eq!(
+            data.project_name(data.tasks()[0].project_id()),
+            "Project Atlas"
+        );
+
+        data.unarchive_project(&project_id);
+        assert!(!data.projects()[0].archived());
     }
 
     #[test]

@@ -12,10 +12,12 @@ pub(crate) fn home(tracker: &Tracker) -> HomeState {
             .data()
             .projects()
             .iter()
+            .filter(|project| !project.archived())
             .map(|project| ProjectItem {
                 id: project.id().as_str().into(),
                 name: project.name().into(),
                 completed: false,
+                archived: false,
             })
             .collect::<Vec<_>>(),
     ));
@@ -36,6 +38,22 @@ pub(crate) fn home(tracker: &Tracker) -> HomeState {
         projects,
         last_task,
     }
+}
+
+pub(crate) fn project_settings(tracker: &Tracker) -> ModelRc<ProjectItem> {
+    ModelRc::new(VecModel::from(
+        tracker
+            .data()
+            .projects()
+            .iter()
+            .map(|project| ProjectItem {
+                id: project.id().as_str().into(),
+                name: project.name().into(),
+                completed: false,
+                archived: project.archived(),
+            })
+            .collect::<Vec<_>>(),
+    ))
 }
 
 pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64) -> EvaluationState {
@@ -97,6 +115,7 @@ pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
 
 pub(crate) fn refresh(ui: &crate::AppWindow, tracker: &Tracker, timestamp: i64) {
     ui.set_home(home(tracker));
+    ui.set_project_settings(project_settings(tracker));
     ui.set_evaluation(evaluation(tracker, timestamp));
     ui.set_tracking(tracking(tracker, timestamp));
 }
@@ -144,6 +163,25 @@ mod tests {
         assert_eq!(tracking(&tracker, 70).elapsed, "01:00");
         tracker.end_tracking(130).unwrap();
         assert_eq!(evaluation(&tracker, 130).tasks.row_count(), 1);
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn archived_projects_are_hidden_only_from_home() {
+        let path = std::env::temp_dir().join(format!(
+            "tempo-presentation-archive-test-{}-{}.json",
+            std::process::id(),
+            domain::now()
+        ));
+        let mut tracker = Tracker::at(path.clone());
+
+        tracker.archive_project("project-1".into()).unwrap();
+
+        assert_eq!(home(&tracker).projects.row_count(), 3);
+        let settings = project_settings(&tracker);
+        assert_eq!(settings.row_count(), 4);
+        assert!(settings.row_data(0).unwrap().archived);
+
         std::fs::remove_file(path).unwrap();
     }
 }

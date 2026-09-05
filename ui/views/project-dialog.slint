@@ -1,9 +1,8 @@
 import { LineEdit } from "std-widgets.slint";
-import { AppButton } from "app-button.slint";
-import { BackLink } from "back-link.slint";
+import { AppButton } from "../components/app-button.slint";
+import { BackLink } from "../components/back-link.slint";
 import { Theme } from "../theme.slint";
-import { TitleText } from "typography.slint";
-import { BodyText } from "typography.slint";
+import { BodyText, TitleText } from "../components/typography.slint";
 
 component ArchiveBox inherits VerticalLayout {
 	spacing: 10px;
@@ -35,20 +34,49 @@ component ArchiveBox inherits VerticalLayout {
 	}
 }
 
+component UnarchiveBox inherits VerticalLayout {
+    spacing: 10px;
+    padding-bottom: 20px;
+
+    callback clicked();
+
+    TitleText {
+        text: "Archived project";
+    }
+
+    BodyText {
+        text: "This project is hidden from Home. Its past time entries remain in Evaluation.";
+        wrap: word-wrap;
+        vertical-alignment: center;
+    }
+
+    HorizontalLayout {
+        alignment: start;
+        TouchArea {
+            mouse-cursor: pointer;
+            clicked => { root.clicked(); }
+            Text {
+                text: "Unarchive project";
+                color: Theme.palette.accent;
+                font-size: Theme.typography.body.size;
+            }
+        }
+    }
+}
+
 export component ProjectDialog inherits Rectangle {
     in property <bool> rename-mode;
     in property <string> initial-draft;
+    in property <string> project-id;
+    in property <bool> archived;
 
     property <string> project: root.initial-draft;
-    private property <bool> is-project: false;
-
-    init => {
-        root.is-project = root.project != "";
-    }
+    private property <bool> is-project: root.project-id != "";
 
     callback close();
     callback save(string);
     callback archive(string);
+    callback unarchive(string);
 
     background: Theme.palette.soft-surface;
 
@@ -112,8 +140,12 @@ export component ProjectDialog inherits Rectangle {
 	        }
         }
 
-		if (root.is-project): ArchiveBox {
-			clicked => { root.archive(root.project); }
+		if (root.is-project && !root.archived): ArchiveBox {
+			clicked => { root.archive(root.project-id); }
+		}
+
+		if (root.is-project && root.archived): UnarchiveBox {
+			clicked => { root.unarchive(root.project-id); }
 		}
 
     }

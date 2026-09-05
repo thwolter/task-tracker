@@ -87,6 +87,8 @@ impl Tracker {
         ProjectDialog {
             rename_mode: false,
             initial_draft: String::new(),
+            project_id: String::new(),
+            archived: false,
         }
     }
 
@@ -96,10 +98,22 @@ impl Tracker {
             .project_name_by_str(&id)
             .unwrap_or_default()
             .to_owned();
+        let archived = self
+            .data
+            .projects()
+            .iter()
+            .find(|project| project.id().as_str() == id)
+            .is_some_and(|project| project.archived());
         self.editing_project_id = Some(ProjectId::from(id));
         ProjectDialog {
             rename_mode: true,
             initial_draft,
+            project_id: self
+                .editing_project_id
+                .as_ref()
+                .map(|id| id.as_str().to_owned())
+                .unwrap_or_default(),
+            archived,
         }
     }
 
@@ -119,6 +133,16 @@ impl Tracker {
         self.editing_project_id = None;
     }
 
+    pub(crate) fn archive_project(&mut self, id: String) -> Result<()> {
+        self.data.archive_project(&ProjectId::from(id));
+        self.save()
+    }
+
+    pub(crate) fn unarchive_project(&mut self, id: String) -> Result<()> {
+        self.data.unarchive_project(&ProjectId::from(id));
+        self.save()
+    }
+
     pub(crate) fn report(&self, timestamp: i64) -> String {
         domain::markdown(&self.data, self.range, timestamp)
     }
@@ -127,6 +151,8 @@ impl Tracker {
 pub(crate) struct ProjectDialog {
     pub(crate) rename_mode: bool,
     pub(crate) initial_draft: String,
+    pub(crate) project_id: String,
+    pub(crate) archived: bool,
 }
 
 #[cfg(test)]

@@ -17,7 +17,7 @@ export component SettingsProjectRow inherits Rectangle {
 		horizontal-stretch: 1;
 
 	    Text {
-        text: root.project.name;
+        text: root.project.archived ? root.project.name + " · Archived" : root.project.name;
 	        color: Theme.palette.text;
 	        font-size: Theme.typography.body.size;
 	        font-weight: Theme.typography.body.weight;

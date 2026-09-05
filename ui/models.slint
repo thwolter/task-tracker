@@ -11,6 +11,7 @@ export struct ProjectItem {
     id: string,
     name: string,
     completed: bool,
+    archived: bool,
 }
 
 export struct HomeState {
@@ -40,4 +41,6 @@ export struct ProjectDialogState {
     open: bool,
     rename-mode: bool,
     initial-draft: string,
+    project-id: string,
+    archived: bool,
 }

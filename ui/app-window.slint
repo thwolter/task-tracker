@@ -2,13 +2,14 @@ import {
     EvaluationState,
     HomeState,
     Page,
+    ProjectItem,
     Range,
     ProjectDialogState,
     Status,
     StatusKind,
     TrackingState,
 } from "models.slint";
-import { ProjectDialog } from "components/project-dialog.slint";
+import { ProjectDialog } from "views/project-dialog.slint";
 import { HomeView } from "views/home.slint";
 import { TrackingView } from "views/tracking.slint";
 import { NoteView } from "views/note.slint";
@@ -26,6 +27,7 @@ export component AppWindow inherits Window {
 
     in-out property <Page> page: Page.home;
     in property <HomeState> home;
+    in property <[ProjectItem]> project-settings;
     in property <TrackingState> tracking;
     in property <EvaluationState> evaluation;
     in property <ProjectDialogState> project-dialog;
@@ -43,6 +45,7 @@ export component AppWindow inherits Window {
     callback open-rename-project(string);
     callback save-project(string);
     callback archive-project(string);
+    callback unarchive-project(string);
     callback close-project-dialog();
     callback open-home-view();
     callback export-markdown();
@@ -64,9 +67,12 @@ export component AppWindow inherits Window {
                 height: 100%;
                 rename-mode: root.project-dialog.rename-mode;
                 initial-draft: root.project-dialog.initial-draft;
+                project-id: root.project-dialog.project-id;
+                archived: root.project-dialog.archived;
                 close => { root.close-project-dialog(); }
                 save(project) => { root.save-project(project); }
                 archive(project) => { root.archive-project(project); }
+                unarchive(project) => { root.unarchive-project(project); }
             }
             if !root.project-dialog.open && root.page == Page.home: HomeView {
                 width: 100%;
@@ -93,7 +99,7 @@ export component AppWindow inherits Window {
             if !root.project-dialog.open && root.page == Page.settings: SettingsView {
                 width: 100%;
                 height: 100%;
-                projects: root.home.projects;
+                projects: root.project-settings;
                 open-add-project => { root.open-add-project(); }
                 open-rename-project(id) => { root.open-rename-project(id); }
                 open-home-view => { root.open-home-view(); }

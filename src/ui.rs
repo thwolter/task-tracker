@@ -152,6 +152,32 @@ impl UiController {
         self.dismiss_project_dialog(&ui);
     }
 
+    fn archive_project(&self, id: SharedString) {
+        let Some(ui) = self.ui.upgrade() else {
+            return;
+        };
+        match self.tracker.borrow_mut().archive_project(id.to_string()) {
+            Ok(()) => {
+                self.dismiss_project_dialog(&ui);
+                self.refresh(&ui);
+            }
+            Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
+        }
+    }
+
+    fn unarchive_project(&self, id: SharedString) {
+        let Some(ui) = self.ui.upgrade() else {
+            return;
+        };
+        match self.tracker.borrow_mut().unarchive_project(id.to_string()) {
+            Ok(()) => {
+                self.dismiss_project_dialog(&ui);
+                self.refresh(&ui);
+            }
+            Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
+        }
+    }
+
     fn export_markdown(&self) {
         let Some(ui) = self.ui.upgrade() else {
             return;
@@ -200,6 +226,8 @@ impl UiController {
             open: true,
             rename_mode: dialog.rename_mode,
             initial_draft: dialog.initial_draft.into(),
+            project_id: dialog.project_id.into(),
+            archived: dialog.archived,
         });
     }
 
@@ -208,6 +236,8 @@ impl UiController {
             open: false,
             rename_mode: false,
             initial_draft: SharedString::new(),
+            project_id: SharedString::new(),
+            archived: false,
         });
     }
 }
@@ -242,6 +272,12 @@ fn bind_callbacks(ui: &AppWindow, controller: &UiController) {
 
     let export_markdown = controller.clone();
     ui.on_export_markdown(move || export_markdown.export_markdown());
+
+    let archive_project = controller.clone();
+    ui.on_archive_project(move |id| archive_project.archive_project(id));
+
+    let unarchive_project = controller.clone();
+    ui.on_unarchive_project(move |id| unarchive_project.unarchive_project(id));
 }
 
 #[cfg(test)]
