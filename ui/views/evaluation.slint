@@ -1,7 +1,7 @@
 import { HorizontalBox, VerticalBox, ScrollView } from "std-widgets.slint";
 import { AppButton } from "../components/app-button.slint";
 import { RangeOption } from "../components/range-option.slint";
-import { SessionCard } from "../components/session-card.slint";
+import { TaskCard } from "../components/session-card.slint";
 import { TitleText, ViewHeader } from "../components/typography.slint";
 import { EvaluationState, Range } from "../models.slint";
 import { Theme } from "../theme.slint";
@@ -72,7 +72,7 @@ export component EvaluationView inherits Rectangle {
 
 			VerticalLayout {
 		        spacing: 6px;
-		        for entry in root.state.sessions: SessionCard {
+                for entry in root.state.tasks: TaskCard {
 		            entry: entry;
 		        }
 		    }

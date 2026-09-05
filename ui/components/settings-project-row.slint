@@ -1,9 +1,9 @@
-import { TaskItem } from "../models.slint";
+import { ProjectItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { HorizontalBox } from "std-widgets.slint";
 
 export component SettingsProjectRow inherits Rectangle {
-    in property <TaskItem> task;
+    in property <ProjectItem> project;
 
     height: 38px;
     border-radius: Theme.border.radius;
@@ -17,7 +17,7 @@ export component SettingsProjectRow inherits Rectangle {
 		horizontal-stretch: 1;
 
 	    Text {
-	        text: root.task.title;
+        text: root.project.name;
 	        color: Theme.palette.text;
 	        font-size: Theme.typography.body.size;
 	        font-weight: Theme.typography.body.weight;
@@ -37,6 +37,6 @@ export component SettingsProjectRow inherits Rectangle {
 
     TouchArea {
         mouse-cursor: pointer;
-        clicked => { root.clicked(root.task.id); }
+        clicked => { root.clicked(root.project.id); }
     }
 }

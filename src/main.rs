@@ -1,9 +1,9 @@
 mod application;
 mod domain;
+mod error;
 mod persistence;
 mod presentation;
 mod ui;
-mod error;
 
 slint::include_modules!();
 

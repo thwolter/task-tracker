@@ -1,8 +1,8 @@
-import { TaskItem } from "../models.slint";
+import { ProjectItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 
 export component ProjectCard inherits Rectangle {
-    in property <TaskItem> task;
+    in property <ProjectItem> project;
 
     callback clicked(string);
 
@@ -13,7 +13,7 @@ export component ProjectCard inherits Rectangle {
     border-color: Theme.palette.border;
 
     Text {
-        text: root.task.title;
+        text: root.project.name;
         color: Theme.palette.accent;
         font-size: Theme.typography.body-strong.size;
         font-weight: Theme.typography.body-strong.weight;
@@ -22,6 +22,6 @@ export component ProjectCard inherits Rectangle {
     }
 
     TouchArea {
-        clicked => { root.clicked(root.task.id); }
+        clicked => { root.clicked(root.project.id); }
     }
 }

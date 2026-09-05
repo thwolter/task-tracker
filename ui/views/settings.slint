@@ -1,15 +1,15 @@
 import { ScrollView } from "std-widgets.slint";
 import { AppButton } from "../components/app-button.slint";
 import { SettingsProjectRow } from "../components/settings-project-row.slint";
-import { TaskItem } from "../models.slint";
+import { ProjectItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
 import { TitleText } from "../components/typography.slint";
 
 export component SettingsView inherits Rectangle {
-    in property <[TaskItem]> tasks;
+    in property <[ProjectItem]> projects;
 
-    callback open-add-task();
+    callback open-add-project();
     callback open-rename-project(string);
     callback open-home-view();
 
@@ -26,7 +26,7 @@ export component SettingsView inherits Rectangle {
 	        text: "Project settings";
 	    }
 
-	    task-list := ScrollView {
+        project-list := ScrollView {
 	        vertical-stretch: 1;
 	        horizontal-scrollbar-policy: always-off;
 
@@ -36,11 +36,11 @@ export component SettingsView inherits Rectangle {
 	            x: 0px;
 	            cross-axis-alignment: stretch;
 	            spacing: 7px;
-	            width: task-list.width - (task-list.has-scrollbar ? 20px : 0px);
+                width: project-list.width - (project-list.has-scrollbar ? 20px : 0px);
 	            alignment: start;
 
-	            for task in root.tasks: SettingsProjectRow {
-	                task: task;
+            for project in root.projects: SettingsProjectRow {
+                project: project;
 	                clicked(id) => { open-rename-project(id)}
 	            }
 	        }
@@ -50,7 +50,7 @@ export component SettingsView inherits Rectangle {
 	        width: 100%;
 	        label: "Add";
 	        prefix-icon: @image-url("../assets/icons/add.svg");
-	        clicked => { root.open-add-task(); }
+        clicked => { root.open-add-project(); }
 	    }
 
 

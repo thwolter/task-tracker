@@ -5,7 +5,7 @@ import { TrackingState } from "../models.slint";
 export component TrackingView inherits Rectangle {
     in property <TrackingState> state;
 
-    callback end-task();
+    callback end-tracking();
 
     VerticalLayout {
         padding: 20px;
@@ -21,9 +21,9 @@ export component TrackingView inherits Rectangle {
 	    AppButton {
 	        width: 232px;
 	        height: 50px;
-	        label: "End task";
+        label: "End task";
 	        primary: true;
-	        clicked => { root.end-task(); }
+        clicked => { root.end-tracking(); }
 	    }
 	}
 }

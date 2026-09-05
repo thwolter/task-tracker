@@ -62,8 +62,8 @@ component HomeHeader inherits HorizontalLayout {
     }
 }
 
-component LastSessionCard inherits Rectangle {
-    in property <string> session;
+component LastTaskCard inherits Rectangle {
+    in property <string> task;
     in property <string> note: "No task";
 
     callback clicked();
@@ -87,7 +87,7 @@ component LastSessionCard inherits Rectangle {
 		    }
 
 		    Text {
-		        text: root.session;
+                text: root.task;
 		        color: Theme.palette.text;
 		        font-size: Theme.typography.body-strong.size;
 		        font-weight: Theme.typography.body-strong.weight;
@@ -116,7 +116,7 @@ component ProjectList inherits ScrollView {
 
     callback clicked(string);
 
-    task-content := VerticalLayout {
+    project-content := VerticalLayout {
         x: 0px;
         cross-axis-alignment: stretch;
         padding-bottom: 16px;
@@ -124,8 +124,8 @@ component ProjectList inherits ScrollView {
         width: root.width - (root.has-scrollbar ? 20px : 0px);
         alignment: start;
 
-        for task in root.state.tasks: ProjectCard {
-            task: task;
+        for project in root.state.projects: ProjectCard {
+            project: project;
             clicked(id) => { root.clicked(id); }
         }
     }
@@ -142,9 +142,9 @@ component Footer inherits Text {
 export component HomeView inherits Rectangle {
     in property <HomeState> state;
 
-    callback start-task(string);
+    callback start-tracking(string);
     callback open-settings();
-    callback open-last-session();
+    callback open-last-task();
     callback open-evaluation();
 
 
@@ -162,9 +162,9 @@ export component HomeView inherits Rectangle {
                 open-evaluation => { open-evaluation(); }
             }
 
-            LastSessionCard {
-                session: root.state.last-session;
-                clicked => { root.open-last-session(); }
+            LastTaskCard {
+                task: root.state.last-task;
+                clicked => { root.open-last-task(); }
             }
 
             VerticalLayout {
@@ -179,7 +179,7 @@ export component HomeView inherits Rectangle {
 
                 project-list := ProjectList {
                     state: root.state;
-                    clicked(id) => { root.start-task(id); }
+                    clicked(project-id) => { root.start-tracking(project-id); }
                 }
             }
         }

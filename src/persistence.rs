@@ -1,9 +1,9 @@
 use crate::domain::Data;
+use crate::error::Result;
 use std::{
     fs,
     path::{Path, PathBuf},
 };
-use crate::error::Result;
 
 /// Stores the tracker data as one JSON file at a fixed filesystem path.
 pub(crate) struct JsonStore {
@@ -15,7 +15,7 @@ impl JsonStore {
     pub(crate) fn at(path: PathBuf) -> Self {
         Self { path }
     }
-    
+
     /// Returns the platform-appropriate location of Tempo's default data file.
     ///
     /// Falls back to the system temporary directory when no suitable data-home
@@ -36,7 +36,7 @@ impl JsonStore {
         .unwrap_or_else(std::env::temp_dir);
         base.join("Tempo").join("tempo.json")
     }
-    
+
     /// Loads the saved data, returning the default data when it cannot be read
     /// or deserialized.
     pub(crate) fn load_or_default(&self) -> Data {
@@ -45,7 +45,7 @@ impl JsonStore {
             .and_then(|text| serde_json::from_str(&text).ok())
             .unwrap_or_else(Data::defaults)
     }
-    
+
     /// Serializes `data` as formatted JSON, creating parent directories first.
     pub(crate) fn save(&self, data: &Data) -> Result<()> {
         if let Some(parent) = self.path.parent() {
@@ -63,15 +63,13 @@ pub(crate) fn export_markdown(path: &Path, report: &str) -> Result<()> {
     Ok(())
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::domain::Data;
-    
+
     #[test]
     fn load_falls_back_and_saved_json_round_trips() {
-
         let path = std::env::temp_dir().join(format!(
             "tempo-persistence-test-{}-{}.json",
             std::process::id(),
@@ -80,14 +78,17 @@ mod tests {
 
         let store = JsonStore::at(path.clone());
 
-        assert_eq!(store.load_or_default().tasks().len(), 4);
+        assert_eq!(store.load_or_default().projects().len(), 4);
 
         store.save(&Data::defaults()).unwrap();
-        assert_eq!(store.load_or_default().tasks()[0].id(), "task-1");
+        assert_eq!(
+            store.load_or_default().projects()[0].id().as_str(),
+            "project-1"
+        );
         assert!(
             fs::read_to_string(&path)
                 .unwrap()
-                .contains("\"active\": null")
+                .contains("\"active_task\": null")
         );
 
         fs::remove_file(path).unwrap();

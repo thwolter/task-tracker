@@ -1,157 +1,305 @@
 use crate::error::{Result, TrackerError};
 use chrono::{Datelike, Local, TimeZone};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(transparent)]
+pub(crate) struct ProjectId(String);
+
+impl ProjectId {
+    fn new(value: impl Into<String>) -> Self {
+        Self(value.into())
+    }
+
+    pub(crate) fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<String> for ProjectId {
+    fn from(value: String) -> Self {
+        Self(value)
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(transparent)]
+pub(crate) struct TaskId(String);
+
+impl TaskId {
+    fn new(value: impl Into<String>) -> Self {
+        Self(value.into())
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub(crate) struct Project {
+    id: ProjectId,
+    name: String,
+}
+
+impl Project {
+    fn new(id: ProjectId, name: String) -> Self {
+        Self { id, name }
+    }
+
+    pub(crate) fn id(&self) -> &ProjectId {
+        &self.id
+    }
+
+    pub(crate) fn name(&self) -> &str {
+        &self.name
+    }
+}
 
 #[derive(Clone, Serialize, Deserialize)]
 pub(crate) struct Task {
-    id: String,
-    title: String,
-}
-
-impl Task {
-    fn new(id: String, title: String) -> Self {
-        Self { id, title }
-    }
-    pub(crate) fn id(&self) -> &str {
-        &self.id
-    }
-    pub(crate) fn title(&self) -> &str {
-        &self.title
-    }
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-pub(crate) struct Session {
-    task_id: String,
+    id: TaskId,
+    project_id: ProjectId,
+    name: Option<String>,
     started: i64,
     ended: i64,
     note: String,
 }
 
-impl Session {
-    pub(crate) fn task_id(&self) -> &str {
-        &self.task_id
+impl Task {
+    fn from_active(active: ActiveTask, ended: i64) -> Self {
+        Self {
+            id: active.id,
+            project_id: active.project_id,
+            name: None,
+            started: active.started,
+            ended,
+            note: String::new(),
+        }
     }
+
+    pub(crate) fn project_id(&self) -> &ProjectId {
+        &self.project_id
+    }
+
     pub(crate) fn started(&self) -> i64 {
         self.started
     }
+
     pub(crate) fn ended(&self) -> i64 {
         self.ended
     }
+
     pub(crate) fn note(&self) -> &str {
         &self.note
     }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub(crate) struct ActiveSession {
-    task_id: String,
+pub(crate) struct ActiveTask {
+    id: TaskId,
+    project_id: ProjectId,
     started: i64,
     checkpoint: i64,
 }
 
-impl ActiveSession {
-    pub(crate) fn task_id(&self) -> &str {
-        &self.task_id
+impl ActiveTask {
+    fn new(id: TaskId, project_id: ProjectId, timestamp: i64) -> Self {
+        Self {
+            id,
+            project_id,
+            started: timestamp,
+            checkpoint: timestamp,
+        }
     }
+
+    pub(crate) fn project_id(&self) -> &ProjectId {
+        &self.project_id
+    }
+
     pub(crate) fn started(&self) -> i64 {
         self.started
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize)]
 pub(crate) struct Data {
+    projects: Vec<Project>,
     tasks: Vec<Task>,
-    sessions: Vec<Session>,
-    active: Option<ActiveSession>,
+    active_task: Option<ActiveTask>,
+}
+
+#[derive(Deserialize)]
+struct CurrentData {
+    projects: Vec<Project>,
+    tasks: Vec<Task>,
+    active_task: Option<ActiveTask>,
+}
+
+#[derive(Deserialize)]
+struct LegacyData {
+    tasks: Vec<LegacyProject>,
+    sessions: Vec<LegacyTask>,
+    active: Option<LegacyActiveTask>,
+}
+
+#[derive(Deserialize)]
+struct LegacyProject {
+    id: String,
+    title: String,
+}
+
+#[derive(Deserialize)]
+struct LegacyTask {
+    task_id: String,
+    started: i64,
+    ended: i64,
+    note: String,
+}
+
+#[derive(Deserialize)]
+struct LegacyActiveTask {
+    task_id: String,
+    started: i64,
+    checkpoint: i64,
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum StoredData {
+    Current(CurrentData),
+    Legacy(LegacyData),
+}
+
+impl<'de> Deserialize<'de> for Data {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        match StoredData::deserialize(deserializer)? {
+            StoredData::Current(current) => Ok(Self {
+                projects: current.projects,
+                tasks: current.tasks,
+                active_task: current.active_task,
+            }),
+            StoredData::Legacy(legacy) => Ok(Self {
+                projects: legacy
+                    .tasks
+                    .into_iter()
+                    .map(|project| Project::new(ProjectId::new(project.id), project.title))
+                    .collect(),
+                tasks: legacy
+                    .sessions
+                    .into_iter()
+                    .enumerate()
+                    .map(|(index, task)| Task {
+                        id: TaskId::new(format!("legacy-task-{}", index + 1)),
+                        project_id: ProjectId::new(task.task_id),
+                        name: None,
+                        started: task.started,
+                        ended: task.ended,
+                        note: task.note,
+                    })
+                    .collect(),
+                active_task: legacy.active.map(|task| ActiveTask {
+                    id: TaskId::new(format!("legacy-active-task-{}", task.started)),
+                    project_id: ProjectId::new(task.task_id),
+                    started: task.started,
+                    checkpoint: task.checkpoint,
+                }),
+            }),
+        }
+    }
 }
 
 impl Data {
     pub(crate) fn defaults() -> Self {
         Self {
-            tasks: ["Project Atlas", "Admin", "Writing", "Personal"]
+            projects: ["Project Atlas", "Admin", "Writing", "Personal"]
                 .into_iter()
                 .enumerate()
-                .map(|(index, title)| Task::new(format!("task-{}", index + 1), title.into()))
+                .map(|(index, name)| {
+                    Project::new(
+                        ProjectId::new(format!("project-{}", index + 1)),
+                        name.into(),
+                    )
+                })
                 .collect(),
-            sessions: Vec::new(),
-            active: None,
+            tasks: Vec::new(),
+            active_task: None,
         }
     }
+
+    pub(crate) fn projects(&self) -> &[Project] {
+        &self.projects
+    }
+
     pub(crate) fn tasks(&self) -> &[Task] {
         &self.tasks
     }
-    pub(crate) fn sessions(&self) -> &[Session] {
-        &self.sessions
+
+    pub(crate) fn active_task(&self) -> Option<&ActiveTask> {
+        self.active_task.as_ref()
     }
-    pub(crate) fn active(&self) -> Option<&ActiveSession> {
-        self.active.as_ref()
+
+    pub(crate) fn has_tasks(&self) -> bool {
+        !self.tasks.is_empty()
     }
-    pub(crate) fn has_sessions(&self) -> bool {
-        !self.sessions.is_empty()
-    }
-    pub(crate) fn task_name(&self, id: &str) -> String {
-        self.tasks
+
+    pub(crate) fn project_name(&self, id: &ProjectId) -> String {
+        self.projects
             .iter()
-            .find(|task| task.id == id)
-            .map(|task| task.title.clone())
-            .unwrap_or_else(|| "Deleted task".into())
+            .find(|project| project.id == *id)
+            .map(|project| project.name.clone())
+            .unwrap_or_else(|| "Deleted project".into())
     }
-    pub(crate) fn task_title(&self, id: &str) -> Option<&str> {
-        self.tasks
+
+    pub(crate) fn project_name_by_str(&self, id: &str) -> Option<&str> {
+        self.projects
             .iter()
-            .find(|task| task.id == id)
-            .map(Task::title)
+            .find(|project| project.id.as_str() == id)
+            .map(Project::name)
     }
+
     pub(crate) fn recover_active(&mut self) {
-        if let Some(active) = self.active.take() {
-            self.sessions.push(Session {
-                task_id: active.task_id,
-                started: active.started,
-                ended: active.checkpoint,
-                note: String::new(),
-            });
+        if let Some(active) = self.active_task.take() {
+            let ended = active.checkpoint;
+            self.tasks.push(Task::from_active(active, ended));
         }
     }
-    pub(crate) fn start_task(&mut self, task_id: String, timestamp: i64) {
-        self.active = Some(ActiveSession {
-            task_id,
-            started: timestamp,
-            checkpoint: timestamp,
-        });
+
+    pub(crate) fn start_tracking(&mut self, project_id: ProjectId, timestamp: i64) {
+        let id = TaskId::new(format!("task-{timestamp}-{}", self.tasks.len() + 1));
+        self.active_task = Some(ActiveTask::new(id, project_id, timestamp));
     }
+
     pub(crate) fn checkpoint_active(&mut self, timestamp: i64) -> bool {
-        if let Some(active) = &mut self.active {
+        if let Some(active) = &mut self.active_task {
             active.checkpoint = timestamp;
             true
         } else {
             false
         }
     }
-    pub(crate) fn end_active(&mut self, timestamp: i64) -> bool {
-        let Some(active) = self.active.take() else {
+
+    pub(crate) fn end_tracking(&mut self, timestamp: i64) -> bool {
+        let Some(active) = self.active_task.take() else {
             return false;
         };
-        self.sessions.push(Session {
-            task_id: active.task_id,
-            started: active.started,
-            ended: timestamp,
-            note: String::new(),
-        });
+        self.tasks.push(Task::from_active(active, timestamp));
         true
     }
-    pub(crate) fn save_note(&mut self, note: String) {
-        if let Some(session) = self.sessions.last_mut() {
-            session.note = note;
+
+    pub(crate) fn save_task_note(&mut self, note: String) {
+        if let Some(task) = self.tasks.last_mut() {
+            task.note = note;
         }
     }
-    pub(crate) fn add_task(&mut self, id: String, title: String) {
-        self.tasks.push(Task::new(id, title));
+
+    pub(crate) fn add_project(&mut self, id: ProjectId, name: String) {
+        self.projects.push(Project::new(id, name));
     }
-    pub(crate) fn rename_task(&mut self, id: &str, title: String) {
-        if let Some(task) = self.tasks.iter_mut().find(|task| task.id == id) {
-            task.title = title;
+
+    pub(crate) fn rename_project(&mut self, id: &ProjectId, name: String) {
+        if let Some(project) = self.projects.iter_mut().find(|project| project.id == *id) {
+            project.name = name;
         }
     }
 }
@@ -174,11 +322,11 @@ impl Range {
     }
 }
 
-pub(crate) fn validate_task_name(name: &str) -> Result<String> {
+pub(crate) fn validate_project_name(name: &str) -> Result<String> {
     let name = name.trim();
     (!name.is_empty())
         .then(|| name.to_owned())
-        .ok_or(TrackerError::EmptyTaskName)
+        .ok_or(TrackerError::EmptyProjectName)
 }
 
 pub(crate) fn now() -> i64 {
@@ -197,13 +345,13 @@ pub(crate) fn duration(seconds: i64) -> String {
     }
 }
 
-pub(crate) fn in_range(session: &Session, range: Range, timestamp: i64) -> bool {
+pub(crate) fn in_range(task: &Task, range: Range, timestamp: i64) -> bool {
     let current = Local
         .timestamp_opt(timestamp, 0)
         .single()
         .unwrap_or_else(Local::now);
     let item = Local
-        .timestamp_opt(session.ended, 0)
+        .timestamp_opt(task.ended, 0)
         .single()
         .unwrap_or_else(Local::now);
     match range {
@@ -214,37 +362,34 @@ pub(crate) fn in_range(session: &Session, range: Range, timestamp: i64) -> bool 
     }
 }
 pub(crate) fn markdown(data: &Data, range: Range, timestamp: i64) -> String {
-    let sessions: Vec<_> = data
-        .sessions()
+    let tasks: Vec<_> = data
+        .tasks()
         .iter()
-        .filter(|session| in_range(session, range, timestamp))
+        .filter(|task| in_range(task, range, timestamp))
         .collect();
-    let total: i64 = sessions
-        .iter()
-        .map(|session| session.ended - session.started)
-        .sum();
+    let total: i64 = tasks.iter().map(|task| task.ended - task.started).sum();
     let mut report = format!(
         "# Tempo — {}\n\n**Total:** {}\n",
         range.name(),
         duration(total)
     );
-    if sessions.is_empty() {
-        report.push_str("\nNo completed sessions.\n");
+    if tasks.is_empty() {
+        report.push_str("\nNo completed tasks.\n");
     }
-    for session in sessions {
+    for task in tasks {
         let date = Local
-            .timestamp_opt(session.ended, 0)
+            .timestamp_opt(task.ended, 0)
             .single()
             .unwrap_or_else(Local::now)
             .format("%Y-%m-%d %H:%M");
         report.push_str(&format!(
             "\n- **{}** — {} ({})",
-            data.task_name(&session.task_id),
-            duration(session.ended - session.started),
+            data.project_name(task.project_id()),
+            duration(task.ended - task.started),
             date
         ));
-        if !session.note.trim().is_empty() {
-            report.push_str(&format!(": {}", session.note.trim()));
+        if !task.note.trim().is_empty() {
+            report.push_str(&format!(": {}", task.note.trim()));
         }
         report.push('\n');
     }
@@ -257,46 +402,88 @@ mod tests {
     use crate::error::TrackerError;
 
     #[test]
-    fn task_actions_recover_and_complete_sessions() {
+    fn tracking_creates_tasks_under_projects() {
         let mut data = Data::defaults();
-        data.start_task("task-2".into(), 10);
+        data.start_tracking(ProjectId::new("project-2"), 10);
         assert!(data.checkpoint_active(40));
         data.recover_active();
-        assert!(data.active().is_none());
-        assert_eq!(
-            data.sessions()[0].ended() - data.sessions()[0].started(),
-            30
-        );
-        data.start_task("task-1".into(), 50);
-        assert!(data.end_active(80));
-        data.save_note("Brief".into());
-        assert_eq!(data.sessions()[1].note(), "Brief");
+        assert!(data.active_task().is_none());
+        assert_eq!(data.tasks()[0].ended() - data.tasks()[0].started(), 30);
+        assert_eq!(data.project_name(data.tasks()[0].project_id()), "Admin");
+        data.start_tracking(ProjectId::new("project-1"), 50);
+        assert!(data.end_tracking(80));
+        data.save_task_note("Brief".into());
+        assert_eq!(data.tasks()[1].note(), "Brief");
     }
 
     #[test]
-    fn task_names_are_validated_and_tasks_can_be_renamed() {
+    fn project_names_are_validated_and_projects_can_be_renamed() {
         let mut data = Data::defaults();
         assert!(matches!(
-            validate_task_name("  "),
-            Err(TrackerError::EmptyTaskName)
+            validate_project_name("  "),
+            Err(TrackerError::EmptyProjectName)
         ));
-        data.rename_task("task-1", validate_task_name("  Planning ").unwrap());
-        data.add_task("task-5".into(), validate_task_name("Review").unwrap());
-        assert_eq!(data.task_title("task-1"), Some("Planning"));
-        assert_eq!(data.tasks()[4].title(), "Review");
+        data.rename_project(
+            &ProjectId::new("project-1"),
+            validate_project_name("  Planning ").unwrap(),
+        );
+        data.add_project(
+            ProjectId::new("project-5"),
+            validate_project_name("Review").unwrap(),
+        );
+        assert_eq!(data.project_name_by_str("project-1"), Some("Planning"));
+        assert_eq!(data.projects()[4].name(), "Review");
     }
 
     #[test]
     fn duration_range_and_markdown_are_readable() {
         let mut data = Data::defaults();
-        data.sessions.push(Session {
-            task_id: "task-1".into(),
+        data.tasks.push(Task {
+            id: TaskId::new("task-1"),
+            project_id: ProjectId::new("project-1"),
+            name: None,
             started: 0,
             ended: 2520,
             note: "Brief".into(),
         });
         assert_eq!(duration(2520), "42 min");
-        assert!(in_range(&data.sessions()[0], Range::Year, 2520));
+        assert!(in_range(&data.tasks()[0], Range::Year, 2520));
         assert!(markdown(&data, Range::Year, 2520).contains("Project Atlas"));
+    }
+
+    #[test]
+    fn legacy_data_migrates_projects_and_tasks_without_losing_history() {
+        let legacy = r#"{
+            "tasks": [{"id": "task-1", "title": "Project Atlas"}],
+            "sessions": [{"task_id": "task-1", "started": 10, "ended": 70, "note": "Brief"}],
+            "active": null
+        }"#;
+
+        let data: Data = serde_json::from_str(legacy).unwrap();
+
+        assert_eq!(data.projects()[0].name(), "Project Atlas");
+        assert_eq!(
+            data.project_name(data.tasks()[0].project_id()),
+            "Project Atlas"
+        );
+        assert_eq!(data.tasks()[0].note(), "Brief");
+        let saved = serde_json::to_value(&data).unwrap();
+        assert!(saved.get("projects").is_some());
+        assert!(saved.get("sessions").is_none());
+    }
+
+    #[test]
+    fn legacy_active_session_becomes_an_active_task_for_its_project() {
+        let legacy = r#"{
+            "tasks": [{"id": "task-1", "title": "Project Atlas"}],
+            "sessions": [],
+            "active": {"task_id": "task-1", "started": 10, "checkpoint": 40}
+        }"#;
+
+        let data: Data = serde_json::from_str(legacy).unwrap();
+        let active = data.active_task().unwrap();
+
+        assert_eq!(data.project_name(active.project_id()), "Project Atlas");
+        assert_eq!(active.started(), 10);
     }
 }

@@ -1,15 +1,15 @@
 export enum Page { home, tracking, note, settings, evaluation }
 export enum Range { day, week, month, year }
 
-export struct TaskItem {
+export struct ProjectItem {
     id: string,
-    title: string,
+    name: string,
     completed: bool,
 }
 
 export struct HomeState {
-    tasks: [TaskItem],
-    last-session: string,
+    projects: [ProjectItem],
+    last-task: string,
 }
 
 export struct TrackingState {
@@ -17,15 +17,15 @@ export struct TrackingState {
     elapsed: string,
 }
 
-export struct SessionItem {
-    task: string,
+export struct TaskItem {
+    project: string,
     note: string,
     duration: string,
     timestamp: string,
 }
 
 export struct EvaluationState {
-    sessions: [SessionItem],
+    tasks: [TaskItem],
     total: string,
     range: Range,
 }

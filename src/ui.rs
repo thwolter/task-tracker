@@ -1,6 +1,6 @@
 use crate::{
     AppWindow, Page, ProjectDialogState,
-    application::{SharedTracker, ProjectDialog},
+    application::{ProjectDialog, SharedTracker},
     domain, persistence, presentation,
 };
 use rfd::FileDialog;
@@ -50,14 +50,14 @@ impl UiController {
         self.refresh(&ui);
     }
 
-    fn start_task(&self, id: SharedString) {
+    fn start_tracking(&self, project_id: SharedString) {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
         let result = self
             .tracker
             .borrow_mut()
-            .start_task(id.to_string(), domain::now());
+            .start_tracking(project_id.to_string(), domain::now());
         if let Err(error) = result {
             self.set_status(&ui, format!("Could not save data: {error}"));
         }
@@ -65,20 +65,20 @@ impl UiController {
         self.refresh(&ui);
     }
 
-    fn open_last_session(&self) {
+    fn open_last_task(&self) {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        if self.tracker.borrow().data().has_sessions() {
+        if self.tracker.borrow().data().has_tasks() {
             ui.set_page(Page::Note);
         }
     }
 
-    fn end_task(&self) {
+    fn end_tracking(&self) {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        match self.tracker.borrow_mut().end_task(domain::now()) {
+        match self.tracker.borrow_mut().end_tracking(domain::now()) {
             Ok(true) => ui.set_page(Page::Note),
             Ok(false) => {}
             Err(error) => self.set_status(&ui, format!("Could not save data: {error}")),
@@ -86,11 +86,11 @@ impl UiController {
         self.refresh(&ui);
     }
 
-    fn save_note(&self, note: SharedString) {
+    fn save_task_note(&self, note: SharedString) {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        let result = self.tracker.borrow_mut().save_note(note.to_string());
+        let result = self.tracker.borrow_mut().save_task_note(note.to_string());
         if let Err(error) = result {
             self.set_status(&ui, format!("Could not save data: {error}"));
         }
@@ -108,11 +108,11 @@ impl UiController {
         self.refresh(&ui);
     }
 
-    fn open_add_task(&self) {
+    fn open_add_project(&self) {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        let dialog = self.tracker.borrow_mut().begin_add_task();
+        let dialog = self.tracker.borrow_mut().begin_add_project();
         self.show_project_dialog(&ui, dialog);
     }
 
@@ -120,7 +120,10 @@ impl UiController {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        let dialog = self.tracker.borrow_mut().begin_rename_task(id.to_string());
+        let dialog = self
+            .tracker
+            .borrow_mut()
+            .begin_rename_project(id.to_string());
         self.show_project_dialog(&ui, dialog);
     }
 
@@ -131,10 +134,10 @@ impl UiController {
         let result = self
             .tracker
             .borrow_mut()
-            .save_task(name.as_str(), domain::now());
+            .save_project(name.as_str(), domain::now());
         match result {
             Ok(()) => {
-                self.dismiss_task_dialog(&ui);
+                self.dismiss_project_dialog(&ui);
                 self.refresh(&ui);
             }
             Err(error) => self.set_status(&ui, error.to_string()),
@@ -145,8 +148,8 @@ impl UiController {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        self.tracker.borrow_mut().cancel_task_dialog();
-        self.dismiss_task_dialog(&ui);
+        self.tracker.borrow_mut().cancel_project_dialog();
+        self.dismiss_project_dialog(&ui);
     }
 
     fn export_markdown(&self) {
@@ -189,7 +192,7 @@ impl UiController {
         });
     }
 
-    fn dismiss_task_dialog(&self, ui: &AppWindow) {
+    fn dismiss_project_dialog(&self, ui: &AppWindow) {
         ui.set_project_dialog(ProjectDialogState {
             open: false,
             rename_mode: false,
@@ -199,23 +202,23 @@ impl UiController {
 }
 
 fn bind_callbacks(ui: &AppWindow, controller: &UiController) {
-    let start_task = controller.clone();
-    ui.on_start_task(move |id| start_task.start_task(id));
+    let start_tracking = controller.clone();
+    ui.on_start_tracking(move |project_id| start_tracking.start_tracking(project_id));
 
-    let open_last_session = controller.clone();
-    ui.on_open_last_session(move || open_last_session.open_last_session());
+    let open_last_task = controller.clone();
+    ui.on_open_last_task(move || open_last_task.open_last_task());
 
-    let end_task = controller.clone();
-    ui.on_end_task(move || end_task.end_task());
+    let end_tracking = controller.clone();
+    ui.on_end_tracking(move || end_tracking.end_tracking());
 
-    let save_note = controller.clone();
-    ui.on_save_note(move |note| save_note.save_note(note));
+    let save_task_note = controller.clone();
+    ui.on_save_task_note(move |note| save_task_note.save_task_note(note));
 
     let choose_range = controller.clone();
     ui.on_choose_range(move |range| choose_range.choose_range(range));
 
-    let open_add_task = controller.clone();
-    ui.on_open_add_task(move || open_add_task.open_add_task());
+    let open_add_project = controller.clone();
+    ui.on_open_add_project(move || open_add_project.open_add_project());
 
     let open_rename_project = controller.clone();
     ui.on_open_rename_project(move |id| open_rename_project.open_rename_project(id));
@@ -223,8 +226,8 @@ fn bind_callbacks(ui: &AppWindow, controller: &UiController) {
     let save_project = controller.clone();
     ui.on_save_project(move |name| save_project.save_project(name));
 
-    let close_task_dialog = controller.clone();
-    ui.on_close_project_dialog(move || close_task_dialog.close_project_dialog());
+    let close_project_dialog = controller.clone();
+    ui.on_close_project_dialog(move || close_project_dialog.close_project_dialog());
 
     let export_markdown = controller.clone();
     ui.on_export_markdown(move || export_markdown.export_markdown());

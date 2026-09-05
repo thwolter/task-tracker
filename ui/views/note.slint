@@ -33,7 +33,7 @@ component NoteEditor inherits Rectangle {
 }
 
 export component NoteView inherits Rectangle {
-    in property <string> last-session;
+    in property <string> last-task;
     property <string> note-draft: "";
 
     callback save-note(string);
@@ -59,7 +59,7 @@ export component NoteView inherits Rectangle {
 		        }
 
 		        BodyText {
-		            text: root.last-session;
+                    text: root.last-task;
 		            color: Theme.palette.accent;
 		        }
 			}

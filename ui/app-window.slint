@@ -29,15 +29,15 @@ export component AppWindow inherits Window {
     in property <ProjectDialogState> project-dialog;
     in property <string> status: "";
 
-    callback start-task(string);
+    callback start-tracking(string);
     callback open-settings();
-    callback open-last-session();
-    callback end-task();
-    callback save-note(string);
+    callback open-last-task();
+    callback end-tracking();
+    callback save-task-note(string);
     callback skip-note();
     callback open-evaluation();
     callback choose-range(Range);
-    callback open-add-task();
+    callback open-add-project();
     callback open-rename-project(string);
     callback save-project(string);
     callback archive-project(string);
@@ -53,23 +53,23 @@ export component AppWindow inherits Window {
 
     if root.page == Page.home: HomeView {
         state: root.home;
-        start-task(id) => { root.start-task(id); }
+        start-tracking(project-id) => { root.start-tracking(project-id); }
         open-settings => { root.open-settings(); }
         open-evaluation => { root.open-evaluation(); }
-        open-last-session => { root.open-last-session(); }
+        open-last-task => { root.open-last-task(); }
     }
     if root.page == Page.tracking: TrackingView {
         state: root.tracking;
-        end-task => { root.end-task(); }
+        end-tracking => { root.end-tracking(); }
     }
     if root.page == Page.note: NoteView {
-        last-session: root.home.last-session;
-        save-note(note) => { root.save-note(note); }
+        last-task: root.home.last-task;
+        save-note(note) => { root.save-task-note(note); }
         skip => { root.skip-note(); }
     }
     if root.page == Page.settings: SettingsView {
-        tasks: root.home.tasks;
-        open-add-task => { root.open-add-task(); }
+        projects: root.home.projects;
+        open-add-project => { root.open-add-project(); }
         open-rename-project(id) => { root.open-rename-project(id); }
         open-home-view => { root.open-home-view(); }
     }

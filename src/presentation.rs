@@ -1,5 +1,5 @@
 use crate::{
-    EvaluationState, HomeState, Range, SessionItem, TaskItem, TrackingState,
+    EvaluationState, HomeState, ProjectItem, Range, TaskItem, TrackingState,
     application::Tracker,
     domain::{self, Range as DomainRange},
 };
@@ -7,59 +7,59 @@ use chrono::{Local, TimeZone};
 use slint::{ModelRc, SharedString, VecModel};
 
 pub(crate) fn home(tracker: &Tracker) -> HomeState {
-    let tasks = ModelRc::new(VecModel::from(
+    let projects = ModelRc::new(VecModel::from(
         tracker
             .data()
-            .tasks()
+            .projects()
             .iter()
-            .map(|task| TaskItem {
-                id: task.id().into(),
-                title: task.title().into(),
+            .map(|project| ProjectItem {
+                id: project.id().as_str().into(),
+                name: project.name().into(),
                 completed: false,
             })
             .collect::<Vec<_>>(),
     ));
-    let last_session = tracker
+    let last_task = tracker
         .data()
-        .sessions()
+        .tasks()
         .last()
-        .map(|session| {
+        .map(|task| {
             format!(
                 "{}  ·  {}",
-                tracker.data().task_name(session.task_id()),
-                domain::duration(session.ended() - session.started())
+                tracker.data().project_name(task.project_id()),
+                domain::duration(task.ended() - task.started())
             )
         })
         .unwrap_or_else(|| "No completed sessions yet".into())
         .into();
     HomeState {
-        tasks,
-        last_session,
+        projects,
+        last_task,
     }
 }
 
 pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64) -> EvaluationState {
     let matching: Vec<_> = tracker
         .data()
-        .sessions()
+        .tasks()
         .iter()
-        .filter(|session| domain::in_range(session, tracker.range(), timestamp))
+        .filter(|task| domain::in_range(task, tracker.range(), timestamp))
         .collect();
     let total: i64 = matching
         .iter()
-        .map(|session| session.ended() - session.started())
+        .map(|task| task.ended() - task.started())
         .sum();
-    let sessions = ModelRc::new(VecModel::from(
+    let tasks = ModelRc::new(VecModel::from(
         matching
             .iter()
             .rev()
             .take(3)
-            .map(|session| SessionItem {
-                task: tracker.data().task_name(session.task_id()).into(),
-                note: session.note().into(),
-                duration: domain::duration(session.ended() - session.started()).into(),
+            .map(|task| TaskItem {
+                project: tracker.data().project_name(task.project_id()).into(),
+                note: task.note().into(),
+                duration: domain::duration(task.ended() - task.started()).into(),
                 timestamp: Local
-                    .timestamp_opt(session.ended(), 0)
+                    .timestamp_opt(task.ended(), 0)
                     .single()
                     .unwrap_or_else(Local::now)
                     .format("%b %-d, %H:%M")
@@ -69,20 +69,20 @@ pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64) -> EvaluationState {
             .collect::<Vec<_>>(),
     ));
     EvaluationState {
-        sessions,
+        tasks,
         total: format!("{}  {}", tracker.range().name(), domain::duration(total)).into(),
         range: slint_range(tracker.range()),
     }
 }
 
 pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
-    let (active_task, elapsed) = tracker.data().active().map_or_else(
+    let (active_task, elapsed) = tracker.data().active_task().map_or_else(
         || (SharedString::new(), SharedString::from("00:00")),
         |active| {
             (
                 tracker
                     .data()
-                    .task_name(active.task_id())
+                    .project_name(active.project_id())
                     .to_uppercase()
                     .into(),
                 format_elapsed(timestamp - active.started()).into(),
@@ -137,13 +137,13 @@ mod tests {
             domain::now()
         ));
         let mut tracker = Tracker::at(path.clone());
-        assert_eq!(home(&tracker).last_session, "No completed sessions yet");
+        assert_eq!(home(&tracker).last_task, "No completed sessions yet");
         assert_eq!(tracking(&tracker, 0).elapsed, "00:00");
 
-        tracker.start_task("task-1".into(), 10).unwrap();
+        tracker.start_tracking("project-1".into(), 10).unwrap();
         assert_eq!(tracking(&tracker, 70).elapsed, "01:00");
-        tracker.end_task(130).unwrap();
-        assert_eq!(evaluation(&tracker, 130).sessions.row_count(), 1);
+        tracker.end_tracking(130).unwrap();
+        assert_eq!(evaluation(&tracker, 130).tasks.row_count(), 1);
         std::fs::remove_file(path).unwrap();
     }
 }

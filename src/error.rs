@@ -2,8 +2,8 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum TrackerError {
-    #[error("Task name cannot be empty")]
-    EmptyTaskName,
+    #[error("Project name cannot be empty")]
+    EmptyProjectName,
 
     #[error(transparent)]
     Json(#[from] serde_json::Error),
