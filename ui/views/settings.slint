@@ -3,46 +3,30 @@ import { AppButton } from "../components/app-button.slint";
 import { SettingsTaskRow } from "../components/settings-task-row.slint";
 import { TaskItem } from "../models.slint";
 import { Theme } from "../theme.slint";
+import { BackLink } from "../components/back-link.slint";
 
 export component SettingsView inherits Rectangle {
     in property <[TaskItem]> tasks;
 
     callback open-evaluation();
     callback open-add-task();
-    callback open-rename-task(string);
+    callback open-rename-project(string);
     callback open-home-view();
 
     VerticalLayout {
         padding: 20px;
         spacing: 20px;
 
-		HorizontalLayout {
-		    Text {
-		        text: "Tasks";
-		        color: Theme.palette.text;
-		        font-size: Theme.typography.display.size;
-		        font-weight: Theme.typography.display.weight;
-		        vertical-stretch: 0;
-		    }
-		    Text {
-		        text: "Home";
-		        horizontal-alignment: right;
-		        vertical-alignment: center;
-		        
-		        TouchArea {
-		            mouse-cursor: pointer;
-		            clicked => { open-home-view(); }
-		        }
-		    }
+		BackLink {
+	        clicked => { open-home-view(); }
 	    }
 
 	    Text {
-	        text: "YOUR TASKS";
-	        color: Theme.palette.accent;
-	        font-size: Theme.typography.small-label.size;
-	        font-weight: Theme.typography.small-label.weight;
+	        text: "Projects";
+	        color: Theme.palette.text;
+	        font-size: Theme.typography.display.size;
+	        font-weight: Theme.typography.display.weight;
 	        vertical-stretch: 0;
-	        vertical-alignment: top;
 	    }
 
 	    task-list := ScrollView {
@@ -58,7 +42,7 @@ export component SettingsView inherits Rectangle {
 
 	            for task in root.tasks: SettingsTaskRow {
 	                task: task;
-	                clicked(id) => { open-rename-task(id)}
+	                clicked(id) => { open-rename-project(id)}
 	            }
 	        }
 	    }
@@ -71,14 +55,16 @@ export component SettingsView inherits Rectangle {
 		    AppButton {
 		        width: 104px;
 		        height: 40px;
-		        label: "+  Add task";
+		        label: "Add task";
+		        prefix-icon: @image-url("../assets/icons/add.svg");
 		        primary: false;
 		        clicked => { root.open-add-task(); }
 		    }
 		    AppButton {
 		        height: 40px;
 		        horizontal-stretch: 1;
-		        label: "Evaluation  ›";
+		        label: "Evaluation";
+		        suffix-icon: @image-url("../assets/icons/chevron-right.svg");
 		        primary: true;
 		        clicked => { root.open-evaluation(); }
 		    }

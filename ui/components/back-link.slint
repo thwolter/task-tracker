@@ -1,0 +1,28 @@
+import { Theme } from "../theme.slint";
+
+export component BackLink inherits TouchArea {
+	in property <string> text: @tr("Back");
+	in property <image> prefix-icon: @image-url("../assets/icons/chevron-left.svg");
+
+	private property <length> icon-width: Theme.typography.label.size + 2px;
+
+	mouse-cursor: pointer;
+
+	HorizontalLayout {
+		cross-axis-alignment: center;
+		spacing: 2px;
+
+		Image {
+	        source: root.prefix-icon;
+	        width: icon-width;
+	        height: icon-width;
+	        colorize: Theme.palette.accent;
+	    }
+
+	    Text {
+	        text: root.text;
+	        color: Theme.palette.accent;
+	        font-size: Theme.typography.label.size;
+	    }
+    }
+}

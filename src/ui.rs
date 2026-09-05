@@ -1,6 +1,6 @@
 use crate::{
-    AppWindow, Page, TaskDialogState,
-    application::{SharedTracker, TaskDialog},
+    AppWindow, Page, ProjectDialogState,
+    application::{SharedTracker, ProjectDialog},
     domain, persistence, presentation,
 };
 use rfd::FileDialog;
@@ -125,15 +125,15 @@ impl UiController {
             return;
         };
         let dialog = self.tracker.borrow_mut().begin_add_task();
-        self.show_task_dialog(&ui, dialog);
+        self.show_project_dialog(&ui, dialog);
     }
 
-    fn open_rename_task(&self, id: SharedString) {
+    fn open_rename_project(&self, id: SharedString) {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
         let dialog = self.tracker.borrow_mut().begin_rename_task(id.to_string());
-        self.show_task_dialog(&ui, dialog);
+        self.show_project_dialog(&ui, dialog);
     }
 
     fn save_task(&self, name: SharedString) {
@@ -153,7 +153,7 @@ impl UiController {
         }
     }
 
-    fn close_task_dialog(&self) {
+    fn close_project_dialog(&self) {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
@@ -193,8 +193,8 @@ impl UiController {
         ui.set_status(message.into());
     }
 
-    fn show_task_dialog(&self, ui: &AppWindow, dialog: TaskDialog) {
-        ui.set_task_dialog(TaskDialogState {
+    fn show_project_dialog(&self, ui: &AppWindow, dialog: ProjectDialog) {
+        ui.set_project_dialog(ProjectDialogState {
             open: true,
             rename_mode: dialog.rename_mode,
             initial_draft: dialog.initial_draft.into(),
@@ -202,7 +202,7 @@ impl UiController {
     }
 
     fn dismiss_task_dialog(&self, ui: &AppWindow) {
-        ui.set_task_dialog(TaskDialogState {
+        ui.set_project_dialog(ProjectDialogState {
             open: false,
             rename_mode: false,
             initial_draft: SharedString::new(),
@@ -232,14 +232,14 @@ fn bind_callbacks(ui: &AppWindow, controller: &UiController) {
     let open_add_task = controller.clone();
     ui.on_open_add_task(move || open_add_task.open_add_task());
 
-    let open_rename_task = controller.clone();
-    ui.on_open_rename_task(move |id| open_rename_task.open_rename_task(id));
+    let open_rename_project = controller.clone();
+    ui.on_open_rename_project(move |id| open_rename_project.open_rename_project(id));
 
     let save_task = controller.clone();
     ui.on_save_task(move |name| save_task.save_task(name));
 
     let close_task_dialog = controller.clone();
-    ui.on_close_task_dialog(move || close_task_dialog.close_task_dialog());
+    ui.on_close_project_dialog(move || close_task_dialog.close_project_dialog());
 
     let export_markdown = controller.clone();
     ui.on_export_markdown(move || export_markdown.export_markdown());

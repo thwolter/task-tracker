@@ -76,17 +76,17 @@ impl Tracker {
     pub(crate) fn choose_range(&mut self, range: Range) {
         self.range = range;
     }
-    pub(crate) fn begin_add_task(&mut self) -> TaskDialog {
+    pub(crate) fn begin_add_task(&mut self) -> ProjectDialog {
         self.editing_id = None;
-        TaskDialog {
+        ProjectDialog {
             rename_mode: false,
             initial_draft: String::new(),
         }
     }
-    pub(crate) fn begin_rename_task(&mut self, id: String) -> TaskDialog {
+    pub(crate) fn begin_rename_task(&mut self, id: String) -> ProjectDialog {
         let initial_draft = self.data.task_title(&id).unwrap_or_default().to_owned();
         self.editing_id = Some(id);
-        TaskDialog {
+        ProjectDialog {
             rename_mode: true,
             initial_draft,
         }
@@ -108,7 +108,7 @@ impl Tracker {
         domain::markdown(&self.data, self.range, timestamp)
     }
 }
-pub(crate) struct TaskDialog {
+pub(crate) struct ProjectDialog {
     pub(crate) rename_mode: bool,
     pub(crate) initial_draft: String,
 }

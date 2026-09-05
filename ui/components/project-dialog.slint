@@ -2,7 +2,7 @@ import { LineEdit } from "std-widgets.slint";
 import { AppButton } from "app-button.slint";
 import { Theme } from "../theme.slint";
 
-export component TaskDialog inherits Rectangle {
+export component ProjectDialog inherits Rectangle {
     in property <bool> rename-mode;
     in property <string> initial-draft;
 
@@ -66,8 +66,9 @@ export component TaskDialog inherits Rectangle {
                 y: 112px;
                 width: 92px;
                 height: 38px;
-                label: "Cancel";
-                primary: false;
+                label: "Archive";
+                primary: true;
+                background: Theme.palette.danger;
                 clicked => { root.close(); }
             }
 
