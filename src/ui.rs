@@ -156,7 +156,8 @@ impl UiController {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        match self.tracker.borrow_mut().archive_project(id.to_string()) {
+        let result = self.tracker.borrow_mut().archive_project(id.to_string());
+        match result {
             Ok(()) => {
                 self.dismiss_project_dialog(&ui);
                 self.refresh(&ui);
@@ -169,7 +170,8 @@ impl UiController {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        match self.tracker.borrow_mut().unarchive_project(id.to_string()) {
+        let result = self.tracker.borrow_mut().unarchive_project(id.to_string());
+        match result {
             Ok(()) => {
                 self.dismiss_project_dialog(&ui);
                 self.refresh(&ui);
@@ -312,6 +314,33 @@ mod tests {
 
         ui.invoke_close_project_dialog();
         assert_eq!(ui.get_page(), Page::Settings);
+
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn unarchive_project_callback_restores_project_to_home() {
+        i_slint_backend_testing::init_no_event_loop();
+        let path = std::env::temp_dir().join(format!(
+            "tempo-ui-unarchive-test-{}-{}.json",
+            std::process::id(),
+            crate::domain::now()
+        ));
+        let ui = AppWindow::new().unwrap();
+        let tracker = Rc::new(RefCell::new(Tracker::at(path.clone())));
+        let _timer = bind(&ui, tracker.clone());
+
+        ui.invoke_open_rename_project("project-1".into());
+        ui.invoke_archive_project("project-1".into());
+        assert!(tracker.borrow().data().projects()[0].archived());
+
+        ui.invoke_open_rename_project("project-1".into());
+        assert!(ui.get_project_dialog().archived);
+
+        ui.invoke_unarchive_project("project-1".into());
+
+        assert_eq!(ui.get_page(), Page::Settings);
+        assert!(!tracker.borrow().data().projects()[0].archived());
 
         std::fs::remove_file(path).unwrap();
     }

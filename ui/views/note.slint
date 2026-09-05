@@ -41,7 +41,7 @@ export component NoteView inherits Rectangle {
 
     VerticalLayout {
         padding: 20px;
-        spacing: 50px;
+        spacing: 30px;
 
 		VerticalLayout {
 			spacing: 20px;
@@ -77,7 +77,10 @@ export component NoteView inherits Rectangle {
 	        }
         }
 
-        Rectangle {}
+        Rectangle {
+            min-height: 0px;
+            horizontal-stretch: 1;
+        }
 
 		VerticalLayout {
 			spacing: 10px;

@@ -2,7 +2,7 @@ import { LineEdit } from "std-widgets.slint";
 import { AppButton } from "../components/app-button.slint";
 import { BackLink } from "../components/back-link.slint";
 import { Theme } from "../theme.slint";
-import { BodyText, TitleText } from "../components/typography.slint";
+import { BodyText, TitleText, TextLink } from "../components/typography.slint";
 
 component ProjectSettingBox inherits VerticalLayout {
     in-out property <string> project;
@@ -109,13 +109,16 @@ component UnarchiveBox inherits VerticalLayout {
         vertical-alignment: center;
     }
 
-    TouchArea {
-        width: 100%;
-        mouse-cursor: pointer;
+    AppButton {
+        width: 180%;
+        label: "Unarchive project";
         clicked => { root.clicked(); }
-        AppButton {
-            label: "Unarchive project";
-        }
+    }
+
+    TextLink {
+		text: "Delete finally";
+		color: Theme.palette.danger;
+		horizontal-alignment: center;
     }
 
     Rectangle {}
