@@ -73,16 +73,12 @@ export component AppWindow inherits Window {
         open-home-view => { root.open-home-view(); }
     }
     if root.page == Page.evaluation: EvaluationView {
-        y: 48px;
-        height: parent.height - self.y;
-        width: parent.width;
         state: root.evaluation;
+        open-settings => { root.open-settings(); }
         choose-range(value) => { root.choose-range(value); }
         export-markdown => { root.export-markdown(); }
     }
     if root.project-dialog.open: ProjectDialog {
-        width: parent.width;
-        height: parent.height;
         rename-mode: root.project-dialog.rename-mode;
         initial-draft: root.project-dialog.initial-draft;
         close => { root.close-project-dialog(); }

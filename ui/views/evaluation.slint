@@ -1,59 +1,88 @@
-import { HorizontalBox, VerticalBox } from "std-widgets.slint";
+import { HorizontalBox, VerticalBox, ScrollView } from "std-widgets.slint";
 import { AppButton } from "../components/app-button.slint";
-import { EvaluationSummary } from "../components/evaluation-summary.slint";
 import { RangeOption } from "../components/range-option.slint";
 import { SessionCard } from "../components/session-card.slint";
-import { TitleText } from "../components/typography.slint";
+import { TitleText, ViewHeader } from "../components/typography.slint";
 import { EvaluationState, Range } from "../models.slint";
 import { Theme } from "../theme.slint";
+import { BackLink } from "../components/back-link.slint";
+
+component EvaluationSummary inherits Rectangle {
+    in property <string> total;
+
+    height: 40px;
+    border-radius: Theme.border.radius;
+    background: Theme.palette.accent-surface;
+
+    Text {
+        x: 10px;
+        text: root.total;
+        color: Theme.palette.text;
+        font-size: Theme.typography.supporting.size;
+        font-weight: Theme.typography.supporting.weight;
+        vertical-alignment: center;
+    }
+}
 
 export component EvaluationView inherits Rectangle {
     in property <EvaluationState> state;
+
+    callback open-settings();
     callback choose-range(Range);
     callback export-markdown();
-    TitleText {
-        y: 23px;
-        text: "Evaluation";
-    }
 
-    HorizontalBox {
-        x: 24px;
-        y: 59px;
-        spacing: 6px;
-        for option in [
-            { label: "Day", value: Range.day },
-            { label: "Week", value: Range.week },
-            { label: "Month", value: Range.month },
-            { label: "Year", value: Range.year }
-        ]: RangeOption {
-            label: option.label;
-            value: option.value;
-            selected: root.state.range == option.value;
-            clicked(value) => { root.choose-range(value); }
-        }
-    }
+	VerticalLayout {
+		padding: 20px;
+		spacing: 20px;
 
-    EvaluationSummary {
-        total: root.state.total;
-    }
+		BackLink {
+			text: "Settings";
+			clicked => { root.open-settings(); }
+		}
 
-    VerticalBox {
-        x: 24px;
-        y: 159px;
-        width: 232px;
-        spacing: 6px;
-        for entry in root.state.sessions: SessionCard {
-            entry: entry;
-        }
-    }
+	    ViewHeader {
+	        text: "Evaluation";
+	    }
 
-    AppButton {
-        x: 24px;
-        y: 345px;
-        width: 232px;
-        height: 44px;
-        label: "Export Markdown";
-        primary: true;
-        clicked => { root.export-markdown(); }
+	    HorizontalLayout {
+	        spacing: 6px;
+	        for option in [
+	            { label: "Day", value: Range.day },
+	            { label: "Week", value: Range.week },
+	            { label: "Month", value: Range.month },
+	            { label: "Year", value: Range.year }
+	        ]: RangeOption {
+	            label: option.label;
+	            value: option.value;
+	            selected: root.state.range == option.value;
+	            clicked(value) => { root.choose-range(value); }
+	        }
+	    }
+
+	    EvaluationSummary {
+	        total: root.state.total;
+	        vertical-stretch: 0;
+	    }
+
+		ScrollView {
+			vertical-stretch: 1;
+			horizontal-scrollbar-policy: always-off;
+
+			private property <bool> has-scrollbar: self.viewport-height > self.visible-height;
+
+			VerticalLayout {
+		        spacing: 6px;
+		        for entry in root.state.sessions: SessionCard {
+		            entry: entry;
+		        }
+		    }
+		}
+
+
+	    AppButton {
+	        label: "Export Markdown";
+	        primary: true;
+	        clicked => { root.export-markdown(); }
+	    }
     }
 }

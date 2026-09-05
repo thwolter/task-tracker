@@ -1,6 +1,0 @@
-import { Theme } from "../theme.slint";
-
-export component EvaluationSummary inherits Rectangle {
-    in property <string> total; x: 24px; y: 101px; width: 232px; height: 42px; border-radius: 14px; background: Theme.palette.accent-surface;
-    Text { x: 18px; text: root.total; color: Theme.palette.text; font-size: Theme.typography.label.size; font-weight: Theme.typography.body-strong.weight; vertical-alignment: center; }
-}
