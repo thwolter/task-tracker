@@ -4784,6 +4784,7 @@ name = "task-tracker"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "i-slint-backend-testing",
  "rfd",
  "serde",
  "serde_json",

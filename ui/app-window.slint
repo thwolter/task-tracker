@@ -21,7 +21,7 @@ export component AppWindow inherits Window {
     height: 460px;
     background: Theme.palette.window-background;
 
-    in property <Page> page: Page.home;
+    in-out property <Page> page: Page.home;
     in property <HomeState> home;
     in property <TrackingState> tracking;
     in property <EvaluationState> evaluation;
@@ -40,10 +40,12 @@ export component AppWindow inherits Window {
     callback open-rename-task(string);
     callback save-task(string);
     callback close-task-dialog();
-    callback choose-data-file();
-    callback new-data-file();
-    callback delete-data-file();
+    callback open-home-view();
     callback export-markdown();
+
+    open-settings => { root.page = Page.settings; }
+    open-evaluation => { root.page = Page.evaluation; }
+    open-home-view => { root.page = Page.home; }
 
     if root.page == Page.home: HomeView {
         state: root.home;
@@ -65,9 +67,7 @@ export component AppWindow inherits Window {
         open-evaluation => { root.open-evaluation(); }
         open-add-task => { root.open-add-task(); }
         open-rename-task(id) => { root.open-rename-task(id); }
-        choose-data-file => { root.choose-data-file(); }
-        new-data-file => { root.new-data-file(); }
-        delete-data-file => { root.delete-data-file(); }
+        open-home-view => { root.open-home-view(); }
     }
     if root.page == Page.evaluation: EvaluationView {
         y: 48px;

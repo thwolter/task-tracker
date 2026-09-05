@@ -1,10 +1,6 @@
 export enum Page { home, tracking, note, settings, evaluation }
 export enum Range { day, week, month, year }
 
-export global AppState {
-    in property <Page> active-page: Page.home;
-}
-
 export struct TaskItem {
     id: string,
     title: string,
@@ -38,9 +34,4 @@ export struct TaskDialogState {
     open: bool,
     rename-mode: bool,
     initial-draft: string,
-}
-
-export struct ProjectItem {
-    id: string,
-    name: string,
 }
