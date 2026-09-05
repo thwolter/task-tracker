@@ -1,5 +1,5 @@
 use crate::{
-    AppWindow, Page, ProjectDialogState,
+    AppWindow, Page, ProjectDialogState, Status, StatusKind,
     application::{ProjectDialog, SharedTracker},
     domain, persistence, presentation,
 };
@@ -45,7 +45,7 @@ impl UiController {
         };
         let result = self.tracker.borrow_mut().tick(domain::now());
         if let Err(error) = result {
-            self.set_status(&ui, format!("Could not save data: {error}"));
+            self.set_error(&ui, format!("Could not save data: {error}"));
         }
         self.refresh(&ui);
     }
@@ -59,7 +59,7 @@ impl UiController {
             .borrow_mut()
             .start_tracking(project_id.to_string(), domain::now());
         if let Err(error) = result {
-            self.set_status(&ui, format!("Could not save data: {error}"));
+            self.set_error(&ui, format!("Could not save data: {error}"));
         }
         ui.set_page(Page::Tracking);
         self.refresh(&ui);
@@ -81,7 +81,7 @@ impl UiController {
         match self.tracker.borrow_mut().end_tracking(domain::now()) {
             Ok(true) => ui.set_page(Page::Note),
             Ok(false) => {}
-            Err(error) => self.set_status(&ui, format!("Could not save data: {error}")),
+            Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
         }
         self.refresh(&ui);
     }
@@ -92,7 +92,7 @@ impl UiController {
         };
         let result = self.tracker.borrow_mut().save_task_note(note.to_string());
         if let Err(error) = result {
-            self.set_status(&ui, format!("Could not save data: {error}"));
+            self.set_error(&ui, format!("Could not save data: {error}"));
         }
         ui.set_page(Page::Home);
         self.refresh(&ui);
@@ -140,7 +140,7 @@ impl UiController {
                 self.dismiss_project_dialog(&ui);
                 self.refresh(&ui);
             }
-            Err(error) => self.set_status(&ui, error.to_string()),
+            Err(error) => self.set_error(&ui, error.to_string()),
         }
     }
 
@@ -165,8 +165,8 @@ impl UiController {
         };
         let report = self.tracker.borrow().report(domain::now());
         match persistence::export_markdown(&path, &report) {
-            Ok(()) => self.set_status(&ui, "Markdown exported"),
-            Err(error) => self.set_status(&ui, format!("Export failed: {error}")),
+            Ok(()) => self.set_success(&ui, "Markdown exported"),
+            Err(error) => self.set_error(&ui, format!("Export failed: {error}")),
         }
     }
 
@@ -176,12 +176,23 @@ impl UiController {
 
     fn persist_initial(&self, ui: &AppWindow) {
         if let Err(error) = self.tracker.borrow().save() {
-            self.set_status(ui, format!("Could not save data: {error}"));
+            self.set_error(ui, format!("Could not save data: {error}"));
         }
     }
 
-    fn set_status(&self, ui: &AppWindow, message: impl Into<SharedString>) {
-        ui.set_status(message.into());
+    fn set_success(&self, ui: &AppWindow, message: impl Into<SharedString>) {
+        self.set_status(ui, message, StatusKind::Success);
+    }
+
+    fn set_error(&self, ui: &AppWindow, message: impl Into<SharedString>) {
+        self.set_status(ui, message, StatusKind::Error);
+    }
+
+    fn set_status(&self, ui: &AppWindow, message: impl Into<SharedString>, kind: StatusKind) {
+        ui.set_status(Status {
+            message: message.into(),
+            kind,
+        });
     }
 
     fn show_project_dialog(&self, ui: &AppWindow, dialog: ProjectDialog) {

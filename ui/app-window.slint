@@ -4,6 +4,8 @@ import {
     Page,
     Range,
     ProjectDialogState,
+    Status,
+    StatusKind,
     TrackingState,
 } from "models.slint";
 import { ProjectDialog } from "components/project-dialog.slint";
@@ -27,7 +29,7 @@ export component AppWindow inherits Window {
     in property <TrackingState> tracking;
     in property <EvaluationState> evaluation;
     in property <ProjectDialogState> project-dialog;
-    in property <string> status: "";
+    in property <Status> status: { message: "", kind: StatusKind.success };
 
     callback start-tracking(string);
     callback open-settings();
@@ -51,45 +53,63 @@ export component AppWindow inherits Window {
     close-project-dialog => { root.page = Page.settings; }
     skip-note => { root.page = Page.home; }
 
-    if root.page == Page.home: HomeView {
-        state: root.home;
-        start-tracking(project-id) => { root.start-tracking(project-id); }
-        open-settings => { root.open-settings(); }
-        open-evaluation => { root.open-evaluation(); }
-        open-last-task => { root.open-last-task(); }
-    }
-    if root.page == Page.tracking: TrackingView {
-        state: root.tracking;
-        end-tracking => { root.end-tracking(); }
-    }
-    if root.page == Page.note: NoteView {
-        last-task: root.home.last-task;
-        save-note(note) => { root.save-task-note(note); }
-        skip => { root.skip-note(); }
-    }
-    if root.page == Page.settings: SettingsView {
-        projects: root.home.projects;
-        open-add-project => { root.open-add-project(); }
-        open-rename-project(id) => { root.open-rename-project(id); }
-        open-home-view => { root.open-home-view(); }
-    }
-    if root.page == Page.evaluation: EvaluationView {
-        state: root.evaluation;
-        open-home-view => { root.open-home-view(); }
-        choose-range(value) => { root.choose-range(value); }
-        export-markdown => { root.export-markdown(); }
-    }
-    if root.project-dialog.open: ProjectDialog {
-        rename-mode: root.project-dialog.rename-mode;
-        initial-draft: root.project-dialog.initial-draft;
-        close => { root.close-project-dialog(); }
-        save(project) => { root.save-project(project); }
-        archive(project) => { root.archive-project(project); }
-    }
+    VerticalLayout {
+        spacing: 0px;
 
-    StatusText {
-        host-height: parent.height;
-        host-width: parent.width;
-        status: root.status;
+        content := Rectangle {
+            vertical-stretch: 1;
+
+            if root.project-dialog.open: ProjectDialog {
+                width: 100%;
+                height: 100%;
+                rename-mode: root.project-dialog.rename-mode;
+                initial-draft: root.project-dialog.initial-draft;
+                close => { root.close-project-dialog(); }
+                save(project) => { root.save-project(project); }
+                archive(project) => { root.archive-project(project); }
+            }
+            if !root.project-dialog.open && root.page == Page.home: HomeView {
+                width: 100%;
+                height: 100%;
+                state: root.home;
+                start-tracking(project-id) => { root.start-tracking(project-id); }
+                open-settings => { root.open-settings(); }
+                open-evaluation => { root.open-evaluation(); }
+                open-last-task => { root.open-last-task(); }
+            }
+            if !root.project-dialog.open && root.page == Page.tracking: TrackingView {
+                width: 100%;
+                height: 100%;
+                state: root.tracking;
+                end-tracking => { root.end-tracking(); }
+            }
+            if !root.project-dialog.open && root.page == Page.note: NoteView {
+                width: 100%;
+                height: 100%;
+                last-task: root.home.last-task;
+                save-note(note) => { root.save-task-note(note); }
+                skip => { root.skip-note(); }
+            }
+            if !root.project-dialog.open && root.page == Page.settings: SettingsView {
+                width: 100%;
+                height: 100%;
+                projects: root.home.projects;
+                open-add-project => { root.open-add-project(); }
+                open-rename-project(id) => { root.open-rename-project(id); }
+                open-home-view => { root.open-home-view(); }
+            }
+            if !root.project-dialog.open && root.page == Page.evaluation: EvaluationView {
+                width: 100%;
+                height: 100%;
+                state: root.evaluation;
+                open-home-view => { root.open-home-view(); }
+                choose-range(value) => { root.choose-range(value); }
+                export-markdown => { root.export-markdown(); }
+            }
+        }
+
+		if root.status.message != "": StatusText {
+            status: root.status;
+        }
     }
 }

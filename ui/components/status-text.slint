@@ -1,15 +1,22 @@
 import { Theme } from "../theme.slint";
+import { Status, StatusKind } from "../models.slint";
 
-export component StatusText inherits Text {
-    in property <length> host-width;
-    in property <length> host-height;
-    in property <string> status;
+export component StatusText inherits Rectangle {
+    in property <Status> status;
 
-    x: 12px;
-    y: root.host-height - 20px;
-    width: root.host-width - 24px;
-    text: root.status;
-    color: Theme.palette.muted-text;
-    font-size: Theme.typography.caption.size;
-    horizontal-alignment: center;
+    height: 12px;
+
+	Text {
+	    width: 100%;
+	    height: 100%;
+	    y: -11px;
+	    text: root.status.message;
+	    color: root.status.kind == StatusKind.error
+	        ? Theme.palette.danger
+	        : Theme.palette.accent;
+	    font-size: Theme.typography.supporting.size;
+	    font-weight: Theme.typography.supporting.weight;
+	    horizontal-alignment: center;
+	    vertical-alignment: top;
+	}
 }

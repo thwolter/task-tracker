@@ -1,5 +1,11 @@
 export enum Page { home, tracking, note, settings, evaluation }
 export enum Range { day, week, month, year }
+export enum StatusKind { success, error }
+
+export struct Status {
+    message: string,
+    kind: StatusKind,
+}
 
 export struct ProjectItem {
     id: string,
