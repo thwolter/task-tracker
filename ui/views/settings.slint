@@ -1,9 +1,10 @@
 import { ScrollView } from "std-widgets.slint";
 import { AppButton } from "../components/app-button.slint";
-import { SettingsTaskRow } from "../components/settings-task-row.slint";
+import { SettingsProjectRow } from "../components/settings-project-row.slint";
 import { TaskItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
+import { ViewTitle } from "../components/view-title.slint";
 
 export component SettingsView inherits Rectangle {
     in property <[TaskItem]> tasks;
@@ -18,29 +19,28 @@ export component SettingsView inherits Rectangle {
         spacing: 20px;
 
 		BackLink {
+			text: "Home";
 	        clicked => { open-home-view(); }
 	    }
 
-	    Text {
-	        text: "Projects";
-	        color: Theme.palette.text;
-	        font-size: Theme.typography.display.size;
-	        font-weight: Theme.typography.display.weight;
-	        vertical-stretch: 0;
+	    ViewTitle {
+	        text: "Project settings";
 	    }
 
 	    task-list := ScrollView {
 	        vertical-stretch: 1;
-	        viewport-width: self.visible-width;
+	        horizontal-scrollbar-policy: always-off;
+
+			private property <bool> has-scrollbar: self.viewport-height > self.visible-height;
 
 	        VerticalLayout {
 	            x: 0px;
 	            cross-axis-alignment: stretch;
 	            spacing: 7px;
-	            width: parent.width - 20px;
+	            width: task-list.width - (task-list.has-scrollbar ? 20px : 0px);
 	            alignment: start;
 
-	            for task in root.tasks: SettingsTaskRow {
+	            for task in root.tasks: SettingsProjectRow {
 	                task: task;
 	                clicked(id) => { open-rename-project(id)}
 	            }

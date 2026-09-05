@@ -18,7 +18,8 @@ import { StatusText } from "components/status-text.slint";
 export component AppWindow inherits Window {
     title: "Tempo";
     width: 280px;
-    height: 460px;
+    preferred-height: 460px;
+    min-height: 400px;
     background: Theme.palette.window-background;
 
     in-out property <Page> page: Page.home;
@@ -38,7 +39,8 @@ export component AppWindow inherits Window {
     callback choose-range(Range);
     callback open-add-task();
     callback open-rename-project(string);
-    callback save-task(string);
+    callback save-project(string);
+    callback archive-project(string);
     callback close-project-dialog();
     callback open-home-view();
     callback export-markdown();
@@ -46,6 +48,7 @@ export component AppWindow inherits Window {
     open-settings => { root.page = Page.settings; }
     open-evaluation => { root.page = Page.evaluation; }
     open-home-view => { root.page = Page.home; }
+    close-project-dialog => { root.page = Page.settings; }
 
     if root.page == Page.home: HomeView {
         state: root.home;
@@ -83,7 +86,8 @@ export component AppWindow inherits Window {
         rename-mode: root.project-dialog.rename-mode;
         initial-draft: root.project-dialog.initial-draft;
         close => { root.close-project-dialog(); }
-        save(task) => { root.save-task(task); }
+        save(project) => { root.save-project(project); }
+        archive(project) => { root.archive-project(project); }
     }
 
     StatusText {

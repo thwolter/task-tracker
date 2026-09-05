@@ -4,35 +4,42 @@ import { HorizontalBox } from "std-widgets.slint";
 export component AppButton inherits Rectangle {
     in property <string> label: "Button";
     in property <bool> primary: true;
+    in property <bool> outlined: false;
     in property <image> suffix-icon;
     in property <image> prefix-icon;
+    in property <color> fill: root.primary ? Theme.palette.accent : Theme.palette.accent-surface;
+    in property <color> label-color: root.primary ? Theme.palette.on-accent : Theme.palette.text;
+    in property <color> outline-color: Theme.palette.border;
+    in property <length> label-font-size: Theme.typography.body-strong.size;
+    in property <float> label-font-weight: Theme.typography.body-strong.weight;
 
-	private property <color> text-color: root.primary ? Theme.palette.on-accent : Theme.palette.text;
 	private property <length> icon-width: Theme.typography.body-strong.size + 2px;
 
     callback clicked();
 
-    height: 48px;
+    height: 40px;
     border-radius: Theme.border.radius;
-    background: primary ? Theme.palette.accent : Theme.palette.accent-surface;
+    border-width: root.outlined ? Theme.border.width : 0px;
+    border-color: root.outline-color;
+    background: root.fill;
 
 	HorizontalBox {
 		alignment: center;
 		cross-axis-alignment: center;
-		spacing: 2px;
+		spacing: 4px;
 
 		if (root.prefix-icon.width > 0): Image {
 	        source: prefix-icon;
 	        width: icon-width;
 	        height: icon-width;
-	        colorize: root.text-color;
+	        colorize: root.label-color;
 	    }
 
 	    Text {
 	        text: root.label;
-	        color: root.text-color;
-	        font-size: Theme.typography.body-strong.size;
-	        font-weight: Theme.typography.body-strong.weight;
+	        color: root.label-color;
+	        font-size: root.label-font-size;
+	        font-weight: root.label-font-weight;
 	        horizontal-alignment: center;
 	        vertical-alignment: center;
 	    }
@@ -41,7 +48,7 @@ export component AppButton inherits Rectangle {
 	        source: suffix-icon;
 	        width: icon-width;
 	        height: icon-width;
-	        colorize: root.text-color;
+	        colorize: root.label-color;
 	    }
     }
     TouchArea {

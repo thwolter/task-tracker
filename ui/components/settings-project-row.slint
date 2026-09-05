@@ -2,7 +2,7 @@ import { TaskItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { HorizontalBox } from "std-widgets.slint";
 
-export component SettingsTaskRow inherits Rectangle {
+export component SettingsProjectRow inherits Rectangle {
     in property <TaskItem> task;
 
     height: 38px;
@@ -19,8 +19,8 @@ export component SettingsTaskRow inherits Rectangle {
 	    Text {
 	        text: root.task.title;
 	        color: Theme.palette.text;
-	        font-size: Theme.typography.body-strong.size;
-	        font-weight: Theme.typography.body-strong.weight;
+	        font-size: Theme.typography.body.size;
+	        font-weight: Theme.typography.body.weight;
 	        vertical-alignment: center;
 	        horizontal-alignment: start;
 	    }
@@ -28,8 +28,8 @@ export component SettingsTaskRow inherits Rectangle {
 	    Text {
 	        text: "Edit";
 	        color: Theme.palette.accent;
-	        font-size: Theme.typography.supporting.size;
-	        font-weight: Theme.typography.supporting.weight;
+	        font-size: Theme.typography.small-label.size;
+	        font-weight: Theme.typography.small-label.weight;
 	        horizontal-alignment: right;
 	        vertical-alignment: center;
 	    }

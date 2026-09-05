@@ -136,7 +136,7 @@ impl UiController {
         self.show_project_dialog(&ui, dialog);
     }
 
-    fn save_task(&self, name: SharedString) {
+    fn save_project(&self, name: SharedString) {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
@@ -235,8 +235,8 @@ fn bind_callbacks(ui: &AppWindow, controller: &UiController) {
     let open_rename_project = controller.clone();
     ui.on_open_rename_project(move |id| open_rename_project.open_rename_project(id));
 
-    let save_task = controller.clone();
-    ui.on_save_task(move |name| save_task.save_task(name));
+    let save_project = controller.clone();
+    ui.on_save_project(move |name| save_project.save_project(name));
 
     let close_task_dialog = controller.clone();
     ui.on_close_project_dialog(move || close_task_dialog.close_project_dialog());
