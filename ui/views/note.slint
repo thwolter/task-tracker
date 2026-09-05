@@ -1,8 +1,35 @@
 import { AppButton } from "../components/app-button.slint";
-import { NoteEditor } from "../components/note-editor.slint";
-import { ViewTitle } from "../components/view-title.slint";
+import { TitleText, BodyText, LabelText, ViewHeader, TextLink } from "../components/typography.slint";
 import { Theme } from "../theme.slint";
 import { VerticalBox } from "std-widgets.slint";
+
+component NoteEditor inherits Rectangle {
+    in-out property <string> text;
+
+    border-radius: Theme.border.radius;
+    background: Theme.palette.soft-surface;
+    border-width: Theme.border.width;
+    border-color: Theme.palette.soft-border;
+
+	HorizontalLayout {
+		padding: 10px;
+		input := TextInput {
+			height: 60px;
+			width: 100%;
+			single-line: false;
+            wrap: word-wrap;
+	        font-size: Theme.typography.body.size;
+	        font-weight: Theme.typography.body.weight;
+	        text <=> root.text;
+		}
+    }
+
+	if root.text == "" && !input.has-focus: Text {
+        text: "e.g. prepared the Q4 project brief";
+        color: Theme.palette.muted-text;
+        font-size: Theme.typography.body.size;
+    }
+}
 
 export component NoteView inherits Rectangle {
     in property <string> last-session;
@@ -16,15 +43,15 @@ export component NoteView inherits Rectangle {
         spacing: 50px;
 
 		VerticalLayout {
-	        ViewTitle {
+			spacing: 10px;
+
+	        TitleText {
 	            text: "What did you get done?";
 	        }
 
-	        Text {
+	        BodyText {
 	            text: root.last-session;
 	            color: Theme.palette.accent;
-	            font-size: Theme.typography.supporting.size;
-	            font-weight: Theme.typography.supporting.weight;
 	        }
         }
 
@@ -32,17 +59,16 @@ export component NoteView inherits Rectangle {
             spacing: 10px;
             vertical-stretch: 0;
 
-	        Text {
+	        LabelText {
 	            text: "Add a brief note for your activity log.";
-	            color: Theme.palette.muted-text;
-	            font-size: Theme.typography.supporting.size;
-	            vertical-alignment: bottom;
 	        }
 
 	        NoteEditor {
 	            text <=> root.note-draft;
 	        }
         }
+
+        Rectangle {}
 
 		VerticalLayout {
 			spacing: 10px;
@@ -56,18 +82,12 @@ export component NoteView inherits Rectangle {
 			VerticalBox {
 				cross-axis-alignment: center;
 
-		        Text {
+		        TextLink {
 		            text: "Skip for now";
-		            color: Theme.palette.accent;
-		            font-size: Theme.typography.body.size;
-		            font-weight: Theme.typography.label.weight;
 		            horizontal-alignment: center;
 		            vertical-alignment: top;
 
-		            TouchArea {
-		                mouse-cursor: pointer;
-			            clicked => { root.skip(); }
-			        }
+			        clicked => { root.skip(); }
 		        }
 	        }
         }

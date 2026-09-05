@@ -1,20 +1,20 @@
 import { TaskItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 
-export component TaskCard inherits Rectangle {
+export component ProjectCard inherits Rectangle {
     in property <TaskItem> task;
 
     callback clicked(string);
 
     height: 38px;
-    background: Theme.palette.accent-dark;
+    background: Theme.palette.surface;
     border-radius: Theme.border.radius;
     border-width: Theme.border.width;
     border-color: Theme.palette.border;
 
     Text {
         text: root.task.title;
-        color: Theme.palette.surface;
+        color: Theme.palette.accent;
         font-size: Theme.typography.body-strong.size;
         font-weight: Theme.typography.body-strong.weight;
         horizontal-alignment: center;

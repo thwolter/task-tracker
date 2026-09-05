@@ -26,13 +26,17 @@ export component AppButton inherits Rectangle {
 	HorizontalBox {
 		alignment: center;
 		cross-axis-alignment: center;
-		spacing: 4px;
+		spacing: 0px;
 
-		if (root.prefix-icon.width > 0): Image {
-	        source: prefix-icon;
-	        width: icon-width;
-	        height: icon-width;
-	        colorize: root.label-color;
+		if (root.prefix-icon.width > 0): Rectangle {
+			width: icon-width;
+			Image {
+				x: -4px;
+		        source: prefix-icon;
+		        width: icon-width;
+		        height: icon-width;
+		        colorize: root.label-color;
+		    }
 	    }
 
 	    Text {
@@ -44,11 +48,15 @@ export component AppButton inherits Rectangle {
 	        vertical-alignment: center;
 	    }
 
-		if (root.suffix-icon.width > 0): Image {
-	        source: suffix-icon;
-	        width: icon-width;
-	        height: icon-width;
-	        colorize: root.label-color;
+		if (root.suffix-icon.width > 0): Rectangle {
+			width: icon-width;
+			Image {
+				x: 4px;
+		        source: suffix-icon;
+		        width: icon-width;
+		        height: icon-width;
+		        colorize: root.label-color;
+		    }
 	    }
     }
     TouchArea {

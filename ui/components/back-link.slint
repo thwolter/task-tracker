@@ -1,28 +1,42 @@
 import { Theme } from "../theme.slint";
+import { TextLink } from "typography.slint";
 
-export component BackLink inherits TouchArea {
+export component BackLink inherits Rectangle {
 	in property <string> text: @tr("Back");
 	in property <image> prefix-icon: @image-url("../assets/icons/chevron-left.svg");
 
-	private property <length> icon-width: Theme.typography.label.size + 2px;
-
-	mouse-cursor: pointer;
+	private property <length> icon-width: Theme.typography.label.size + 4px;
+	
+	callback clicked();
 
 	HorizontalLayout {
 		cross-axis-alignment: center;
-		spacing: 2px;
+		spacing: -5px;
 
-		Image {
-	        source: root.prefix-icon;
-	        width: icon-width;
-	        height: icon-width;
-	        colorize: Theme.palette.accent;
-	    }
+		Rectangle {
+		    width: icon-width;
+		    height: icon-width;
+		    clip: true;
+
+		    Image {
+		        x: -4px; // adjust until the visible chevron is flush left
+		        width: icon-width;
+		        height: icon-width;
+		        source: root.prefix-icon;
+		        colorize: Theme.palette.accent;
+		    }
+		}
 
 	    Text {
 	        text: root.text;
-	        color: Theme.palette.accent;
-	        font-size: Theme.typography.label.size;
+	        font-size: Theme.typography.supporting.size;
+	        font-weight: Theme.typography.supporting.weight;
+	        color: Theme.palette.secondary-text;
 	    }
+    }
+
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
     }
 }

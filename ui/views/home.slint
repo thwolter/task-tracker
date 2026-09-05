@@ -1,9 +1,95 @@
-import { VerticalBox } from "std-widgets.slint";
-import { LastSessionCard } from "../components/last-session-card.slint";
-import { TaskCard } from "../components/task-card.slint";
+import { ScrollView, VerticalBox } from "std-widgets.slint";
+import { ProjectCard } from "../components/project-card.slint";
 import { HomeState } from "../models.slint";
 import { Theme } from "../theme.slint";
-import { ViewTitle } from "../components/view-title.slint";
+import { ViewHeader } from "../components/typography.slint";
+
+component HomeHeader inherits HorizontalLayout {
+    alignment: stretch;
+    cross-axis-alignment: center;
+
+    callback open-menu();
+
+    ViewHeader {
+        text: "What next?";
+    }
+
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.open-menu(); }
+
+        Image {
+            source: @image-url("../assets/icons/settings.svg");
+            colorize: Theme.palette.secondary-text;
+            width: 20px;
+        }
+    }
+}
+
+component LastSessionCard inherits Rectangle {
+    in property <string> session;
+
+    callback clicked();
+
+    height: 56px;
+    border-radius: 10px;
+    background: Theme.palette.accent-surface;
+
+	TouchArea {
+		mouse-cursor: pointer;
+		clicked => { root.clicked(); }
+
+		VerticalBox {
+			spacing: 5px;
+
+			Text {
+		        text: "LAST SESSION · TAP TO ADD A NOTE";
+		        color: Theme.palette.accent;
+		        font-size: Theme.typography.caption.size;
+		        font-weight: Theme.typography.caption.weight;
+		    }
+
+		    Text {
+		        text: root.session;
+		        color: Theme.palette.text;
+		        font-size: Theme.typography.body-strong.size;
+		        font-weight: Theme.typography.body-strong.weight;
+	        }
+	    }
+	}
+}
+
+component TaskList inherits ScrollView {
+    in property <HomeState> state;
+    out property <bool> has-scrollbar: self.viewport-height > self.visible-height;
+
+    vertical-stretch: 1;
+    horizontal-scrollbar-policy: always-off;
+
+    callback clicked(string);
+
+    task-content := VerticalLayout {
+        x: 0px;
+        cross-axis-alignment: stretch;
+        padding-bottom: 16px;
+        spacing: 7px;
+        width: root.width - (root.has-scrollbar ? 20px : 0px);
+        alignment: start;
+
+        for task in root.state.tasks: ProjectCard {
+            task: task;
+            clicked(id) => { root.clicked(id); }
+        }
+    }
+}
+
+component Footer inherits Text {
+    height: 16px;
+    color: Theme.palette.muted-text;
+    font-size: Theme.typography.label.size;
+    vertical-alignment: center;
+    horizontal-alignment: center;
+}
 
 export component HomeView inherits Rectangle {
     in property <HomeState> state;
@@ -12,44 +98,44 @@ export component HomeView inherits Rectangle {
     callback open-settings();
     callback open-last-session();
 
-	VerticalLayout {
-		padding: 20px;
-		spacing: 25px;
-		alignment: start;
+    content := Rectangle {
+        width: root.width;
+        height: root.height;
 
-		ViewTitle { text: "What next?"; settings: true; menu-clicked => {root.open-settings()} }
+        VerticalLayout {
+            padding: 20px;
+            spacing: 25px;
+            alignment: stretch;
 
-	    LastSessionCard {
-	        session: root.state.last-session;
-	        clicked => { root.open-last-session(); }
-	    }
+            HomeHeader {
+                open-menu => { open-settings(); }
+            }
 
-		VerticalLayout {
-			spacing: 2px;
-			Text {
-		        text: "Start a timer";
-		        color: Theme.palette.accent;
-		        font-size: Theme.typography.label.size;
-		        font-weight: Theme.typography.label.weight;
-		    }
-		    VerticalBox {
-		        padding: 0px;
-		        padding-top: 10px;
-		        spacing: 6px;
-		        for task in root.state.tasks: TaskCard {
-		            task: task;
-		            clicked(id) => { root.start-task(id); }
-		        }
-		    }
-	    }
+            LastSessionCard {
+                session: root.state.last-session;
+                clicked => { root.open-last-session(); }
+            }
 
-		// Consumes all remaining vertical space
-	    Rectangle { vertical-stretch: 1; }
+            VerticalLayout {
+                spacing: 10px;
 
-	    Text {
-	        text: "A quiet place to keep your day moving.";
-	        color: Theme.palette.muted-text;
-	        font-size: Theme.typography.label.size;
-	    }
+                Text {
+                    text: "Start a timer";
+                    color: Theme.palette.accent;
+                    font-size: Theme.typography.label.size;
+                    font-weight: Theme.typography.label.weight;
+                }
+
+                task-list := TaskList {
+                    state: root.state;
+                    clicked(id) => { root.start-task(id); }
+                }
+            }
+        }
+    }
+
+    if !task-list.has-scrollbar: Footer {
+        text: "A quiet place to keep your day moving.";
+        y: root.height - self.height - 20px;
     }
 }

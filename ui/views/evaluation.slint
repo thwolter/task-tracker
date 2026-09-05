@@ -3,7 +3,7 @@ import { AppButton } from "../components/app-button.slint";
 import { EvaluationSummary } from "../components/evaluation-summary.slint";
 import { RangeOption } from "../components/range-option.slint";
 import { SessionCard } from "../components/session-card.slint";
-import { ViewTitle } from "../components/view-title.slint";
+import { TitleText } from "../components/typography.slint";
 import { EvaluationState, Range } from "../models.slint";
 import { Theme } from "../theme.slint";
 
@@ -11,7 +11,7 @@ export component EvaluationView inherits Rectangle {
     in property <EvaluationState> state;
     callback choose-range(Range);
     callback export-markdown();
-    ViewTitle {
+    TitleText {
         y: 23px;
         text: "Evaluation";
     }

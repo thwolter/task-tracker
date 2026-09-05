@@ -2,14 +2,49 @@ import { LineEdit } from "std-widgets.slint";
 import { AppButton } from "app-button.slint";
 import { BackLink } from "back-link.slint";
 import { Theme } from "../theme.slint";
-import { ViewTitle } from "view-title.slint";
-import { BodyText } from "body-text.slint";
+import { TitleText } from "typography.slint";
+import { BodyText } from "typography.slint";
+
+component ArchiveBox inherits VerticalLayout {
+	spacing: 10px;
+	padding-bottom: 20px;
+
+	callback clicked();
+
+	TitleText {
+        text: "Archive project";
+    }
+
+    BodyText {
+        text: "Removes it from your task list. Your past time entries stay in Evaluation.";
+        wrap: word-wrap;
+        vertical-alignment: center;
+    }
+
+	HorizontalLayout {
+		alignment: start;
+		TouchArea {
+			mouse-cursor: pointer;
+			clicked => { root.clicked(); }
+			Text {
+				text: "Archive project";
+				color: Theme.palette.danger;
+				font-size: Theme.typography.body.size;
+			}
+		}
+	}
+}
 
 export component ProjectDialog inherits Rectangle {
     in property <bool> rename-mode;
     in property <string> initial-draft;
 
-    property <string> task-draft: root.initial-draft;
+    property <string> project: root.initial-draft;
+    private property <bool> is-project: false;
+
+    init => {
+        root.is-project = root.project != "";
+    }
 
     callback close();
     callback save(string);
@@ -27,12 +62,13 @@ export component ProjectDialog inherits Rectangle {
 
         }
 
-        ViewTitle {
-            text: "New project";
+        TitleText {
+            text: root.is-project ? root.project : "New project";
         }
 
         BodyText {
             text: "Keep the name clear and easy to spot in your timer.";
+            wrap: word-wrap;
         }
 
         Rectangle {
@@ -48,11 +84,10 @@ export component ProjectDialog inherits Rectangle {
 	                width: 100%;
 	                font-size: Theme.typography.body.size;
 
-	                accepted => { root.save(root.task-draft); }
-	                text <=> root.task-draft;
+	                accepted => { root.save(root.project); }
+	                text <=> root.project;
 	            }
 			}
-
         }
 
 		HorizontalLayout {
@@ -64,40 +99,21 @@ export component ProjectDialog inherits Rectangle {
 	            height: 40px;
 	            label: "Save name";
 	            prefix-icon: @image-url("../assets/icons/check.svg");
-	            clicked => { root.save(root.task-draft); }
+	            clicked => { root.save(root.project); }
 	        }
 		}
-		Rectangle {}
-
-        Rectangle {
-            height: 1px;
-            background: Theme.palette.section-divider;
-        }
 
 		VerticalLayout {
-			spacing: 10px;
-			ViewTitle {
-	            text: "Archive project";
-	        }
+			Rectangle {}
 
-	        BodyText {
-	            text: "Removes it from your task list. Your past time entries stay in Evaluation.";
-	            wrap: word-wrap;
-	            vertical-alignment: center;
+	        Rectangle {
+	            height: 1px;
+	            background: Theme.palette.section-divider;
 	        }
+        }
 
-			HorizontalLayout {
-				alignment: start;
-				TouchArea {
-					mouse-cursor: pointer;
-					clicked => { root.archive(root.task-draft); }
-					Text {
-						text: "Archive project";
-						color: Theme.palette.danger;
-						font-size: Theme.typography.body.size;
-					}
-				}
-			}
+		if (root.is-project): ArchiveBox {
+			clicked => { root.archive(root.project); }
 		}
 
     }

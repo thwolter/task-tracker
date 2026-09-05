@@ -1,0 +1,40 @@
+import { Theme } from "../theme.slint";
+
+export component TitleText inherits  Text {
+    horizontal-stretch: 1;
+    color: Theme.palette.text;
+    font-size: Theme.typography.title.size;
+    font-weight: Theme.typography.title.weight;
+}
+
+export component BodyText inherits Text {
+    color: Theme.palette.secondary-text;
+    font-size: Theme.typography.body.size;
+    font-weight: Theme.typography.body.weight;
+}
+
+export component ViewHeader inherits Text {
+    horizontal-stretch: 1;
+    color: Theme.palette.text;
+    font-size: Theme.typography.heading.size;
+    font-weight: Theme.typography.heading.weight;
+}
+
+export component LabelText inherits Text {
+    color: Theme.palette.muted-text;
+    font-size: Theme.typography.label.size;
+    font-weight: Theme.typography.label.weight;
+}
+
+export component TextLink inherits Text {
+	callback clicked();
+
+    color: Theme.palette.accent;
+    font-size: Theme.typography.body.size;
+    font-weight: Theme.typography.label.weight;
+
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}

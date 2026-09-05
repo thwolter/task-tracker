@@ -4,7 +4,7 @@ import { SettingsProjectRow } from "../components/settings-project-row.slint";
 import { TaskItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
-import { ViewTitle } from "../components/view-title.slint";
+import { TitleText } from "../components/typography.slint";
 
 export component SettingsView inherits Rectangle {
     in property <[TaskItem]> tasks;
@@ -23,7 +23,7 @@ export component SettingsView inherits Rectangle {
 	        clicked => { open-home-view(); }
 	    }
 
-	    ViewTitle {
+	    TitleText {
 	        text: "Project settings";
 	    }
 
@@ -53,9 +53,9 @@ export component SettingsView inherits Rectangle {
 			vertical-stretch: 0;
 
 		    AppButton {
-		        width: 104px;
+		        width: 90px;
 		        height: 40px;
-		        label: "Add task";
+		        label: "Add";
 		        prefix-icon: @image-url("../assets/icons/add.svg");
 		        primary: false;
 		        clicked => { root.open-add-task(); }
