@@ -1,0 +1,43 @@
+import { Theme } from "../theme.slint";
+
+export component TimerDisplay inherits Rectangle {
+    in property <string> task;
+    in property <string> elapsed;
+
+    x: 59px;
+    y: 43px;
+
+    width: 162px;
+    height: 162px;
+
+    border-radius: 81px;
+    background: Theme.palette.timer-ring;
+
+    Rectangle {
+        x: 9px;
+        y: 9px;
+        width: 144px;
+        height: 144px;
+        border-radius: 72px;
+        background: Theme.palette.surface;
+
+        Text {
+            y: 40px;
+            text: root.task;
+            color: Theme.palette.accent;
+            font-size: Theme.typography.small-label.size;
+            font-weight: Theme.typography.small-label.weight;
+            letter-spacing: 1.2px;
+            horizontal-alignment: center;
+        }
+
+        Text {
+            y: 60px;
+            text: root.elapsed;
+            color: Theme.palette.text;
+            font-size: Theme.typography.timer.size;
+            font-weight: Theme.typography.timer.weight;
+            horizontal-alignment: center;
+        }
+    }
+}

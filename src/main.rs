@@ -182,13 +182,25 @@ fn markdown(data: &Data, range: Range, timestamp: i64) -> String {
 fn set_status(ui: &AppWindow, message: impl Into<SharedString>) {
     ui.set_status(message.into());
 }
+fn set_task_dialog(
+    ui: &AppWindow,
+    open: bool,
+    rename_mode: bool,
+    initial_draft: impl Into<SharedString>,
+) {
+    ui.set_task_dialog(TaskDialogState {
+        open,
+        rename_mode,
+        initial_draft: initial_draft.into(),
+    });
+}
 fn persist(ui: &AppWindow, state: &State) {
     if let Err(error) = save(state) {
         set_status(ui, format!("Could not save data: {error}"));
     }
 }
 fn refresh(ui: &AppWindow, state: &State) {
-    ui.set_tasks(ModelRc::new(VecModel::from(
+    let tasks = ModelRc::new(VecModel::from(
         state
             .data
             .tasks
@@ -199,7 +211,7 @@ fn refresh(ui: &AppWindow, state: &State) {
                 completed: false,
             })
             .collect::<Vec<_>>(),
-    )));
+    ));
     let timestamp = now();
     let matching: Vec<_> = state
         .data
@@ -208,9 +220,7 @@ fn refresh(ui: &AppWindow, state: &State) {
         .filter(|s| in_range(s, state.range, timestamp))
         .collect();
     let total: i64 = matching.iter().map(|s| s.ended - s.started).sum();
-    ui.set_total(format!("{}  {}", range_name(state.range), duration(total)).into());
-    ui.set_range(state.range);
-    ui.set_sessions(ModelRc::new(VecModel::from(
+    let sessions = ModelRc::new(VecModel::from(
         matching
             .iter()
             .rev()
@@ -228,9 +238,8 @@ fn refresh(ui: &AppWindow, state: &State) {
                     .into(),
             })
             .collect::<Vec<_>>(),
-    )));
-    ui.set_last_session(
-        state
+    ));
+    let last_session = state
             .data
             .sessions
             .last()
@@ -242,16 +251,22 @@ fn refresh(ui: &AppWindow, state: &State) {
                 )
             })
             .unwrap_or_else(|| "No completed sessions yet".into())
-            .into(),
+            .into();
+
+    ui.set_home(HomeState { tasks, last_session });
+    ui.set_evaluation(EvaluationState {
+        sessions,
+        total: format!("{}  {}", range_name(state.range), duration(total)).into(),
+        range: state.range,
+    });
+    let (active_task, elapsed) = state.data.active.as_ref().map_or_else(
+        || ("".into(), "00:00".into()),
+        |active| (
+            task_name(&state.data, &active.task_id).to_uppercase().into(),
+            elapsed(timestamp - active.started),
+        ),
     );
-    if let Some(active) = &state.data.active {
-        ui.set_active_task(
-            task_name(&state.data, &active.task_id)
-                .to_uppercase()
-                .into(),
-        );
-        ui.set_elapsed(elapsed(timestamp - active.started));
-    }
+    ui.set_tracking(TrackingState { active_task, elapsed });
 }
 
 fn main() -> Result<(), slint::PlatformError> {
@@ -312,7 +327,6 @@ fn main() -> Result<(), slint::PlatformError> {
         ui.on_open_last_session(move || {
             if let Some(ui) = weak.upgrade() {
                 if !state.borrow().data.sessions.is_empty() {
-                    ui.set_note_draft("".into());
                     ui.set_page(Page::Note);
                 }
             }
@@ -332,7 +346,6 @@ fn main() -> Result<(), slint::PlatformError> {
                         note: String::new(),
                     });
                     persist(&ui, &state);
-                    ui.set_note_draft("".into());
                     ui.set_page(Page::Note);
                     refresh(&ui, &state);
                 }
@@ -390,9 +403,7 @@ fn main() -> Result<(), slint::PlatformError> {
             if let Some(ui) = weak.upgrade() {
                 let mut state = state.borrow_mut();
                 state.editing_id = None;
-                ui.set_task_draft("".into());
-                ui.set_rename_mode(false);
-                ui.set_task_dialog_open(true);
+                set_task_dialog(&ui, true, false, "");
             }
         });
     }
@@ -410,9 +421,7 @@ fn main() -> Result<(), slint::PlatformError> {
                     .map(|t| t.title.clone())
                     .unwrap_or_default();
                 state.editing_id = Some(id.to_string());
-                ui.set_task_draft(task.into());
-                ui.set_rename_mode(true);
-                ui.set_task_dialog_open(true);
+                set_task_dialog(&ui, true, true, task);
             }
         });
     }
@@ -438,7 +447,7 @@ fn main() -> Result<(), slint::PlatformError> {
                     });
                 }
                 persist(&ui, &state);
-                ui.set_task_dialog_open(false);
+                set_task_dialog(&ui, false, false, "");
                 refresh(&ui, &state);
             }
         });
@@ -447,7 +456,7 @@ fn main() -> Result<(), slint::PlatformError> {
         let weak = ui.as_weak();
         ui.on_close_task_dialog(move || {
             if let Some(ui) = weak.upgrade() {
-                ui.set_task_dialog_open(false);
+                set_task_dialog(&ui, false, false, "");
             }
         });
     }

@@ -1,0 +1,55 @@
+import { VerticalBox } from "std-widgets.slint";
+import { LastSessionCard } from "../components/last-session-card.slint";
+import { TaskCard } from "../components/task-card.slint";
+import { HomeState } from "../models.slint";
+import { Theme } from "../theme.slint";
+import { ViewTitle } from "../components/view-title.slint";
+
+export component HomeView inherits Rectangle {
+    in property <HomeState> state;
+
+    callback start-task(string);
+    callback open-settings();
+    callback open-last-session();
+
+	VerticalLayout {
+		padding: 20px;
+		spacing: 25px;
+		alignment: start;
+
+		ViewTitle { text: "What next?"; settings: true; menu-clicked => {root.open-settings()} }
+
+	    LastSessionCard {
+	        session: root.state.last-session;
+	        clicked => { root.open-last-session(); }
+	    }
+
+		VerticalLayout {
+			spacing: 2px;
+			Text {
+		        text: "Start a timer";
+		        color: Theme.palette.accent;
+		        font-size: Theme.typography.label.size;
+		        font-weight: Theme.typography.label.weight;
+		    }
+		    VerticalBox {
+		        padding: 0px;
+		        padding-top: 10px;
+		        spacing: 6px;
+		        for task in root.state.tasks: TaskCard {
+		            task: task;
+		            clicked(id) => { root.start-task(id); }
+		        }
+		    }
+	    }
+
+		// Consumes all remaining vertical space
+	    Rectangle { vertical-stretch: 1; }
+
+	    Text {
+	        text: "A quiet place to keep your day moving.";
+	        color: Theme.palette.muted-text;
+	        font-size: Theme.typography.label.size;
+	    }
+    }
+}

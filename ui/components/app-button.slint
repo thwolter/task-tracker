@@ -1,0 +1,26 @@
+import { Theme } from "../theme.slint";
+
+export component AppButton inherits Rectangle {
+    in property <string> label;
+    in property <bool> primary: true;
+
+    callback clicked();
+
+    height: 48px;
+    border-radius: Theme.border.radius;
+    background: primary ? Theme.palette.accent : Theme.palette.accent-surface;
+
+    Text {
+        text: root.label;
+        color: root.primary ? Theme.palette.on-accent : Theme.palette.text;
+        font-size: Theme.typography.body-strong.size;
+        font-weight: Theme.typography.body-strong.weight;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}

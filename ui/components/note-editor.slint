@@ -1,0 +1,31 @@
+import { LineEdit, VerticalBox } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+
+export component NoteEditor inherits Rectangle {
+    in-out property <string> text;
+
+    border-radius: Theme.border.radius;
+    background: Theme.palette.soft-surface;
+    border-width: Theme.border.width;
+    border-color: Theme.palette.soft-border;
+
+	HorizontalLayout {
+		padding: 10px;
+		input := TextInput {
+			height: 45px;
+			width: 100%;
+			single-line: false;
+            wrap: word-wrap;
+	        font-size: Theme.typography.body.size;
+	        font-weight: Theme.typography.body.weight;
+	        text <=> root.text;
+		}
+    }
+
+	if root.text == "" && !input.has-focus: Text {
+        text: "e.g. prepared the Q4 project brief";
+        color: Theme.palette.muted-text;
+        vertical-alignment: center;
+        font-size: Theme.typography.body.size;
+    }
+}

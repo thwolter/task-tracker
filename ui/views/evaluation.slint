@@ -1,0 +1,59 @@
+import { HorizontalBox, VerticalBox } from "std-widgets.slint";
+import { AppButton } from "../components/app-button.slint";
+import { EvaluationSummary } from "../components/evaluation-summary.slint";
+import { RangeOption } from "../components/range-option.slint";
+import { SessionCard } from "../components/session-card.slint";
+import { ViewTitle } from "../components/view-title.slint";
+import { EvaluationState, Range } from "../models.slint";
+import { Theme } from "../theme.slint";
+
+export component EvaluationView inherits Rectangle {
+    in property <EvaluationState> state;
+    callback choose-range(Range);
+    callback export-markdown();
+    ViewTitle {
+        y: 23px;
+        text: "Evaluation";
+    }
+
+    HorizontalBox {
+        x: 24px;
+        y: 59px;
+        spacing: 6px;
+        for option in [
+            { label: "Day", value: Range.day },
+            { label: "Week", value: Range.week },
+            { label: "Month", value: Range.month },
+            { label: "Year", value: Range.year }
+        ]: RangeOption {
+            label: option.label;
+            value: option.value;
+            selected: root.state.range == option.value;
+            clicked(value) => { root.choose-range(value); }
+        }
+    }
+
+    EvaluationSummary {
+        total: root.state.total;
+    }
+
+    VerticalBox {
+        x: 24px;
+        y: 159px;
+        width: 232px;
+        spacing: 6px;
+        for entry in root.state.sessions: SessionCard {
+            entry: entry;
+        }
+    }
+
+    AppButton {
+        x: 24px;
+        y: 345px;
+        width: 232px;
+        height: 44px;
+        label: "Export Markdown";
+        primary: true;
+        clicked => { root.export-markdown(); }
+    }
+}

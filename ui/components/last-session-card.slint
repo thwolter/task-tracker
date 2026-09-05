@@ -1,0 +1,33 @@
+import { Theme } from "../theme.slint";
+
+export component LastSessionCard inherits Rectangle {
+    in property <string> session;
+
+    callback clicked();
+
+    height: 56px;
+    border-radius: 10px;
+    background: Theme.palette.accent-surface;
+
+    Text {
+        x: 10px;
+        y: 10px;
+        text: "LAST SESSION · TAP TO ADD A NOTE";
+        color: Theme.palette.accent;
+        font-size: Theme.typography.caption.size;
+        font-weight: Theme.typography.caption.weight;
+    }
+
+    Text {
+        x: 10px;
+        y: 27px;
+        text: root.session;
+        color: Theme.palette.text;
+        font-size: Theme.typography.body-strong.size;
+        font-weight: Theme.typography.body-strong.weight;
+    }
+
+    TouchArea {
+        clicked => { root.clicked(); }
+    }
+}

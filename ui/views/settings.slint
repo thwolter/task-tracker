@@ -1,0 +1,97 @@
+import { ScrollView } from "std-widgets.slint";
+import { AppButton } from "../components/app-button.slint";
+import { SettingsTaskRow } from "../components/settings-task-row.slint";
+import { TaskItem } from "../models.slint";
+import { Theme } from "../theme.slint";
+
+export component SettingsView inherits Rectangle {
+    in property <[TaskItem]> tasks;
+
+    callback open-evaluation();
+    callback open-add-task();
+    callback open-rename-task(string);
+    callback choose-data-file();
+    callback new-data-file();
+    callback delete-data-file();
+    callback open-home-view();
+
+    VerticalLayout {
+        padding: 20px;
+        spacing: 20px;
+
+		HorizontalLayout {
+		    Text {
+		        text: "Tasks";
+		        color: Theme.palette.text;
+		        font-size: Theme.typography.display.size;
+		        font-weight: Theme.typography.display.weight;
+		        vertical-stretch: 0;
+		    }
+		    Text {
+		        text: "Home";
+		        horizontal-alignment: right;
+		        vertical-alignment: center;
+		        
+		        TouchArea {
+		            mouse-cursor: pointer;
+		            clicked => { open-home-view(); }
+		        }
+		    }
+	    }
+
+	    Text {
+	        text: "YOUR TASKS";
+	        color: Theme.palette.accent;
+	        font-size: Theme.typography.small-label.size;
+	        font-weight: Theme.typography.small-label.weight;
+	        vertical-stretch: 0;
+	        vertical-alignment: top;
+	    }
+
+	    task-list := ScrollView {
+	        vertical-stretch: 1;
+	        viewport-width: self.visible-width;
+
+	        VerticalLayout {
+	            x: 0px;
+	            cross-axis-alignment: stretch;
+	            spacing: 7px;
+	            width: parent.width - 20px;
+	            alignment: start;
+
+	            for task in root.tasks: SettingsTaskRow {
+	                task: task;
+	                clicked(id) => { open-rename-task(id)}
+	            }
+	        }
+	    }
+
+		HorizontalLayout {
+			padding-top: 20px;
+			spacing: 20px;
+			vertical-stretch: 0;
+
+		    AppButton {
+		        width: 104px;
+		        height: 40px;
+		        label: "+  Add task";
+		        primary: false;
+		        clicked => { root.open-add-task(); }
+		    }
+		    AppButton {
+		        height: 40px;
+		        horizontal-stretch: 1;
+		        label: "Evaluation  ›";
+		        primary: true;
+		        clicked => { root.open-evaluation(); }
+		    }
+	    }
+
+
+
+
+
+
+
+    }
+}

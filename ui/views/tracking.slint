@@ -1,0 +1,29 @@
+import { AppButton } from "../components/app-button.slint";
+import { TimerDisplay } from "../components/timer-display.slint";
+import { TrackingState } from "../models.slint";
+
+export component TrackingView inherits Rectangle {
+    in property <TrackingState> state;
+
+    callback end-task();
+
+    VerticalLayout {
+        padding: 20px;
+        spacing: 50px;
+        cross-axis-alignment: center;
+        alignment: center;
+
+	    TimerDisplay {
+	        task: root.state.active-task;
+	        elapsed: root.state.elapsed;
+	    }
+
+	    AppButton {
+	        width: 232px;
+	        height: 50px;
+	        label: "End task";
+	        primary: true;
+	        clicked => { root.end-task(); }
+	    }
+	}
+}

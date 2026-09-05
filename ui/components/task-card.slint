@@ -1,0 +1,27 @@
+import { TaskItem } from "../models.slint";
+import { Theme } from "../theme.slint";
+
+export component TaskCard inherits Rectangle {
+    in property <TaskItem> task;
+
+    callback clicked(string);
+
+    height: 38px;
+    background: Theme.palette.accent-dark;
+    border-radius: Theme.border.radius;
+    border-width: Theme.border.width;
+    border-color: Theme.palette.border;
+
+    Text {
+        text: root.task.title;
+        color: Theme.palette.surface;
+        font-size: Theme.typography.body-strong.size;
+        font-weight: Theme.typography.body-strong.weight;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    TouchArea {
+        clicked => { root.clicked(root.task.id); }
+    }
+}

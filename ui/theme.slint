@@ -1,0 +1,80 @@
+
+export struct Palette {
+    window-background: color,
+    header-background: color,
+    surface: color,
+    soft-surface: color,
+    accent-surface: color,
+    accent: color,
+    accent-dark: color,
+    on-accent: color,
+    timer-ring: color,
+    header-mark: color,
+    text: color,
+    muted-text: color,
+    placeholder-text: color,
+    border: color,
+    soft-border: color,
+    danger: color,
+    overlay: color,
+}
+
+export struct Font { size: length, weight: float }
+
+export struct Typo {
+    display: Font,
+    heading: Font,
+    title: Font,
+    body: Font,
+    body-strong: Font,
+    supporting: Font,
+    label: Font,
+    small-label: Font,
+    caption: Font,
+    marker: Font,
+    timer: Font,
+}
+
+export struct Border {
+    radius: length,
+    width: length,
+}
+
+export global Theme {
+    in property <Palette> palette: {
+        window-background: #f6f8f6,
+        header-background: #e8f0e5,
+        surface: #fffffc,
+        soft-surface: #edf5eb,
+        accent-surface: #e0f0de,
+        accent: #296e45,
+        accent-dark: #1f472b,
+        on-accent: #ffffff,
+        timer-ring: #d6f0d6,
+        header-mark: #637d66,
+        text: #14241a,
+        muted-text: #526654,
+        placeholder-text: #738273,
+        border: #d6e0d4,
+        soft-border: #c9d6c7,
+        danger: #a04a3a,
+        overlay: #14241a88,
+    };
+    in property <Typo> typography: {
+        display: { size: 21px, weight: 700 },
+        heading: { size: 20px, weight: 700 },
+        title: { size: 18px, weight: 700 },
+        body: { size: 15px, weight: 400 },
+        body-strong: { size: 15px, weight: 700 },
+        supporting: { size: 13px, weight: 600 },
+        label: { size: 12px, weight: 500 },
+        small-label: { size: 11px, weight: 600 },
+        caption: { size: 10px, weight: 500 },
+        timer: { size: 32px, weight: 700 },
+        marker: { size: 22px, weight: 400 },
+    };
+    in property <Border> border: {
+        radius: 10px,
+        width: 1px,
+    };
+}

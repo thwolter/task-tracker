@@ -11,11 +11,33 @@ export struct TaskItem {
     completed: bool,
 }
 
+export struct HomeState {
+    tasks: [TaskItem],
+    last-session: string,
+}
+
+export struct TrackingState {
+    active-task: string,
+    elapsed: string,
+}
+
 export struct SessionItem {
     task: string,
     note: string,
     duration: string,
     timestamp: string,
+}
+
+export struct EvaluationState {
+    sessions: [SessionItem],
+    total: string,
+    range: Range,
+}
+
+export struct TaskDialogState {
+    open: bool,
+    rename-mode: bool,
+    initial-draft: string,
 }
 
 export struct ProjectItem {

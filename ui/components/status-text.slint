@@ -1,0 +1,15 @@
+import { Theme } from "../theme.slint";
+
+export component StatusText inherits Text {
+    in property <length> host-width;
+    in property <length> host-height;
+    in property <string> status;
+
+    x: 12px;
+    y: root.host-height - 20px;
+    width: root.host-width - 24px;
+    text: root.status;
+    color: Theme.palette.muted-text;
+    font-size: Theme.typography.caption.size;
+    horizontal-alignment: center;
+}

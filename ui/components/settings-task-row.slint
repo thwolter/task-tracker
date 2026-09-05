@@ -1,0 +1,42 @@
+import { TaskItem } from "../models.slint";
+import { Theme } from "../theme.slint";
+import { HorizontalBox } from "std-widgets.slint";
+
+export component SettingsTaskRow inherits Rectangle {
+    in property <TaskItem> task;
+
+    height: 38px;
+    border-radius: Theme.border.radius;
+    background: Theme.palette.surface;
+    border-width: Theme.border.width;
+    border-color: Theme.palette.border;
+
+    callback clicked(string);
+
+	HorizontalBox {
+		horizontal-stretch: 1;
+
+	    Text {
+	        text: root.task.title;
+	        color: Theme.palette.text;
+	        font-size: Theme.typography.body-strong.size;
+	        font-weight: Theme.typography.body-strong.weight;
+	        vertical-alignment: center;
+	        horizontal-alignment: start;
+	    }
+
+	    Text {
+	        text: "Edit";
+	        color: Theme.palette.accent;
+	        font-size: Theme.typography.supporting.size;
+	        font-weight: Theme.typography.supporting.weight;
+	        horizontal-alignment: right;
+	        vertical-alignment: center;
+	    }
+    }
+
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(root.task.id); }
+    }
+}

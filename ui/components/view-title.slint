@@ -1,0 +1,42 @@
+import { Theme } from "../theme.slint";
+
+export component ViewTitle inherits Rectangle {
+    in property <string> text;
+    in property <bool> settings: false;
+
+    callback menu-clicked;
+
+    HorizontalLayout {
+        alignment: stretch;
+        cross-axis-alignment: center;
+
+        Text {
+            horizontal-stretch: 1;
+            text: root.text;
+		    color: Theme.palette.text;
+		    font-size: Theme.typography.title.size;
+		    font-weight: Theme.typography.title.weight;
+		    vertical-alignment: center;
+		}
+
+        if (settings): Rectangle {
+            width: dots.preferred-width;
+	        height: dots.preferred-height;
+
+	        dots := Text {
+	            width: 100%;
+	            height: 100%;
+		        text: "•••";
+		        color: Theme.palette.accent;
+		        font-size: Theme.typography.title.size;
+		        font-weight: Theme.typography.title.weight;
+		        horizontal-alignment: right;
+                vertical-alignment: center;
+			}
+			ta := TouchArea {
+				mouse-cursor: pointer;
+				clicked => { root.menu-clicked(); }
+			}
+		}
+    }
+}
