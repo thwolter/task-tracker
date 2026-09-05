@@ -1,4 +1,4 @@
-export enum Page { home, tracking, note, settings, evaluation }
+export enum Page { home, tracking, note, settings, evaluation, project-editor }
 export enum Range { day, week, month, year }
 export enum StatusKind { success, error }
 
@@ -38,7 +38,6 @@ export struct EvaluationState {
 }
 
 export struct ProjectDialogState {
-    open: bool,
     rename-mode: bool,
     initial-draft: string,
     project-id: string,

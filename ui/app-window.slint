@@ -53,7 +53,6 @@ export component AppWindow inherits Window {
     open-settings => { root.page = Page.settings; }
     open-evaluation => { root.page = Page.evaluation; }
     open-home-view => { root.page = Page.home; }
-    close-project-dialog => { root.page = Page.settings; }
     skip-note => { root.page = Page.home; }
 
     VerticalLayout {
@@ -62,7 +61,7 @@ export component AppWindow inherits Window {
         content := Rectangle {
             vertical-stretch: 1;
 
-            if root.project-dialog.open: ProjectDialog {
+            if root.page == Page.project-editor: ProjectDialog {
                 width: 100%;
                 height: 100%;
                 rename-mode: root.project-dialog.rename-mode;
@@ -74,7 +73,7 @@ export component AppWindow inherits Window {
                 archive(project) => { root.archive-project(project); }
                 unarchive(project) => { root.unarchive-project(project); }
             }
-            if !root.project-dialog.open && root.page == Page.home: HomeView {
+            if root.page == Page.home: HomeView {
                 width: 100%;
                 height: 100%;
                 state: root.home;
@@ -83,20 +82,20 @@ export component AppWindow inherits Window {
                 open-evaluation => { root.open-evaluation(); }
                 open-last-task => { root.open-last-task(); }
             }
-            if !root.project-dialog.open && root.page == Page.tracking: TrackingView {
+            if root.page == Page.tracking: TrackingView {
                 width: 100%;
                 height: 100%;
                 state: root.tracking;
                 end-tracking => { root.end-tracking(); }
             }
-            if !root.project-dialog.open && root.page == Page.note: NoteView {
+            if root.page == Page.note: NoteView {
                 width: 100%;
                 height: 100%;
                 last-task: root.home.last-task;
                 save-note(note) => { root.save-task-note(note); }
                 skip => { root.skip-note(); }
             }
-            if !root.project-dialog.open && root.page == Page.settings: SettingsView {
+            if root.page == Page.settings: SettingsView {
                 width: 100%;
                 height: 100%;
                 projects: root.project-settings;
@@ -104,7 +103,7 @@ export component AppWindow inherits Window {
                 open-rename-project(id) => { root.open-rename-project(id); }
                 open-home-view => { root.open-home-view(); }
             }
-            if !root.project-dialog.open && root.page == Page.evaluation: EvaluationView {
+            if root.page == Page.evaluation: EvaluationView {
                 width: 100%;
                 height: 100%;
                 state: root.evaluation;

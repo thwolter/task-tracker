@@ -43,13 +43,12 @@ export component NoteView inherits Rectangle {
         padding: 20px;
         spacing: 50px;
 
-
-
 		VerticalLayout {
 			spacing: 20px;
 
 			BackLink {
 	            text: "Home";
+	            clicked => { skip(); }
 	        }
 			VerticalLayout {
 				spacing: 10px;

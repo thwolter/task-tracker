@@ -223,22 +223,22 @@ impl UiController {
 
     fn show_project_dialog(&self, ui: &AppWindow, dialog: ProjectDialog) {
         ui.set_project_dialog(ProjectDialogState {
-            open: true,
             rename_mode: dialog.rename_mode,
             initial_draft: dialog.initial_draft.into(),
             project_id: dialog.project_id.into(),
             archived: dialog.archived,
         });
+        ui.set_page(Page::ProjectEditor);
     }
 
     fn dismiss_project_dialog(&self, ui: &AppWindow) {
         ui.set_project_dialog(ProjectDialogState {
-            open: false,
             rename_mode: false,
             initial_draft: SharedString::new(),
             project_id: SharedString::new(),
             archived: false,
         });
+        ui.set_page(Page::Settings);
     }
 }
 
@@ -282,7 +282,9 @@ fn bind_callbacks(ui: &AppWindow, controller: &UiController) {
 
 #[cfg(test)]
 mod tests {
-    use crate::{AppWindow, Page};
+    use super::bind;
+    use crate::{AppWindow, Page, application::Tracker};
+    use std::{cell::RefCell, rc::Rc};
 
     #[test]
     fn settings_home_callback_returns_to_home() {
@@ -291,5 +293,26 @@ mod tests {
         ui.set_page(Page::Settings);
         ui.invoke_open_home_view();
         assert_eq!(ui.get_page(), Page::Home);
+    }
+
+    #[test]
+    fn project_editor_is_an_exclusive_page_and_returns_to_settings() {
+        i_slint_backend_testing::init_no_event_loop();
+        let path = std::env::temp_dir().join(format!(
+            "tempo-ui-test-{}-{}.json",
+            std::process::id(),
+            crate::domain::now()
+        ));
+        let ui = AppWindow::new().unwrap();
+        let tracker = Rc::new(RefCell::new(Tracker::at(path.clone())));
+        let _timer = bind(&ui, tracker);
+
+        ui.invoke_open_add_project();
+        assert_eq!(ui.get_page(), Page::ProjectEditor);
+
+        ui.invoke_close_project_dialog();
+        assert_eq!(ui.get_page(), Page::Settings);
+
+        std::fs::remove_file(path).unwrap();
     }
 }

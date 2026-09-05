@@ -20,6 +20,7 @@ export struct Palette {
     danger: color,
     danger-surface: color,
     overlay: color,
+    inactive: color,
 }
 
 export struct Font { size: length, weight: float }
@@ -65,6 +66,7 @@ export global Theme {
         danger: #ad3b2b,
         danger-surface: #fff0eb,
         overlay: #14241a88,
+        inactive: #D6D9DE,
     };
     in property <Typo> typography: {
         display: { size: 21px, weight: 700 },
