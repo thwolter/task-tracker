@@ -65,6 +65,14 @@ impl Tracker {
         Ok(())
     }
 
+    pub(crate) fn toggle_tracking_pause(&mut self, timestamp: i64) -> Result<bool> {
+        let changed = self.data.toggle_pause(timestamp);
+        if changed {
+            self.save()?;
+        }
+        Ok(changed)
+    }
+
     pub(crate) fn end_tracking(&mut self, timestamp: i64) -> Result<bool> {
         let ended = self.data.end_tracking(timestamp);
         if ended {

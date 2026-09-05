@@ -4,6 +4,8 @@ export component TimerDisplay inherits Rectangle {
     in property <string> task;
     in property <string> elapsed;
 
+    callback pause();
+
     x: 59px;
     y: 43px;
 
@@ -39,5 +41,16 @@ export component TimerDisplay inherits Rectangle {
             font-weight: Theme.typography.timer.weight;
             horizontal-alignment: center;
         }
+
+        Image {
+            y: 100px;
+            source: @image-url("../assets/icons/pause.svg");
+            colorize: Theme.palette.timer-ring;
+        }
+    }
+
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.pause(); }
     }
 }

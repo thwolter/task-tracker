@@ -37,6 +37,7 @@ export component AppWindow inherits Window {
     callback open-settings();
     callback open-last-task();
     callback end-tracking();
+    callback toggle-tracking-pause();
     callback save-task-note(string);
     callback skip-note();
     callback open-evaluation();
@@ -87,6 +88,7 @@ export component AppWindow inherits Window {
                 height: 100%;
                 state: root.tracking;
                 end-tracking => { root.end-tracking(); }
+                pause => { root.toggle-tracking-pause(); }
             }
             if root.page == Page.note: NoteView {
                 width: 100%;

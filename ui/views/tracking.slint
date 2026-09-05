@@ -6,6 +6,7 @@ export component TrackingView inherits Rectangle {
     in property <TrackingState> state;
 
     callback end-tracking();
+    callback pause();
 
     VerticalLayout {
         padding: 20px;
@@ -16,6 +17,7 @@ export component TrackingView inherits Rectangle {
 	    TimerDisplay {
 	        task: root.state.active-task;
 	        elapsed: root.state.elapsed;
+            pause => { root.pause(); }
 	    }
 
 	    AppButton {

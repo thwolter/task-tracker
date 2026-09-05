@@ -86,6 +86,20 @@ impl UiController {
         self.refresh(&ui);
     }
 
+    fn toggle_tracking_pause(&self) {
+        let Some(ui) = self.ui.upgrade() else {
+            return;
+        };
+        if let Err(error) = self
+            .tracker
+            .borrow_mut()
+            .toggle_tracking_pause(domain::now())
+        {
+            self.set_error(&ui, format!("Could not save data: {error}"));
+        }
+        self.refresh(&ui);
+    }
+
     fn save_task_note(&self, note: SharedString) {
         let Some(ui) = self.ui.upgrade() else {
             return;
@@ -253,6 +267,9 @@ fn bind_callbacks(ui: &AppWindow, controller: &UiController) {
 
     let end_tracking = controller.clone();
     ui.on_end_tracking(move || end_tracking.end_tracking());
+
+    let toggle_tracking_pause = controller.clone();
+    ui.on_toggle_tracking_pause(move || toggle_tracking_pause.toggle_tracking_pause());
 
     let save_task_note = controller.clone();
     ui.on_save_task_note(move |note| save_task_note.save_task_note(note));

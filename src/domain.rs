@@ -108,6 +108,8 @@ pub(crate) struct ActiveTask {
     project_id: ProjectId,
     started: i64,
     checkpoint: i64,
+    #[serde(default)]
+    paused: bool,
 }
 
 impl ActiveTask {
@@ -117,6 +119,7 @@ impl ActiveTask {
             project_id,
             started: timestamp,
             checkpoint: timestamp,
+            paused: false,
         }
     }
 
@@ -126,6 +129,15 @@ impl ActiveTask {
 
     pub(crate) fn started(&self) -> i64 {
         self.started
+    }
+
+    pub(crate) fn elapsed_until(&self, timestamp: i64) -> i64 {
+        self.checkpoint - self.started
+            + if self.paused {
+                0
+            } else {
+                timestamp - self.checkpoint
+            }
     }
 }
 
@@ -213,6 +225,7 @@ impl<'de> Deserialize<'de> for Data {
                     project_id: ProjectId::new(task.task_id),
                     started: task.started,
                     checkpoint: task.checkpoint,
+                    paused: false,
                 }),
             }),
         }
@@ -282,6 +295,9 @@ impl Data {
 
     pub(crate) fn checkpoint_active(&mut self, timestamp: i64) -> bool {
         if let Some(active) = &mut self.active_task {
+            if active.paused {
+                return false;
+            }
             active.checkpoint = timestamp;
             true
         } else {
@@ -289,11 +305,32 @@ impl Data {
         }
     }
 
+    pub(crate) fn toggle_pause(&mut self, timestamp: i64) -> bool {
+        let Some(active) = &mut self.active_task else {
+            return false;
+        };
+
+        if active.paused {
+            active.started += timestamp - active.checkpoint;
+            active.checkpoint = timestamp;
+            active.paused = false;
+        } else {
+            active.checkpoint = timestamp;
+            active.paused = true;
+        }
+        true
+    }
+
     pub(crate) fn end_tracking(&mut self, timestamp: i64) -> bool {
         let Some(active) = self.active_task.take() else {
             return false;
         };
-        self.tasks.push(Task::from_active(active, timestamp));
+        let ended = if active.paused {
+            active.checkpoint
+        } else {
+            timestamp
+        };
+        self.tasks.push(Task::from_active(active, ended));
         true
     }
 
@@ -436,6 +473,21 @@ mod tests {
         assert!(data.end_tracking(80));
         data.save_task_note("Brief".into());
         assert_eq!(data.tasks()[1].note(), "Brief");
+    }
+
+    #[test]
+    fn paused_tracking_excludes_the_paused_interval() {
+        let mut data = Data::defaults();
+        data.start_tracking(ProjectId::new("project-1"), 10);
+        assert!(data.toggle_pause(70));
+        assert_eq!(data.active_task().unwrap().elapsed_until(120), 60);
+
+        assert!(data.toggle_pause(130));
+        assert_eq!(data.active_task().unwrap().elapsed_until(160), 90);
+
+        assert!(data.toggle_pause(170));
+        assert!(data.end_tracking(220));
+        assert_eq!(data.tasks()[0].ended() - data.tasks()[0].started(), 100);
     }
 
     #[test]

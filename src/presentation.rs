@@ -103,7 +103,7 @@ pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
                     .project_name(active.project_id())
                     .to_uppercase()
                     .into(),
-                format_elapsed(timestamp - active.started()).into(),
+                format_elapsed(active.elapsed_until(timestamp)).into(),
             )
         },
     );
