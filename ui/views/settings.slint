@@ -9,7 +9,6 @@ import { TitleText } from "../components/typography.slint";
 export component SettingsView inherits Rectangle {
     in property <[TaskItem]> tasks;
 
-    callback open-evaluation();
     callback open-add-task();
     callback open-rename-project(string);
     callback open-home-view();
@@ -47,27 +46,11 @@ export component SettingsView inherits Rectangle {
 	        }
 	    }
 
-		HorizontalLayout {
-			padding-top: 20px;
-			spacing: 20px;
-			vertical-stretch: 0;
-
-		    AppButton {
-		        width: 90px;
-		        height: 40px;
-		        label: "Add";
-		        prefix-icon: @image-url("../assets/icons/add.svg");
-		        primary: false;
-		        clicked => { root.open-add-task(); }
-		    }
-		    AppButton {
-		        height: 40px;
-		        horizontal-stretch: 1;
-		        label: "Evaluation";
-		        suffix-icon: @image-url("../assets/icons/chevron-right.svg");
-		        primary: true;
-		        clicked => { root.open-evaluation(); }
-		    }
+	    AppButton {
+	        width: 100%;
+	        label: "Add";
+	        prefix-icon: @image-url("../assets/icons/add.svg");
+	        clicked => { root.open-add-task(); }
 	    }
 
 

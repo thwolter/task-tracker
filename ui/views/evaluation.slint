@@ -27,7 +27,7 @@ component EvaluationSummary inherits Rectangle {
 export component EvaluationView inherits Rectangle {
     in property <EvaluationState> state;
 
-    callback open-settings();
+    callback open-home-view();
     callback choose-range(Range);
     callback export-markdown();
 
@@ -36,8 +36,8 @@ export component EvaluationView inherits Rectangle {
 		spacing: 20px;
 
 		BackLink {
-			text: "Settings";
-			clicked => { root.open-settings(); }
+			text: "Home";
+			clicked => { root.open-home-view(); }
 		}
 
 	    ViewHeader {
@@ -78,9 +78,9 @@ export component EvaluationView inherits Rectangle {
 		    }
 		}
 
-
 	    AppButton {
 	        label: "Export Markdown";
+	        prefix-icon: @image-url("../assets/icons/download.svg");
 	        primary: true;
 	        clicked => { root.export-markdown(); }
 	    }

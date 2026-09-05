@@ -8,30 +8,67 @@ component HomeHeader inherits HorizontalLayout {
     alignment: stretch;
     cross-axis-alignment: center;
 
-    callback open-menu();
+    callback open-settings();
+    callback open-evaluation();
 
     ViewHeader {
         text: "What next?";
     }
 
-    TouchArea {
-        mouse-cursor: pointer;
-        clicked => { root.open-menu(); }
+	HorizontalLayout {
+		spacing: 10px;
 
-        Image {
-            source: @image-url("../assets/icons/settings.svg");
-            colorize: Theme.palette.secondary-text;
-            width: 20px;
-        }
+		Rectangle {
+			background: Theme.palette.soft-surface;
+			width: 20px;
+			height: 20px;
+
+			Image {
+	            source: @image-url("../assets/icons/bar-chart.svg");
+	            colorize: Theme.palette.secondary-text;
+	            width: 18px;
+	        }
+
+	        TouchArea {
+	            mouse-cursor: pointer;
+	            clicked => { open-evaluation(); }
+	        }
+
+	        Tooltip {
+		        text: @markdown("Evaluation");
+		    }
+		}
+
+		Rectangle {
+			background: Theme.palette.soft-surface;
+			width: 20px;
+			height: 20px;
+
+	        Image {
+	            source: @image-url("../assets/icons/settings.svg");
+	            colorize: Theme.palette.secondary-text;
+	            width: 18px;
+	        }
+
+	        TouchArea {
+	            mouse-cursor: pointer;
+	            clicked => { open-settings(); }
+	        }
+
+	        Tooltip {
+		        text: @markdown("Manage projects");
+		    }
+	    }
     }
 }
 
 component LastSessionCard inherits Rectangle {
     in property <string> session;
+    in property <string> note: "No task";
 
     callback clicked();
 
-    height: 56px;
+    height: 60px;
     border-radius: 10px;
     background: Theme.palette.accent-surface;
 
@@ -55,11 +92,22 @@ component LastSessionCard inherits Rectangle {
 		        font-size: Theme.typography.body-strong.size;
 		        font-weight: Theme.typography.body-strong.weight;
 	        }
+
+	        Text {
+		        text: root.note;
+		        color: Theme.palette.muted-text;
+		        font-size: Theme.typography.label.size;
+		        font-weight: Theme.typography.label.weight;
+	        }
+	    }
+
+	    Tooltip {
+	        text: @markdown("Add a task");
 	    }
 	}
 }
 
-component TaskList inherits ScrollView {
+component ProjectList inherits ScrollView {
     in property <HomeState> state;
     out property <bool> has-scrollbar: self.viewport-height > self.visible-height;
 
@@ -97,6 +145,8 @@ export component HomeView inherits Rectangle {
     callback start-task(string);
     callback open-settings();
     callback open-last-session();
+    callback open-evaluation();
+
 
     content := Rectangle {
         width: root.width;
@@ -108,7 +158,8 @@ export component HomeView inherits Rectangle {
             alignment: stretch;
 
             HomeHeader {
-                open-menu => { open-settings(); }
+                open-settings => { open-settings(); }
+                open-evaluation => { open-evaluation(); }
             }
 
             LastSessionCard {
@@ -126,7 +177,7 @@ export component HomeView inherits Rectangle {
                     font-weight: Theme.typography.label.weight;
                 }
 
-                task-list := TaskList {
+                project-list := ProjectList {
                     state: root.state;
                     clicked(id) => { root.start-task(id); }
                 }
@@ -134,7 +185,7 @@ export component HomeView inherits Rectangle {
         }
     }
 
-    if !task-list.has-scrollbar: Footer {
+    if !project-list.has-scrollbar: Footer {
         text: "A quiet place to keep your day moving.";
         y: root.height - self.height - 20px;
     }

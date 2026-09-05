@@ -2,6 +2,7 @@ import { AppButton } from "../components/app-button.slint";
 import { TitleText, BodyText, LabelText, ViewHeader, TextLink } from "../components/typography.slint";
 import { Theme } from "../theme.slint";
 import { VerticalBox } from "std-widgets.slint";
+import { BackLink } from "../components/back-link.slint";
 
 component NoteEditor inherits Rectangle {
     in-out property <string> text;
@@ -42,17 +43,26 @@ export component NoteView inherits Rectangle {
         padding: 20px;
         spacing: 50px;
 
+
+
 		VerticalLayout {
-			spacing: 10px;
+			spacing: 20px;
 
-	        TitleText {
-	            text: "What did you get done?";
+			BackLink {
+	            text: "Home";
 	        }
+			VerticalLayout {
+				spacing: 10px;
 
-	        BodyText {
-	            text: root.last-session;
-	            color: Theme.palette.accent;
-	        }
+				TitleText {
+		            text: "What did you get done?";
+		        }
+
+		        BodyText {
+		            text: root.last-session;
+		            color: Theme.palette.accent;
+		        }
+			}
         }
 
         VerticalLayout {

@@ -98,18 +98,6 @@ impl UiController {
         self.refresh(&ui);
     }
 
-    fn skip_note(&self) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        let result = self.tracker.borrow().skip_note();
-        if let Err(error) = result {
-            self.set_status(&ui, format!("Could not save data: {error}"));
-        }
-        ui.set_page(Page::Home);
-        self.refresh(&ui);
-    }
-
     fn choose_range(&self, range: crate::Range) {
         let Some(ui) = self.ui.upgrade() else {
             return;
@@ -222,9 +210,6 @@ fn bind_callbacks(ui: &AppWindow, controller: &UiController) {
 
     let save_note = controller.clone();
     ui.on_save_note(move |note| save_note.save_note(note));
-
-    let skip_note = controller.clone();
-    ui.on_skip_note(move || skip_note.skip_note());
 
     let choose_range = controller.clone();
     ui.on_choose_range(move |range| choose_range.choose_range(range));

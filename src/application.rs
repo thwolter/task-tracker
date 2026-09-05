@@ -13,6 +13,7 @@ pub(crate) struct Tracker {
     range: Range,
     editing_id: Option<String>,
 }
+
 impl Tracker {
     pub(crate) fn load_default() -> SharedTracker {
         let store = JsonStore::at(JsonStore::default_path());
@@ -70,9 +71,7 @@ impl Tracker {
         self.data.save_note(note);
         self.save()
     }
-    pub(crate) fn skip_note(&self) -> Result<(), PersistenceError> {
-        self.save()
-    }
+
     pub(crate) fn choose_range(&mut self, range: Range) {
         self.range = range;
     }
@@ -91,6 +90,7 @@ impl Tracker {
             initial_draft,
         }
     }
+
     pub(crate) fn save_task(&mut self, name: &str, timestamp: i64) -> Result<(), SaveTaskError> {
         let name = domain::validate_task_name(name)?;
         if let Some(id) = self.editing_id.take() {
@@ -108,15 +108,18 @@ impl Tracker {
         domain::markdown(&self.data, self.range, timestamp)
     }
 }
+
 pub(crate) struct ProjectDialog {
     pub(crate) rename_mode: bool,
     pub(crate) initial_draft: String,
 }
+
 #[derive(Debug)]
 pub(crate) enum SaveTaskError {
     InvalidName(TaskNameError),
     Persistence(PersistenceError),
 }
+
 impl std::fmt::Display for SaveTaskError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -125,16 +128,19 @@ impl std::fmt::Display for SaveTaskError {
         }
     }
 }
+
 impl From<TaskNameError> for SaveTaskError {
     fn from(error: TaskNameError) -> Self {
         Self::InvalidName(error)
     }
 }
+
 impl From<PersistenceError> for SaveTaskError {
     fn from(error: PersistenceError) -> Self {
         Self::Persistence(error)
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;

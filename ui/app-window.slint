@@ -49,11 +49,13 @@ export component AppWindow inherits Window {
     open-evaluation => { root.page = Page.evaluation; }
     open-home-view => { root.page = Page.home; }
     close-project-dialog => { root.page = Page.settings; }
+    skip-note => { root.page = Page.home; }
 
     if root.page == Page.home: HomeView {
         state: root.home;
         start-task(id) => { root.start-task(id); }
         open-settings => { root.open-settings(); }
+        open-evaluation => { root.open-evaluation(); }
         open-last-session => { root.open-last-session(); }
     }
     if root.page == Page.tracking: TrackingView {
@@ -67,14 +69,13 @@ export component AppWindow inherits Window {
     }
     if root.page == Page.settings: SettingsView {
         tasks: root.home.tasks;
-        open-evaluation => { root.open-evaluation(); }
         open-add-task => { root.open-add-task(); }
         open-rename-project(id) => { root.open-rename-project(id); }
         open-home-view => { root.open-home-view(); }
     }
     if root.page == Page.evaluation: EvaluationView {
         state: root.evaluation;
-        open-settings => { root.open-settings(); }
+        open-home-view => { root.open-home-view(); }
         choose-range(value) => { root.choose-range(value); }
         export-markdown => { root.export-markdown(); }
     }
