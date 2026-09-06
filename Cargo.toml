@@ -19,11 +19,11 @@ thiserror = "2.0.20"
 slint-build = "1.17.1"
 
 [package.metadata.bundle]
-name = "Stride"
+name = "Tempo"
 identifier = "io.github.thwolter.task-tracker"
 icon = ["resources/icons/*.png"]
 short_description = "Stay focused, track progress, move work forward."
-long_description = "Stride helps users organize projects, choose what to work on next, track focused work sessions, add progress notes, and review completed work."
+long_description = "Tempo helps users organize projects, choose what to work on next, track focused work sessions, add progress notes, and review completed work."
 copyright = "Copyright (c) Thomas Wolter. All rights reserved."
 category = "Productivity"
 

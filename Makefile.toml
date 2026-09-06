@@ -2,3 +2,23 @@
 env = { SLINT_LIVE_PREVIEW = "1" }
 command = "cargo"
 args = ["run", "--features", "slint/live-preview"]
+
+[tasks.bundle-host]
+script = '''
+cargo test --release
+cargo bundle --release
+'''
+
+[tasks.bundle-linux]
+condition = { platforms = ["mac"] }
+script = '''
+docker build --platform linux/amd64 -t stride-linux-builder -f Dockerfile.linux .
+mkdir -p target-linux
+docker run --rm --platform linux/amd64 --user "$(id -u):$(id -g)" -v "$(pwd):/work" -v "$(pwd)/target-linux:/out" -e CARGO_TARGET_DIR=/out stride-linux-builder bash -lc 'cargo test --release && cargo bundle --release'
+'''
+
+[tasks.inspect-linux]
+condition = { platforms = ["mac"] }
+script = '''
+docker run --rm -v "$(pwd)/target-linux:/out:ro" debian:bookworm-slim sh -c 'dpkg-deb --info /out/release/bundle/deb/*.deb && dpkg-deb --contents /out/release/bundle/deb/*.deb'
+'''

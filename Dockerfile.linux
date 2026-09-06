@@ -1,0 +1,27 @@
+FROM rust:1-bookworm
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        pkg-config \
+        fakeroot \
+        dpkg-dev \
+        libasound2-dev \
+        libegl1-mesa-dev \
+        libfontconfig1-dev \
+        libfreetype6-dev \
+        libgl1-mesa-dev \
+        libudev-dev \
+        libwayland-dev \
+        libx11-dev \
+        libx11-xcb-dev \
+        libxcb-shape0-dev \
+        libxcb-xfixes0-dev \
+        libxi-dev \
+        libxkbcommon-dev \
+        libxrandr-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN cargo install cargo-bundle --locked
+
+WORKDIR /work
