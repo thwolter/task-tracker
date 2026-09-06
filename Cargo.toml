@@ -17,6 +17,7 @@ thiserror = "2.0.20"
 
 [build-dependencies]
 slint-build = "1.17.1"
+winres = "0.1"
 
 [package.metadata.bundle]
 name = "Tempo"

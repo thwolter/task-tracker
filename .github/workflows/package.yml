@@ -1,10 +1,13 @@
 name: Build Tempo packages
 
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   package:
@@ -17,13 +20,13 @@ jobs:
         include:
           - name: macOS
             os: macos-latest
-            artifact: tempo-macos
+            artifact: Tempo-macOS
           - name: Windows
             os: windows-latest
-            artifact: tempo-windows
+            artifact: Tempo-Windows
           - name: Linux
             os: ubuntu-latest
-            artifact: tempo-linux
+            artifact: Tempo-Linux
 
     steps:
       - name: Check out source
@@ -69,19 +72,57 @@ jobs:
         if: runner.os != 'Windows'
         run: cargo make bundle-host
 
-      - name: Upload Windows executable
+      - name: Prepare macOS release asset
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          ditto -c -k --sequesterRsrc --keepParent \
+            target/release/bundle/osx/Tempo.app \
+            release-assets/Tempo-macOS.zip
+
+      - name: Prepare Windows release asset
         if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force release-assets | Out-Null
+          Copy-Item target/release/task-tracker.exe release-assets/Tempo-Windows.exe
+
+      - name: Prepare Linux release asset
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          package="$(find target/release/bundle/deb -maxdepth 1 -type f -name '*.deb' -print -quit)"
+          test -n "$package"
+          cp "$package" release-assets/Tempo-Linux.deb
+
+      - name: Upload release asset
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
-          path: target/release/task-tracker.exe
+          path: release-assets/*
           if-no-files-found: error
 
-      - name: Upload unsigned package
-        if: runner.os != 'Windows'
-        uses: actions/upload-artifact@v7
+  release:
+    name: Create GitHub release
+    needs: package
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download release assets
+        uses: actions/download-artifact@v8
         with:
-          name: ${{ matrix.artifact }}
-          path: target/release/bundle/**
-          if-no-files-found: error
-          retention-days: 7
+          path: release-assets
+          merge-multiple: true
+
+      - name: Create release and upload assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" release-assets/* \
+            --title "Tempo $GITHUB_REF_NAME" \
+            --verify-tag \
+            --generate-notes \
+            ${{ contains(github.ref_name, '-rc.') && '--prerelease' || '' }}
