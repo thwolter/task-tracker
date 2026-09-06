@@ -1,0 +1,73 @@
+name: Build Tempo packages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Package for ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            os: macos-latest
+            artifact: tempo-macos
+          - name: Windows
+            os: windows-latest
+            artifact: tempo-windows
+          - name: Linux
+            os: ubuntu-latest
+            artifact: tempo-linux
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Use the stable Rust toolchain
+        run: rustup update stable
+
+      - name: Install Linux packaging dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            fakeroot \
+            dpkg-dev \
+            libasound2-dev \
+            libegl1-mesa-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            libgl1-mesa-dev \
+            libudev-dev \
+            libwayland-dev \
+            libx11-dev \
+            libx11-xcb-dev \
+            libxcb-shape0-dev \
+            libxcb-xfixes0-dev \
+            libxi-dev \
+            libxkbcommon-dev \
+            libxrandr-dev
+
+      - name: Install Cargo Make and cargo-bundle
+        run: |
+          cargo install cargo-make --locked
+          cargo install cargo-bundle --locked
+
+      - name: Test and build the native Tempo package
+        run: cargo make bundle-host
+
+      - name: Upload unsigned package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: target/release/bundle/**
+          if-no-files-found: error
+          retention-days: 7
