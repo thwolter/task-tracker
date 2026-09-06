@@ -93,7 +93,7 @@ component LastTaskCard inherits Rectangle {
 	        }
 
 	        Text {
-		        text: task.note;
+		        text: task.note != "" ? task.note : "[No task description]";
 		        color: Theme.palette.muted-text;
 		        wrap: word-wrap;
 		        font-size: Theme.typography.label.size;
@@ -162,7 +162,7 @@ export component HomeView inherits Rectangle {
                 open-evaluation => { open-evaluation(); }
             }
 
-            LastTaskCard {
+            if (root.state.last-task.duration != ""): LastTaskCard {
                 task: root.state.last-task;
                 clicked => { root.open-last-task(); }
             }

@@ -1,22 +1,25 @@
-use crate::domain::Data;
-use crate::error::Result;
+use crate::{
+    domain::{ActiveTask, Data, Project, ProjectId, Task, TaskId},
+    error::Result,
+};
+use rusqlite::{Connection, OptionalExtension, params};
 use std::{
     fs,
     path::{Path, PathBuf},
 };
 
-/// Stores the tracker data as one JSON file at a fixed filesystem path.
-pub(crate) struct JsonStore {
+/// Stores tracker data in one SQLite database at a fixed filesystem path.
+pub(crate) struct SqliteStore {
     path: PathBuf,
 }
 
-impl JsonStore {
+impl SqliteStore {
     /// Creates a store that reads from and writes to `path`.
     pub(crate) fn at(path: PathBuf) -> Self {
         Self { path }
     }
 
-    /// Returns the platform-appropriate location of Tempo's default data file.
+    /// Returns the platform-appropriate location of Tempo's default database.
     ///
     /// Falls back to the system temporary directory when no suitable data-home
     /// environment variable is available.
@@ -34,25 +37,146 @@ impl JsonStore {
                 })
         }
         .unwrap_or_else(std::env::temp_dir);
-        base.join("Tempo").join("tempo.json")
+        base.join("Tempo").join("tempo.sqlite")
     }
 
-    /// Loads the saved data, returning the default data when it cannot be read
-    /// or deserialized.
-    pub(crate) fn load_or_default(&self) -> Data {
-        fs::read_to_string(&self.path)
-            .ok()
-            .and_then(|text| serde_json::from_str(&text).ok())
-            .unwrap_or_else(Data::defaults)
-    }
-
-    /// Serializes `data` as formatted JSON, creating parent directories first.
-    pub(crate) fn save(&self, data: &Data) -> Result<()> {
+    fn connection(&self) -> Result<Connection> {
         if let Some(parent) = self.path.parent() {
             fs::create_dir_all(parent)?;
         }
-        let text = serde_json::to_string_pretty(data)?;
-        fs::write(&self.path, text)?;
+        let connection = Connection::open(&self.path)?;
+        connection.execute_batch(
+            "
+            PRAGMA foreign_keys = ON;
+            CREATE TABLE IF NOT EXISTS projects (
+                id TEXT PRIMARY KEY NOT NULL,
+                name TEXT NOT NULL,
+                archived INTEGER NOT NULL CHECK (archived IN (0, 1))
+            );
+            CREATE TABLE IF NOT EXISTS tasks (
+                id TEXT PRIMARY KEY NOT NULL,
+                project_id TEXT NOT NULL REFERENCES projects(id),
+                name TEXT,
+                started INTEGER NOT NULL,
+                ended INTEGER NOT NULL,
+                note TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS active_task (
+                singleton INTEGER PRIMARY KEY CHECK (singleton = 1),
+                id TEXT NOT NULL,
+                project_id TEXT NOT NULL REFERENCES projects(id),
+                started INTEGER NOT NULL,
+                checkpoint INTEGER NOT NULL,
+                paused INTEGER NOT NULL CHECK (paused IN (0, 1))
+            );
+            ",
+        )?;
+        Ok(connection)
+    }
+
+    /// Loads saved data, returning defaults when the database is empty.
+    pub(crate) fn load_or_default(&self) -> Data {
+        self.load().unwrap_or_else(|_| Data::defaults())
+    }
+
+    fn load(&self) -> Result<Data> {
+        let connection = self.connection()?;
+        let mut statement =
+            connection.prepare("SELECT id, name, archived FROM projects ORDER BY rowid")?;
+        let projects = statement
+            .query_map([], |row| {
+                Ok(Project::from_storage(
+                    ProjectId::from(row.get::<_, String>(0)?),
+                    row.get(1)?,
+                    row.get::<_, i64>(2)? != 0,
+                ))
+            })?
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+        drop(statement);
+
+        if projects.is_empty() {
+            return Ok(Data::defaults());
+        }
+
+        let mut statement = connection.prepare(
+            "SELECT id, project_id, name, started, ended, note FROM tasks ORDER BY rowid",
+        )?;
+        let tasks = statement
+            .query_map([], |row| {
+                Ok(Task::from_storage(
+                    TaskId::from(row.get::<_, String>(0)?),
+                    ProjectId::from(row.get::<_, String>(1)?),
+                    row.get(2)?,
+                    row.get(3)?,
+                    row.get(4)?,
+                    row.get(5)?,
+                ))
+            })?
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+
+        let active_task = connection
+            .query_row(
+                "SELECT id, project_id, started, checkpoint, paused FROM active_task WHERE singleton = 1",
+                [],
+                |row| {
+                    Ok(ActiveTask::from_storage(
+                        TaskId::from(row.get::<_, String>(0)?),
+                        ProjectId::from(row.get::<_, String>(1)?),
+                        row.get(2)?,
+                        row.get(3)?,
+                        row.get::<_, i64>(4)? != 0,
+                    ))
+                },
+            )
+            .optional()?;
+
+        Ok(Data::from_storage(projects, tasks, active_task))
+    }
+
+    /// Replaces the stored tracker state in one transaction.
+    pub(crate) fn save(&self, data: &Data) -> Result<()> {
+        let mut connection = self.connection()?;
+        let transaction = connection.transaction()?;
+        transaction.execute("DELETE FROM active_task", [])?;
+        transaction.execute("DELETE FROM tasks", [])?;
+        transaction.execute("DELETE FROM projects", [])?;
+
+        for project in data.projects() {
+            transaction.execute(
+                "INSERT INTO projects (id, name, archived) VALUES (?1, ?2, ?3)",
+                params![
+                    project.id().as_str(),
+                    project.name(),
+                    project.archived() as i64
+                ],
+            )?;
+        }
+        for task in data.tasks() {
+            transaction.execute(
+                "INSERT INTO tasks (id, project_id, name, started, ended, note) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                params![
+                    task.id().as_str(),
+                    task.project_id().as_str(),
+                    task.name(),
+                    task.started(),
+                    task.ended(),
+                    task.note(),
+                ],
+            )?;
+        }
+        if let Some(active) = data.active_task() {
+            transaction.execute(
+                "INSERT INTO active_task (singleton, id, project_id, started, checkpoint, paused) VALUES (1, ?1, ?2, ?3, ?4, ?5)",
+                params![
+                    active.id().as_str(),
+                    active.project_id().as_str(),
+                    active.started(),
+                    active.checkpoint(),
+                    active.paused() as i64,
+                ],
+            )?;
+        }
+        transaction.commit()?;
         Ok(())
     }
 }
@@ -66,30 +190,35 @@ pub(crate) fn export_markdown(path: &Path, report: &str) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::Data;
 
     #[test]
-    fn load_falls_back_and_saved_json_round_trips() {
+    fn load_falls_back_and_saved_database_round_trips() {
         let path = std::env::temp_dir().join(format!(
-            "tempo-persistence-test-{}-{}.json",
+            "tempo-persistence-test-{}-{}.sqlite",
             std::process::id(),
             crate::domain::now()
         ));
-
-        let store = JsonStore::at(path.clone());
+        let store = SqliteStore::at(path.clone());
 
         assert_eq!(store.load_or_default().projects().len(), 4);
+        let mut data = Data::defaults();
+        data.start_tracking(ProjectId::from("project-1".to_owned()), 10);
+        assert!(data.end_tracking(40));
+        data.save_task_note("Planning".into());
+        data.start_tracking(ProjectId::from("project-2".to_owned()), 50);
+        assert!(data.toggle_pause(60));
 
-        store.save(&Data::defaults()).unwrap();
+        store.save(&data).unwrap();
+        let loaded = store.load_or_default();
+        assert_eq!(loaded.projects()[0].id().as_str(), "project-1");
+        assert_eq!(loaded.tasks().len(), 1);
+        assert_eq!(loaded.tasks()[0].note(), "Planning");
         assert_eq!(
-            store.load_or_default().projects()[0].id().as_str(),
-            "project-1"
+            loaded.active_task().unwrap().project_id().as_str(),
+            "project-2"
         );
-        assert!(
-            fs::read_to_string(&path)
-                .unwrap()
-                .contains("\"active_task\": null")
-        );
+        assert!(loaded.active_task().unwrap().paused());
+        assert!(path.exists());
 
         fs::remove_file(path).unwrap();
     }

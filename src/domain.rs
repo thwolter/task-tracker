@@ -31,6 +31,16 @@ impl TaskId {
     fn new(value: impl Into<String>) -> Self {
         Self(value.into())
     }
+
+    pub(crate) fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<String> for TaskId {
+    fn from(value: String) -> Self {
+        Self(value)
+    }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -48,6 +58,10 @@ impl Project {
             name,
             archived: false,
         }
+    }
+
+    pub(crate) fn from_storage(id: ProjectId, name: String, archived: bool) -> Self {
+        Self { id, name, archived }
     }
 
     pub(crate) fn id(&self) -> &ProjectId {
@@ -83,6 +97,32 @@ impl Task {
             ended,
             note: String::new(),
         }
+    }
+
+    pub(crate) fn from_storage(
+        id: TaskId,
+        project_id: ProjectId,
+        name: Option<String>,
+        started: i64,
+        ended: i64,
+        note: String,
+    ) -> Self {
+        Self {
+            id,
+            project_id,
+            name,
+            started,
+            ended,
+            note,
+        }
+    }
+
+    pub(crate) fn id(&self) -> &TaskId {
+        &self.id
+    }
+
+    pub(crate) fn name(&self) -> Option<&str> {
+        self.name.as_deref()
     }
 
     pub(crate) fn project_id(&self) -> &ProjectId {
@@ -123,8 +163,36 @@ impl ActiveTask {
         }
     }
 
+    pub(crate) fn from_storage(
+        id: TaskId,
+        project_id: ProjectId,
+        started: i64,
+        checkpoint: i64,
+        paused: bool,
+    ) -> Self {
+        Self {
+            id,
+            project_id,
+            started,
+            checkpoint,
+            paused,
+        }
+    }
+
+    pub(crate) fn id(&self) -> &TaskId {
+        &self.id
+    }
+
     pub(crate) fn project_id(&self) -> &ProjectId {
         &self.project_id
+    }
+
+    pub(crate) fn started(&self) -> i64 {
+        self.started
+    }
+
+    pub(crate) fn checkpoint(&self) -> i64 {
+        self.checkpoint
     }
 
     pub(crate) fn paused(&self) -> bool {
@@ -233,6 +301,17 @@ impl<'de> Deserialize<'de> for Data {
 }
 
 impl Data {
+    pub(crate) fn from_storage(
+        projects: Vec<Project>,
+        tasks: Vec<Task>,
+        active_task: Option<ActiveTask>,
+    ) -> Self {
+        Self {
+            projects,
+            tasks,
+            active_task,
+        }
+    }
     pub(crate) fn defaults() -> Self {
         Self {
             projects: ["Project Atlas", "Admin", "Writing", "Personal"]

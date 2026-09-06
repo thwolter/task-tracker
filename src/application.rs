@@ -1,7 +1,7 @@
 use crate::{
     domain::{self, Data, ProjectId, Range},
     error::Result,
-    persistence::JsonStore,
+    persistence::SqliteStore,
 };
 use std::{cell::RefCell, rc::Rc};
 
@@ -12,14 +12,14 @@ pub(crate) type SharedTracker = Rc<RefCell<Tracker>>;
 
 pub(crate) struct Tracker {
     data: Data,
-    store: JsonStore,
+    store: SqliteStore,
     range: Range,
     editing_project_id: Option<ProjectId>,
 }
 
 impl Tracker {
     pub(crate) fn load_default() -> SharedTracker {
-        let store = JsonStore::at(JsonStore::default_path());
+        let store = SqliteStore::at(SqliteStore::default_path());
         let mut data = store.load_or_default();
         data.recover_active();
         let tracker = Rc::new(RefCell::new(Self {
@@ -35,7 +35,7 @@ impl Tracker {
     pub(crate) fn at(path: PathBuf) -> Self {
         Self {
             data: Data::defaults(),
-            store: JsonStore::at(path),
+            store: SqliteStore::at(path),
             range: Range::Day,
             editing_project_id: None,
         }
@@ -169,7 +169,7 @@ mod tests {
     #[test]
     fn application_actions_keep_range_and_project_editing_state() {
         let path = std::env::temp_dir().join(format!(
-            "tempo-application-test-{}-{}.json",
+            "tempo-application-test-{}-{}.sqlite",
             std::process::id(),
             domain::now()
         ));

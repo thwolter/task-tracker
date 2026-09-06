@@ -8,6 +8,9 @@ pub enum TrackerError {
     #[error(transparent)]
     Json(#[from] serde_json::Error),
 
+    #[error(transparent)]
+    Sqlite(#[from] rusqlite::Error),
+
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 }

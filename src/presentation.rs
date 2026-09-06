@@ -27,7 +27,7 @@ pub(crate) fn home(tracker: &Tracker) -> HomeState {
         .last()
         .map(|task| task_item(tracker.data(), task))
         .unwrap_or_else(|| TaskItem {
-            project: "No completed sessions yet".into(),
+            project: "No completed tasks yet".into(),
             note: SharedString::new(),
             duration: SharedString::new(),
             timestamp: SharedString::new(),
@@ -184,14 +184,14 @@ mod tests {
     #[test]
     fn projections_cover_empty_active_and_populated_states() {
         let path = std::env::temp_dir().join(format!(
-            "tempo-presentation-test-{}-{}.json",
+            "tempo-presentation-test-{}-{}.sqlite",
             std::process::id(),
             domain::now()
         ));
         let mut tracker = Tracker::at(path.clone());
         assert_eq!(
             home(&tracker).last_task.project,
-            "No completed sessions yet"
+            "No completed tasks yet"
         );
         assert_eq!(tracking(&tracker, 0).elapsed, "00:00");
 
@@ -212,7 +212,7 @@ mod tests {
     #[test]
     fn archived_projects_are_hidden_only_from_home() {
         let path = std::env::temp_dir().join(format!(
-            "tempo-presentation-archive-test-{}-{}.json",
+            "tempo-presentation-archive-test-{}-{}.sqlite",
             std::process::id(),
             domain::now()
         ));

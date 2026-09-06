@@ -17,7 +17,7 @@ mod tests {
     fn project_editor_is_an_exclusive_page_and_returns_to_settings() {
         i_slint_backend_testing::init_no_event_loop();
         let path = std::env::temp_dir().join(format!(
-            "tempo-ui-test-{}-{}.json",
+            "tempo-ui-test-{}-{}.sqlite",
             std::process::id(),
             crate::domain::now()
         ));
@@ -38,7 +38,7 @@ mod tests {
     fn unarchive_project_callback_restores_project_to_home() {
         i_slint_backend_testing::init_no_event_loop();
         let path = std::env::temp_dir().join(format!(
-            "tempo-ui-unarchive-test-{}-{}.json",
+            "tempo-ui-unarchive-test-{}-{}.sqlite",
             std::process::id(),
             crate::domain::now()
         ));
