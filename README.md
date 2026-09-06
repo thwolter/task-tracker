@@ -32,6 +32,19 @@ cargo run
 
 On first launch, Tempo creates a small set of example projects. Select one from the home screen to begin tracking.
 
+### macOS
+
+Tempo is currently not notarized by Apple. Because of this, macOS may block the application the first time you open it.
+
+If this happens:
+
+1. Try to open Tempo once.
+2. Open **System Settings → Privacy & Security**.
+3. Select **Open Anyway** for Tempo.
+4. Confirm that you want to open the application.
+
+Tempo is open source and its source code is available in this repository.
+
 ### Run the tests
 
 ```bash
