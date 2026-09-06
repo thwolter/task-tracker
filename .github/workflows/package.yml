@@ -61,10 +61,24 @@ jobs:
           cargo install cargo-make --locked
           cargo install cargo-bundle --locked
 
-      - name: Test and build the native Tempo package
+      - name: Build native Windows executable
+        if: runner.os == 'Windows'
+        run: cargo build --release
+
+      - name: Build native Tempo package
+        if: runner.os != 'Windows'
         run: cargo make bundle-host
 
+      - name: Upload Windows executable
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: target/release/task-tracker.exe
+          if-no-files-found: error
+
       - name: Upload unsigned package
+        if: runner.os != 'Windows'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
