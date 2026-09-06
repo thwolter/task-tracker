@@ -1,6 +1,6 @@
 import { ScrollView, VerticalBox } from "std-widgets.slint";
 import { ProjectCard } from "../components/project-card.slint";
-import { HomeState } from "../models.slint";
+import { HomeState, TaskItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { ViewHeader } from "../components/typography.slint";
 
@@ -63,12 +63,11 @@ component HomeHeader inherits HorizontalLayout {
 }
 
 component LastTaskCard inherits Rectangle {
-    in property <string> task;
-    in property <string> note: "No task";
+    in property <TaskItem> task;
 
     callback clicked();
 
-    height: 60px;
+    min-height: 60px;
     border-radius: 10px;
     background: Theme.palette.accent-surface;
 
@@ -87,15 +86,16 @@ component LastTaskCard inherits Rectangle {
 		    }
 
 		    Text {
-                text: root.task;
+                text: task.project + " · " + task.duration;
 		        color: Theme.palette.text;
 		        font-size: Theme.typography.body-strong.size;
 		        font-weight: Theme.typography.body-strong.weight;
 	        }
 
 	        Text {
-		        text: root.note;
+		        text: task.note;
 		        color: Theme.palette.muted-text;
+		        wrap: word-wrap;
 		        font-size: Theme.typography.label.size;
 		        font-weight: Theme.typography.label.weight;
 	        }

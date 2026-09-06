@@ -3,6 +3,7 @@ import { TitleText, BodyText, LabelText, ViewHeader, TextLink } from "../compone
 import { Theme } from "../theme.slint";
 import { VerticalBox } from "std-widgets.slint";
 import { BackLink } from "../components/back-link.slint";
+import { TaskItem } from "../models.slint";
 
 component NoteEditor inherits Rectangle {
     in-out property <string> text;
@@ -33,8 +34,8 @@ component NoteEditor inherits Rectangle {
 }
 
 export component NoteView inherits Rectangle {
-    in property <string> last-task;
-    property <string> note-draft: "";
+    in property <TaskItem> last-task;
+    property <string> note-draft: last-task.note;
 
     callback save-note(string);
     callback skip();
@@ -58,7 +59,7 @@ export component NoteView inherits Rectangle {
 		        }
 
 		        BodyText {
-                    text: root.last-task;
+                    text: root.last-task.project  + " · " + last-task.duration;
 		            color: Theme.palette.accent;
 		        }
 			}

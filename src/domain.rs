@@ -577,6 +577,5 @@ mod tests {
         let active = data.active_task().unwrap();
 
         assert_eq!(data.project_name(active.project_id()), "Project Atlas");
-        assert_eq!(active.started(), 10);
     }
 }

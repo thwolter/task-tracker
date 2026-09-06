@@ -1,7 +1,7 @@
 use crate::{
     EvaluationState, HomeState, ProjectItem, Range, TaskItem, TrackingState,
     application::Tracker,
-    domain::{self, Range as DomainRange},
+    domain::{self, Data, Range as DomainRange, Task},
 };
 use chrono::{Local, TimeZone};
 use slint::{ModelRc, SharedString, VecModel};
@@ -25,18 +25,31 @@ pub(crate) fn home(tracker: &Tracker) -> HomeState {
         .data()
         .tasks()
         .last()
-        .map(|task| {
-            format!(
-                "{}  ·  {}",
-                tracker.data().project_name(task.project_id()),
-                domain::duration(task.ended() - task.started())
-            )
-        })
-        .unwrap_or_else(|| "No completed sessions yet".into())
-        .into();
+        .map(|task| task_item(tracker.data(), task))
+        .unwrap_or_else(|| TaskItem {
+            project: "No completed sessions yet".into(),
+            note: SharedString::new(),
+            duration: SharedString::new(),
+            timestamp: SharedString::new(),
+        });
     HomeState {
         projects,
         last_task,
+    }
+}
+
+fn task_item(data: &Data, task: &Task) -> TaskItem {
+    TaskItem {
+        project: data.project_name(task.project_id()).into(),
+        note: task.note().into(),
+        duration: domain::duration(task.ended() - task.started()).into(),
+        timestamp: Local
+            .timestamp_opt(task.ended(), 0)
+            .single()
+            .unwrap_or_else(Local::now)
+            .format("%b %-d, %H:%M")
+            .to_string()
+            .into(),
     }
 }
 
@@ -72,18 +85,7 @@ pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64) -> EvaluationState {
             .iter()
             .rev()
             .take(3)
-            .map(|task| TaskItem {
-                project: tracker.data().project_name(task.project_id()).into(),
-                note: task.note().into(),
-                duration: domain::duration(task.ended() - task.started()).into(),
-                timestamp: Local
-                    .timestamp_opt(task.ended(), 0)
-                    .single()
-                    .unwrap_or_else(Local::now)
-                    .format("%b %-d, %H:%M")
-                    .to_string()
-                    .into(),
-            })
+            .map(|task| task_item(tracker.data(), task))
             .collect::<Vec<_>>(),
     ));
     EvaluationState {
@@ -158,7 +160,10 @@ mod tests {
             domain::now()
         ));
         let mut tracker = Tracker::at(path.clone());
-        assert_eq!(home(&tracker).last_task, "No completed sessions yet");
+        assert_eq!(
+            home(&tracker).last_task.project,
+            "No completed sessions yet"
+        );
         assert_eq!(tracking(&tracker, 0).elapsed, "00:00");
 
         tracker.start_tracking("project-1".into(), 10).unwrap();

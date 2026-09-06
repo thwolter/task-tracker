@@ -14,11 +14,6 @@ export struct ProjectItem {
     archived: bool,
 }
 
-export struct HomeState {
-    projects: [ProjectItem],
-    last-task: string,
-}
-
 export struct TrackingState {
     active-task: string,
     elapsed: string,
@@ -30,6 +25,11 @@ export struct TaskItem {
     note: string,
     duration: string,
     timestamp: string,
+}
+
+export struct HomeState {
+    projects: [ProjectItem],
+    last-task: TaskItem,
 }
 
 export struct EvaluationState {
