@@ -21,7 +21,18 @@ slint-build = "1.17.1"
 [package.metadata.bundle]
 name = "Tempo"
 identifier = "io.github.thwolter.task-tracker"
-icon = ["resources/icons/*.png"]
+icon = [
+    "resources/icons/icon_16x16.png",
+    "resources/icons/icon_16x16@2x.png",
+    "resources/icons/icon_32x32.png",
+    "resources/icons/icon_32x32@2x.png",
+    "resources/icons/icon_128x128.png",
+    "resources/icons/icon_128x128@2x.png",
+    "resources/icons/icon_256x256.png",
+    "resources/icons/icon_256x256@2x.png",
+    "resources/icons/icon_512x512.png",
+    "resources/icons/icon_512x512@2x.png",
+]
 short_description = "Stay focused, track progress, move work forward."
 long_description = "Tempo helps users organize projects, choose what to work on next, track focused work sessions, add progress notes, and review completed work."
 copyright = "Copyright (c) Thomas Wolter. All rights reserved."

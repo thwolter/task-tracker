@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Tempo ist ein kostenloser, lokaler Desktop-Timer für fokussierte Arbeit – für macOS, Windows und Linux." />
+    <meta name="theme-color" content="#0f1715" />
+    <title>Tempo – Fokuszeit, die bei dir bleibt</title>
+    <link rel="icon" href="assets/tempo-icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Tempo Startseite">
+        <img src="assets/tempo-icon.png" alt="" width="40" height="40" />
+        <span>Tempo</span>
+      </a>
+      <nav aria-label="Seitennavigation">
+        <a href="#features">Funktionen</a>
+        <a href="#desktop">Warum Desktop?</a>
+        <a href="#download">Download</a>
+      </nav>
+      <a class="header-link" href="https://github.com/thwolter/task-tracker" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span></span> Kostenlos &amp; Open Source</p>
+          <h1>Deine Zeit.<br /><em>Dein Tempo.</em></h1>
+          <p class="intro">Ein ruhiger, lokaler Desktop-Begleiter für fokussierte Arbeit. Wähle ein Projekt, starte deine Session und behalte den Überblick – ohne Browser-Tab und ohne Cloud.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#download">Tempo herunterladen <span aria-hidden="true">↓</span></a>
+            <a class="button button-quiet" href="https://github.com/thwolter/task-tracker" target="_blank" rel="noreferrer">Quellcode ansehen <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="platform-line" aria-label="Verfügbar für macOS, Windows und Linux">
+            <span>⌘ macOS</span><span>⊞ Windows</span><span>◉ Linux</span>
+          </div>
+        </div>
+        <div class="hero-visual" aria-label="Tempo in Aktion">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="app-window">
+            <div class="window-bar"><i></i><i></i><i></i><span>Tempo</span></div>
+            <img src="assets/tracking.png" alt="Tempo mit laufender Fokus-Session" />
+          </div>
+          <div class="floating-card"><span class="pulse"></span><div><b>Fokus läuft</b><small>Schreiben · 24:18</small></div></div>
+        </div>
+      </section>
+
+      <section class="feature-intro" id="features">
+        <p class="eyebrow"><span></span> Klar statt kompliziert</p>
+        <h2>Ein guter Arbeitstag<br />braucht nicht mehr Tools.</h2>
+        <p>Tempo unterstützt genau den kleinen Ablauf, der hilft: entscheiden, anfangen, festhalten, zurückblicken.</p>
+      </section>
+
+      <section class="features" aria-label="Tempo Funktionen">
+        <article><span class="feature-number">01</span><h3>Wähle, woran du arbeitest</h3><p>Organisiere deine Arbeit in Projekten – schlicht, übersichtlich und jederzeit anpassbar.</p></article>
+        <article><span class="feature-number">02</span><h3>Bleib bei einer Sache</h3><p>Starte eine fokussierte Session, pausiere bei Bedarf und beende sie mit einer kurzen Notiz.</p></article>
+        <article><span class="feature-number">03</span><h3>Sieh, wo Zeit bleibt</h3><p>Werte Tage, Wochen, Monate oder Jahre aus und exportiere deine Auswertung als Markdown.</p></article>
+      </section>
+
+      <section class="screens">
+        <figure class="screen screen-left"><img src="assets/home.png" alt="Projektauswahl in Tempo" /><figcaption>Womit möchtest du anfangen?</figcaption></figure>
+        <figure class="screen screen-center"><img src="assets/tracking.png" alt="Laufender Timer in Tempo" /><figcaption>Ein klarer Platz für deine Fokuszeit.</figcaption></figure>
+        <figure class="screen screen-right"><img src="assets/evaluation.png" alt="Zeitauswertung in Tempo" /><figcaption>Rückblick, der verständlich bleibt.</figcaption></figure>
+      </section>
+
+      <section class="desktop-section" id="desktop">
+        <div class="desktop-art" aria-hidden="true"><div class="mini-window"><div class="mini-top"></div><div class="mini-content"><b>Tempo</b><strong>32:14</strong><small>Konzept ausarbeiten</small><button>Pause</button></div></div></div>
+        <div class="desktop-copy"><p class="eyebrow"><span></span> Bewusst als Desktop-App</p><h2>Bleibt da, wo du arbeitest.</h2><p>Tempo ist kein weiterer Tab, der zwischen Nachrichten und Recherche verschwindet. Als kleines Fenster hat es einen festen Platz auf deinem Bildschirm – sichtbar, ruhig und bereit, wenn du beginnen möchtest.</p><ul><li>Ein kleines, eigenständiges Fenster</li><li>Kein Konto, kein Browser, keine Ablenkung</li><li>Native App für macOS, Windows und Linux</li></ul></div>
+      </section>
+
+      <section class="privacy-section">
+        <div class="privacy-icon" aria-hidden="true">⌁</div>
+        <div><p class="eyebrow"><span></span> Deine Daten gehören dir</p><h2>Lokal gespeichert.<br />Nicht in der Cloud.</h2></div>
+        <p>Projekte, Sessions und Notizen liegen in einer lokalen SQLite-Datenbank auf deinem Rechner. Tempo braucht kein Login und sendet deine Arbeitsdaten an keinen externen Dienst.</p>
+      </section>
+
+      <section class="download-section" id="download">
+        <p class="eyebrow"><span></span> Bereit, anzufangen?</p>
+        <h2>Hol dir Tempo.<br /><em>Kostenlos.</em></h2>
+        <p class="download-note">Die erste Vorabversion <strong>0.1.0-rc.1</strong> erscheint auf GitHub Releases – mit Paketen und Hinweisen für die jeweilige Plattform.</p>
+        <div class="downloads">
+          <a class="download-card" href="https://github.com/thwolter/task-tracker/releases" target="_blank" rel="noreferrer"><span class="os-icon">⌘</span><span><b>macOS</b><small>Download auf GitHub Releases</small></span><i>↗</i></a>
+          <a class="download-card" href="https://github.com/thwolter/task-tracker/releases" target="_blank" rel="noreferrer"><span class="os-icon">⊞</span><span><b>Windows</b><small>Download auf GitHub Releases</small></span><i>↗</i></a>
+          <a class="download-card" href="https://github.com/thwolter/task-tracker/releases" target="_blank" rel="noreferrer"><span class="os-icon">◉</span><span><b>Linux</b><small>Download auf GitHub Releases</small></span><i>↗</i></a>
+        </div>
+        <p class="release-status">0.1.0-rc.1 noch nicht sichtbar? Schau bald wieder vorbei oder <a href="https://github.com/thwolter/task-tracker" target="_blank" rel="noreferrer">starte Tempo aus dem Quellcode</a>.</p>
+      </section>
+    </main>
+
+    <footer><a class="brand" href="#top"><img src="assets/tempo-icon.png" alt="" width="34" height="34" /><span>Tempo</span></a><p>Fokuszeit, die bei dir bleibt.</p><a href="https://github.com/thwolter/task-tracker" target="_blank" rel="noreferrer">GitHub Repository ↗</a></footer>
+  </body>
+</html>
