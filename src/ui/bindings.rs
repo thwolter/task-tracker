@@ -51,4 +51,7 @@ fn bind_callbacks(ui: &AppWindow, controller: &UiController) {
 
     let unarchive_project = controller.clone();
     ui.on_unarchive_project(move |id| unarchive_project.unarchive_project(id));
+
+    let delete_project = controller.clone();
+    ui.on_delete_project(move |id| delete_project.delete_project(id));
 }

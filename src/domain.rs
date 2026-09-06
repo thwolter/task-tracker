@@ -440,6 +440,18 @@ impl Data {
             project.archived = false;
         }
     }
+
+    pub(crate) fn delete_project(&mut self, id: &ProjectId) {
+        self.projects.retain(|project| project.id != *id);
+        self.tasks.retain(|task| task.project_id != *id);
+        if self
+            .active_task
+            .as_ref()
+            .is_some_and(|task| task.project_id == *id)
+        {
+            self.active_task = None;
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -605,6 +617,22 @@ mod tests {
 
         data.unarchive_project(&project_id);
         assert!(!data.projects()[0].archived());
+    }
+
+    #[test]
+    fn deleting_a_project_removes_its_sessions() {
+        let mut data = Data::defaults();
+        let project_id = ProjectId::new("project-1");
+
+        data.start_tracking(project_id.clone(), 10);
+        assert!(data.end_tracking(70));
+        data.delete_project(&project_id);
+
+        assert!(data
+            .projects()
+            .iter()
+            .all(|project| project.id != project_id));
+        assert!(data.tasks().is_empty());
     }
 
     #[test]

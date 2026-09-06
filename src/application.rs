@@ -151,6 +151,13 @@ impl Tracker {
         self.save()
     }
 
+    pub(crate) fn delete_project(&mut self, id: String) -> Result<()> {
+        let id = ProjectId::from(id);
+        self.data.delete_project(&id);
+        self.editing_project_id = None;
+        self.save()
+    }
+
     pub(crate) fn report(&self, timestamp: i64) -> String {
         domain::markdown(&self.data, self.range, timestamp)
     }

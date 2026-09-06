@@ -12,6 +12,7 @@ export component AppButton inherits Rectangle {
     in property <color> outline-color: Theme.palette.border;
     in property <length> label-font-size: Theme.typography.body-strong.size;
     in property <float> label-font-weight: Theme.typography.body-strong.weight;
+    in property <bool> inactive: false;
 
 	private property <length> icon-width: Theme.typography.body-strong.size + 2px;
 
@@ -21,7 +22,7 @@ export component AppButton inherits Rectangle {
     border-radius: Theme.border.radius;
     border-width: root.outlined ? Theme.border.width : 0px;
     border-color: root.outline-color;
-    background: root.fill;
+    background: (inactive) ? Theme.palette.inactive : root.fill;
 
 	HorizontalBox {
 		alignment: center;
@@ -60,7 +61,7 @@ export component AppButton inherits Rectangle {
 	    }
     }
     TouchArea {
-        mouse-cursor: pointer;
+        mouse-cursor: (root.inactive) ? not-allowed : pointer;
         clicked => { root.clicked(); }
     }
 }

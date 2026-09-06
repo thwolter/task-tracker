@@ -4,12 +4,15 @@ use crate::{
 };
 use rfd::FileDialog;
 use slint::{ComponentHandle, SharedString, Timer, TimerMode, Weak};
-use std::time::Duration;
+use std::{rc::Rc, time::Duration};
+
+const STATUS_DURATION: Duration = Duration::from_secs(3);
 
 #[derive(Clone)]
 pub(super) struct UiController {
     ui: Weak<AppWindow>,
     tracker: SharedTracker,
+    status_timer: Rc<Timer>,
 }
 
 impl UiController {
@@ -17,6 +20,7 @@ impl UiController {
         Self {
             ui: ui.as_weak(),
             tracker,
+            status_timer: Rc::new(Timer::default()),
         }
     }
 
@@ -184,6 +188,20 @@ impl UiController {
         }
     }
 
+    pub(super) fn delete_project(&self, id: SharedString) {
+        let Some(ui) = self.ui.upgrade() else {
+            return;
+        };
+        let result = self.tracker.borrow_mut().delete_project(id.to_string());
+        match result {
+            Ok(()) => {
+                self.dismiss_project_dialog(&ui);
+                self.refresh(&ui);
+            }
+            Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
+        }
+    }
+
     pub(super) fn export_markdown(&self) {
         let Some(ui) = self.ui.upgrade() else {
             return;
@@ -230,6 +248,18 @@ impl UiController {
             message: message.into(),
             kind,
         });
+
+        let ui = self.ui.clone();
+        self.status_timer
+            .start(TimerMode::SingleShot, STATUS_DURATION, move || {
+                let Some(ui) = ui.upgrade() else {
+                    return;
+                };
+                ui.set_status(Status {
+                    message: SharedString::new(),
+                    kind: StatusKind::Success,
+                });
+            });
     }
 
     pub(super) fn show_project_dialog(&self, ui: &AppWindow, dialog: ProjectDialog) {

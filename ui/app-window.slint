@@ -47,6 +47,7 @@ export component AppWindow inherits Window {
     callback save-project(string);
     callback archive-project(string);
     callback unarchive-project(string);
+    callback delete-project(string);
     callback close-project-dialog();
     callback open-home-view();
     callback export-markdown();
@@ -73,6 +74,7 @@ export component AppWindow inherits Window {
                 save(project) => { root.save-project(project); }
                 archive(project) => { root.archive-project(project); }
                 unarchive(project) => { root.unarchive-project(project); }
+                delete(project) => { root.delete-project(project); }
             }
             if root.page == Page.home: HomeView {
                 width: 100%;

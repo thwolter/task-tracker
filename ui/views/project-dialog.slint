@@ -13,8 +13,8 @@ component ProjectSettingBox inherits VerticalLayout {
     spacing: 20px;
 
     TitleText {
-    text: root.is-project ? root.project : "New project";
-    }
+	    text: root.is-project ? root.project : "New project";
+	    }
 
     BodyText {
         text: "Keep the name clear and easy to spot in your timer.";
@@ -49,6 +49,7 @@ component ProjectSettingBox inherits VerticalLayout {
             height: 40px;
             label: "Save name";
             prefix-icon: @image-url("../assets/icons/check.svg");
+            inactive: (root.project == "");
             clicked => { root.accepted(root.project); }
         }
 	}
@@ -64,10 +65,11 @@ component ProjectSettingBox inherits VerticalLayout {
 }
 
 component ArchiveBox inherits VerticalLayout {
-	spacing: 10px;
-	padding-bottom: 20px;
 
 	callback clicked();
+
+	spacing: 10px;
+	padding-bottom: 20px;
 
 	TitleText {
         text: "Archive project";
@@ -94,13 +96,17 @@ component ArchiveBox inherits VerticalLayout {
 }
 
 component UnarchiveBox inherits VerticalLayout {
+
+    in property <string> project;
+
+    callback unarchive();
+    callback delete();
+
     spacing: 20px;
     padding-bottom: 20px;
 
-    callback clicked();
-
     TitleText {
-        text: "Archived project";
+        text: project;
     }
 
     BodyText {
@@ -111,14 +117,20 @@ component UnarchiveBox inherits VerticalLayout {
 
     AppButton {
         width: 180%;
-        label: "Unarchive project";
-        clicked => { root.clicked(); }
+        label: "Unarchive";
+        background: Theme.palette.accent-surface;
+        border-color: Theme.palette.accent;
+        border-width: 1px;
+        label-color: Theme.palette.accent;
+        clicked => { root.unarchive(); }
     }
 
     TextLink {
 		text: "Delete finally";
 		color: Theme.palette.danger;
 		horizontal-alignment: center;
+
+		clicked => { root.delete(); }
     }
 
     Rectangle {}
@@ -137,6 +149,7 @@ export component ProjectDialog inherits Rectangle {
     callback save(string);
     callback archive(string);
     callback unarchive(string);
+    callback delete(string);
 
     background: Theme.palette.soft-surface;
 
@@ -150,22 +163,24 @@ export component ProjectDialog inherits Rectangle {
 
         }
 
-		if (root.is-project && !root.archived): VerticalLayout {
+		VerticalLayout {
 			spacing: 20px;
 
-			ProjectSettingBox {
+			if (!root.archived): ProjectSettingBox {
 				accepted => { root.save(root.project); }
 				project <=> root.project;
 				is-project: root.is-project;
 			}
-			ArchiveBox {
+
+			if (root.is-project && !root.archived): ArchiveBox {
 				clicked => { root.archive(root.project-id); }
 			}
-		}
 
-		if (root.is-project && root.archived): UnarchiveBox {
-			clicked => { root.unarchive(root.project-id); }
+			if (root.is-project && root.archived): UnarchiveBox {
+				project: root.project;
+				unarchive => { root.unarchive(root.project-id); }
+				delete => { root.delete(root.project-id); }
+			}
 		}
-
     }
 }
