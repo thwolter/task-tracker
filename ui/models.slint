@@ -32,10 +32,17 @@ export struct HomeState {
     last-task: TaskItem,
 }
 
+export struct ProjectTotalItem {
+	project: string,
+	total: string,
+	num_tasks: int,
+}
+
 export struct EvaluationState {
     tasks: [TaskItem],
     total: string,
     range: Range,
+    project-totals: [ProjectTotalItem]
 }
 
 export struct ProjectDialogState {

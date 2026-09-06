@@ -1,5 +1,5 @@
 use crate::{
-    EvaluationState, HomeState, ProjectItem, Range, TaskItem, TrackingState,
+    EvaluationState, HomeState, ProjectItem, ProjectTotalItem, Range, TaskItem, TrackingState,
     application::Tracker,
     domain::{self, Data, Range as DomainRange, Task},
 };
@@ -80,6 +80,7 @@ pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64) -> EvaluationState {
         .iter()
         .map(|task| task.ended() - task.started())
         .sum();
+    let project_totals = project_totals(tracker.data(), &matching);
     let tasks = ModelRc::new(VecModel::from(
         matching
             .iter()
@@ -92,7 +93,35 @@ pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64) -> EvaluationState {
         tasks,
         total: format!("{}  {}", tracker.range().name(), domain::duration(total)).into(),
         range: slint_range(tracker.range()),
+        project_totals,
     }
+}
+
+fn project_totals(data: &Data, tasks: &[&Task]) -> ModelRc<ProjectTotalItem> {
+    let mut totals = Vec::new();
+    for task in tasks {
+        let duration = task.ended() - task.started();
+        if let Some((_, total, num_tasks)) = totals
+            .iter_mut()
+            .find(|(project_id, _, _)| *project_id == task.project_id())
+        {
+            *total += duration;
+            *num_tasks += 1;
+        } else {
+            totals.push((task.project_id(), duration, 1));
+        }
+    }
+
+    ModelRc::new(VecModel::from(
+        totals
+            .into_iter()
+            .map(|(project_id, total, num_tasks)| ProjectTotalItem {
+                project: data.project_name(project_id).into(),
+                total: domain::duration(total).into(),
+                num_tasks,
+            })
+            .collect::<Vec<_>>(),
+    ))
 }
 
 pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
@@ -171,7 +200,12 @@ mod tests {
         tracker.toggle_tracking_pause(70).unwrap();
         assert!(tracking(&tracker, 90).paused);
         tracker.end_tracking(130).unwrap();
-        assert_eq!(evaluation(&tracker, 130).tasks.row_count(), 1);
+        let evaluation = evaluation(&tracker, 130);
+        assert_eq!(evaluation.tasks.row_count(), 1);
+        assert_eq!(evaluation.project_totals.row_count(), 1);
+        let total = evaluation.project_totals.row_data(0).unwrap();
+        assert_eq!(total.project, "Project Atlas");
+        assert_eq!(total.num_tasks, 1);
         std::fs::remove_file(path).unwrap();
     }
 

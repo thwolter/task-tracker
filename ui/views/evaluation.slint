@@ -3,7 +3,7 @@ import { AppButton } from "../components/app-button.slint";
 import { RangeOption } from "../components/range-option.slint";
 import { TaskCard } from "../components/session-card.slint";
 import { TitleText, ViewHeader } from "../components/typography.slint";
-import { EvaluationState, Range } from "../models.slint";
+import { EvaluationState, Range, TaskItem, ProjectTotalItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
 
@@ -21,6 +21,108 @@ component EvaluationSummary inherits Rectangle {
         font-size: Theme.typography.supporting.size;
         font-weight: Theme.typography.supporting.weight;
         vertical-alignment: center;
+    }
+}
+
+export component TaskCard inherits Rectangle {
+    in property <TaskItem> entry;
+
+    height: 46px;
+    border-radius: 12px;
+    background: Theme.palette.surface;
+    border-width: 1px;
+    border-color: Theme.palette.border;
+
+    Text {
+        x: 16px;
+        y: 7px;
+        text: root.entry.project;
+        color: Theme.palette.text;
+        font-size: Theme.typography.body.size;
+        font-weight: Theme.typography.body-strong.weight;
+    }
+
+    Text {
+        x: 16px;
+        y: 25px;
+        text: root.entry.note == "" ? "No details added" : root.entry.note;
+        color: Theme.palette.muted-text;
+        font-size: Theme.typography.label.size;
+    }
+
+    Text {
+        x: 163px;
+        y: 15px;
+        width: 52px;
+        text: root.entry.duration;
+        color: Theme.palette.accent;
+        font-size: Theme.typography.supporting.size;
+        font-weight: Theme.typography.body-strong.weight;
+        horizontal-alignment: right;
+    }
+}
+
+export component ProjectCard inherits Rectangle {
+    in property <ProjectTotalItem> entry;
+
+    private property <bool> multiple-records: entry.num-tasks > 1;
+
+    height: 46px;
+    border-radius: 12px;
+    background: Theme.palette.surface;
+    border-width: 1px;
+    border-color: Theme.palette.border;
+
+	HorizontalLayout {
+		padding-top: 8px;
+		padding-bottom: 8px;
+		padding-left: 15px;
+		padding-right: 15px;
+		cross-axis-alignment: center;
+
+		VerticalLayout {
+			spacing: 5px;
+
+			Text {
+		        text: root.entry.project;
+		        color: Theme.palette.text;
+		        font-size: Theme.typography.body.size;
+		        font-weight: Theme.typography.body-strong.weight;
+		    }
+
+		    Text {
+		        text: entry.num-tasks + (root.multiple-records ? " tasks" : " task");
+		        color: Theme.palette.muted-text;
+		        font-size: Theme.typography.label.size;
+		    }
+		}
+
+	    Text {
+	        width: 52px;
+	        text: root.entry.total;
+	        color: Theme.palette.accent;
+	        font-size: Theme.typography.supporting.size;
+	        font-weight: Theme.typography.body-strong.weight;
+	        horizontal-alignment: right;
+	    }
+	}
+}
+
+component ProjectList inherits ScrollView {
+	in property <EvaluationState> state;
+
+	vertical-stretch: 1;
+	horizontal-scrollbar-policy: always-off;
+
+	private property <bool> has-scrollbar: self.viewport-height > self.visible-height;
+
+	VerticalLayout {
+		x: 0px;
+        spacing: 7px;
+        width: root.width - (has-scrollbar ? 20px : 0px);
+        for total in root.state.project_totals: ProjectCard {
+            entry: total;
+        }
     }
 }
 
@@ -64,18 +166,8 @@ export component EvaluationView inherits Rectangle {
 	        vertical-stretch: 0;
 	    }
 
-		ScrollView {
-			vertical-stretch: 1;
-			horizontal-scrollbar-policy: always-off;
-
-			private property <bool> has-scrollbar: self.viewport-height > self.visible-height;
-
-			VerticalLayout {
-		        spacing: 6px;
-                for entry in root.state.tasks: TaskCard {
-		            entry: entry;
-		        }
-		    }
+		ProjectList {
+			state: root.state;
 		}
 
 	    AppButton {

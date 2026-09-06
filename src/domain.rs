@@ -398,7 +398,7 @@ pub(crate) fn now() -> i64 {
 pub(crate) fn duration(seconds: i64) -> String {
     let minutes = (seconds.max(0) + 30) / 60;
     if minutes >= 60 {
-        format!("{} h {} min", minutes / 60, minutes % 60)
+        format!("{} h {}", minutes / 60, minutes % 60)
     } else {
         format!("{minutes} min")
     }
