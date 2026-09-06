@@ -1,6 +1,6 @@
 [package]
 name = "task-tracker"
-version = "0.1.0"
+version = "0.1.0-rc.1"
 description = "A minimalist desktop app for focused task tracking and work sessions."
 edition = "2024"
 authors = ["Thomas Wolter"]
