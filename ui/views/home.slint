@@ -8,11 +8,14 @@ component HomeHeader inherits HorizontalLayout {
     alignment: stretch;
     cross-axis-alignment: center;
 
+    private property <string> evaluation-tooltip: @tr("Evaluation");
+    private property <string> project-settings-tooltip: @tr("Manage projects");
+
     callback open-settings();
     callback open-evaluation();
 
     ViewHeader {
-        text: "What next?";
+        text: @tr("What next?");
     }
 
 	HorizontalLayout {
@@ -35,7 +38,7 @@ component HomeHeader inherits HorizontalLayout {
 	        }
 
 	        Tooltip {
-		        text: @markdown("Evaluation");
+		        text: @markdown("\\{root.evaluation-tooltip}");
 		    }
 		}
 
@@ -56,7 +59,7 @@ component HomeHeader inherits HorizontalLayout {
 	        }
 
 	        Tooltip {
-		        text: @markdown("Manage projects");
+		        text: @markdown("\\{root.project-settings-tooltip}");
 		    }
 	    }
     }
@@ -64,6 +67,8 @@ component HomeHeader inherits HorizontalLayout {
 
 component LastTaskCard inherits Rectangle {
     in property <TaskItem> task;
+
+    private property <string> add-task-tooltip: @tr("Add a task");
 
     callback clicked();
 
@@ -79,7 +84,7 @@ component LastTaskCard inherits Rectangle {
 			spacing: 5px;
 
 			Text {
-		        text: "LAST SESSION · TAP TO ADD A NOTE";
+		        text: @tr("LAST SESSION · TAP TO ADD A NOTE");
 		        color: Theme.palette.accent;
 		        font-size: Theme.typography.caption.size;
 		        font-weight: Theme.typography.caption.weight;
@@ -93,7 +98,7 @@ component LastTaskCard inherits Rectangle {
 	        }
 
 	        Text {
-		        text: task.note != "" ? task.note : "[No task description]";
+		        text: task.note != "" ? task.note : @tr("[No task description]");
 		        color: Theme.palette.muted-text;
 		        wrap: word-wrap;
 		        font-size: Theme.typography.label.size;
@@ -102,7 +107,7 @@ component LastTaskCard inherits Rectangle {
 	    }
 
 	    Tooltip {
-	        text: @markdown("Add a task");
+	        text: @markdown("\\{root.add-task-tooltip}");
 	    }
 	}
 }
@@ -171,7 +176,7 @@ export component HomeView inherits Rectangle {
                 spacing: 10px;
 
                 Text {
-                    text: "Start a timer";
+                    text: @tr("Start a timer");
                     color: Theme.palette.accent;
                     font-size: Theme.typography.label.size;
                     font-weight: Theme.typography.label.weight;
@@ -186,7 +191,7 @@ export component HomeView inherits Rectangle {
     }
 
     if !project-list.has-scrollbar: Footer {
-        text: "A quiet place to keep your day moving.";
+        text: @tr("A quiet place to keep your day moving.");
         y: root.height - self.height - 20px;
     }
 }

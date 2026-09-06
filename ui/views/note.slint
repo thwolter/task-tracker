@@ -26,10 +26,15 @@ component NoteEditor inherits Rectangle {
 		}
     }
 
-	if root.text == "" && !input.has-focus: Text {
-        text: "e.g. prepared the Q4 project brief";
-        color: Theme.palette.muted-text;
-        font-size: Theme.typography.body.size;
+	if root.text == "" && !input.has-focus: HorizontalLayout {
+		padding: 10px;
+		Text {
+			width: 100%;
+	        text: @tr("e.g. prepared the Q4 project brief");
+	        wrap: word-wrap;
+	        color: Theme.palette.muted-text;
+	        font-size: Theme.typography.body.size;
+	    }
     }
 }
 
@@ -48,14 +53,14 @@ export component NoteView inherits Rectangle {
 			spacing: 20px;
 
 			BackLink {
-	            text: "Home";
+	            text: @tr("Home");
 	            clicked => { skip(); }
 	        }
 			VerticalLayout {
 				spacing: 10px;
 
 				TitleText {
-		            text: "What did you get done?";
+		            text: @tr("What did you get done?");
 		        }
 
 		        BodyText {
@@ -70,7 +75,7 @@ export component NoteView inherits Rectangle {
             vertical-stretch: 0;
 
 	        LabelText {
-	            text: "Add a brief note for your activity log.";
+	            text: @tr("Add a brief note for your activity log.");
 	        }
 
 	        NoteEditor {
@@ -88,7 +93,7 @@ export component NoteView inherits Rectangle {
 			vertical-stretch: 0;
 
 	        AppButton {
-	            label: "Save note";
+	            label: @tr("Save note");
 	            clicked => { root.save-note(root.note-draft); }
 	        }
 
@@ -96,7 +101,7 @@ export component NoteView inherits Rectangle {
 				cross-axis-alignment: center;
 
 		        TextLink {
-		            text: "Skip for now";
+		            text: @tr("Skip for now");
 		            horizontal-alignment: center;
 		            vertical-alignment: top;
 

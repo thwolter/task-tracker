@@ -44,7 +44,7 @@ export component TaskCard inherits Rectangle {
     Text {
         x: 16px;
         y: 25px;
-        text: root.entry.note == "" ? "No details added" : root.entry.note;
+        text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
         color: Theme.palette.muted-text;
         font-size: Theme.typography.label.size;
     }
@@ -63,8 +63,6 @@ export component TaskCard inherits Rectangle {
 
 export component ProjectCard inherits Rectangle {
     in property <ProjectTotalItem> entry;
-
-    private property <bool> multiple-records: entry.num-tasks > 1;
 
     height: 46px;
     border-radius: 12px;
@@ -90,7 +88,7 @@ export component ProjectCard inherits Rectangle {
 		    }
 
 		    Text {
-		        text: entry.num-tasks + (root.multiple-records ? " tasks" : " task");
+		        text: @tr("{n} task" | "{n} tasks" % entry.num-tasks);
 		        color: Theme.palette.muted-text;
 		        font-size: Theme.typography.label.size;
 		    }
@@ -137,21 +135,21 @@ export component EvaluationView inherits Rectangle {
 		spacing: 20px;
 
 		BackLink {
-			text: "Home";
+			text: @tr("Home");
 			clicked => { root.open-home-view(); }
 		}
 
 	    ViewHeader {
-	        text: "Evaluation";
+	        text: @tr("Evaluation");
 	    }
 
 	    HorizontalLayout {
 	        spacing: 6px;
 	        for option in [
-	            { label: "Day", value: Range.day },
-	            { label: "Week", value: Range.week },
-	            { label: "Month", value: Range.month },
-	            { label: "Year", value: Range.year }
+	            { label: @tr("Day"), value: Range.day },
+	            { label: @tr("Week"), value: Range.week },
+	            { label: @tr("Month"), value: Range.month },
+	            { label: @tr("Year"), value: Range.year }
 	        ]: RangeOption {
 	            label: option.label;
 	            value: option.value;
@@ -170,7 +168,7 @@ export component EvaluationView inherits Rectangle {
 		}
 
 	    AppButton {
-	        label: "Export Markdown";
+	        label: @tr("Export Markdown");
 	        prefix-icon: @image-url("../assets/icons/download.svg");
 	        primary: true;
 	        clicked => { root.export-markdown(); }

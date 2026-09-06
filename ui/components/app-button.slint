@@ -2,7 +2,7 @@ import { Theme } from "../theme.slint";
 import { HorizontalBox } from "std-widgets.slint";
 
 export component AppButton inherits Rectangle {
-    in property <string> label: "Button";
+    in property <string> label: @tr("Button");
     in property <bool> primary: true;
     in property <bool> outlined: false;
     in property <image> suffix-icon;

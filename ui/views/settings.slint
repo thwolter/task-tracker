@@ -18,12 +18,12 @@ export component SettingsView inherits Rectangle {
         spacing: 20px;
 
 		BackLink {
-			text: "Home";
+			text: @tr("Home");
 	        clicked => { open-home-view(); }
 	    }
 
 	    TitleText {
-	        text: "Project settings";
+	        text: @tr("Project settings");
 	    }
 
         project-list := ScrollView {
@@ -48,7 +48,7 @@ export component SettingsView inherits Rectangle {
 
 	    AppButton {
 	        width: 100%;
-	        label: "Add";
+	        label: @tr("Add");
 	        prefix-icon: @image-url("../assets/icons/add.svg");
         clicked => { root.open-add-project(); }
 	    }

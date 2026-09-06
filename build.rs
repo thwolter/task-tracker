@@ -1,5 +1,12 @@
 fn main() {
-    slint_build::compile("ui/app-window.slint").expect("Failed to compile SLint UI");
+
+    println!("cargo:rerun-if-changed=translations");
+
+    let config = slint_build::CompilerConfiguration::new()
+        .with_bundled_translations("translations");
+
+    slint_build::compile_with_config("ui/app-window.slint", config)
+        .expect("Failed to compile SLint UI");
 
     #[cfg(target_os = "windows")]
     {

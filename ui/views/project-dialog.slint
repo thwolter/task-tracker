@@ -13,11 +13,11 @@ component ProjectSettingBox inherits VerticalLayout {
     spacing: 20px;
 
     TitleText {
-	    text: root.is-project ? root.project : "New project";
+	    text: root.is-project ? root.project : @tr("New project");
 	    }
 
     BodyText {
-        text: "Keep the name clear and easy to spot in your timer.";
+        text: @tr("Keep the name clear and easy to spot in your timer.");
         wrap: word-wrap;
     }
 
@@ -47,7 +47,7 @@ component ProjectSettingBox inherits VerticalLayout {
         AppButton {
             width: 140px;
             height: 40px;
-            label: "Save name";
+            label: @tr("Save name");
             prefix-icon: @image-url("../assets/icons/check.svg");
             inactive: (root.project == "");
             clicked => { root.accepted(root.project); }
@@ -72,11 +72,11 @@ component ArchiveBox inherits VerticalLayout {
 	padding-bottom: 20px;
 
 	TitleText {
-        text: "Archive project";
+        text: @tr("Archive project");
     }
 
     BodyText {
-        text: "Removes it from your task list. Your past time entries stay in Evaluation.";
+        text: @tr("Removes it from your task list. Your past time entries stay in Evaluation.");
         wrap: word-wrap;
         vertical-alignment: center;
     }
@@ -87,7 +87,7 @@ component ArchiveBox inherits VerticalLayout {
 			mouse-cursor: pointer;
 			clicked => { root.clicked(); }
 			Text {
-				text: "Archive project";
+				text: @tr("Archive project");
 				color: Theme.palette.danger;
 				font-size: Theme.typography.body.size;
 			}
@@ -110,14 +110,14 @@ component UnarchiveBox inherits VerticalLayout {
     }
 
     BodyText {
-        text: "This project is hidden from Home. Its past time entries remain in Evaluation.";
+        text: @tr("This project is hidden from Home. Its past time entries remain in Evaluation.");
         wrap: word-wrap;
         vertical-alignment: center;
     }
 
     AppButton {
         width: 180%;
-        label: "Unarchive";
+        label: @tr("Unarchive");
         background: Theme.palette.accent-surface;
         border-color: Theme.palette.accent;
         border-width: 1px;
@@ -126,7 +126,7 @@ component UnarchiveBox inherits VerticalLayout {
     }
 
     TextLink {
-		text: "Delete finally";
+		text: @tr("Delete finally");
 		color: Theme.palette.danger;
 		horizontal-alignment: center;
 
@@ -158,7 +158,7 @@ export component ProjectDialog inherits Rectangle {
         spacing: 20px;
 
 		BackLink {
-            text: "Project settings";
+            text: @tr("Project settings");
             clicked => { root.close(); }
 
         }

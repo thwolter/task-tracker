@@ -3,6 +3,11 @@ env = { SLINT_LIVE_PREVIEW = "1" }
 command = "cargo"
 args = ["run", "--features", "slint/live-preview"]
 
+[tasks.extract-translations]
+script = '''
+find . -name '*.slint' -print0 | xargs -0 slint-tr-extractor -o tempo.pot
+'''
+
 [tasks.bundle-host]
 script = '''
 cargo test --release
