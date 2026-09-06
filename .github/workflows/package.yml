@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Use the stable Rust toolchain
         run: rustup update stable
@@ -71,7 +71,7 @@ jobs:
 
       - name: Upload Windows executable
         if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           path: target/release/task-tracker.exe
@@ -79,7 +79,7 @@ jobs:
 
       - name: Upload unsigned package
         if: runner.os != 'Windows'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           path: target/release/bundle/**
