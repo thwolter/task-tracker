@@ -3,6 +3,7 @@ import { Theme } from "../theme.slint";
 export component TimerDisplay inherits Rectangle {
     in property <string> task;
     in property <string> elapsed;
+    in property <bool> paused;
 
     callback pause();
 
@@ -37,9 +38,18 @@ export component TimerDisplay inherits Rectangle {
             y: 60px;
             text: root.elapsed;
             color: Theme.palette.text;
+            opacity: root.paused ? 0.55 : 1;
             font-size: Theme.typography.timer.size;
             font-weight: Theme.typography.timer.weight;
             horizontal-alignment: center;
+
+            animate opacity {
+                duration: 800ms;
+                iteration-count: -1;
+                direction: alternate;
+                easing: ease-in-out;
+                enabled: root.paused;
+            }
         }
 
         Image {

@@ -127,8 +127,8 @@ impl ActiveTask {
         &self.project_id
     }
 
-    pub(crate) fn started(&self) -> i64 {
-        self.started
+    pub(crate) fn paused(&self) -> bool {
+        self.paused
     }
 
     pub(crate) fn elapsed_until(&self, timestamp: i64) -> i64 {

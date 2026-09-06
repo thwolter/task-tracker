@@ -94,8 +94,8 @@ pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64) -> EvaluationState {
 }
 
 pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
-    let (active_task, elapsed) = tracker.data().active_task().map_or_else(
-        || (SharedString::new(), SharedString::from("00:00")),
+    let (active_task, elapsed, paused) = tracker.data().active_task().map_or_else(
+        || (SharedString::new(), SharedString::from("00:00"), false),
         |active| {
             (
                 tracker
@@ -104,12 +104,14 @@ pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
                     .to_uppercase()
                     .into(),
                 format_elapsed(active.elapsed_until(timestamp)).into(),
+                active.paused(),
             )
         },
     );
     TrackingState {
         active_task,
         elapsed,
+        paused,
     }
 }
 
@@ -161,6 +163,8 @@ mod tests {
 
         tracker.start_tracking("project-1".into(), 10).unwrap();
         assert_eq!(tracking(&tracker, 70).elapsed, "01:00");
+        tracker.toggle_tracking_pause(70).unwrap();
+        assert!(tracking(&tracker, 90).paused);
         tracker.end_tracking(130).unwrap();
         assert_eq!(evaluation(&tracker, 130).tasks.row_count(), 1);
         std::fs::remove_file(path).unwrap();

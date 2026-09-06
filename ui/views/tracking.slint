@@ -17,15 +17,18 @@ export component TrackingView inherits Rectangle {
 	    TimerDisplay {
 	        task: root.state.active-task;
 	        elapsed: root.state.elapsed;
+	        paused: root.state.paused;
+
             pause => { root.pause(); }
 	    }
 
 	    AppButton {
 	        width: 232px;
 	        height: 50px;
-        label: "End task";
+            label: "End task";
 	        primary: true;
-        clicked => { root.end-tracking(); }
+
+            clicked => { root.end-tracking(); }
 	    }
 	}
 }
