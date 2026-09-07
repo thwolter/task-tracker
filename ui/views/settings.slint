@@ -4,6 +4,7 @@ import { ProjectItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
 import { TitleText } from "../components/typography.slint";
+import { ScrollableColumn } from "../components/scrollable-column.slint";
 
 
 export component ProjectListItem inherits Rectangle {
@@ -65,23 +66,10 @@ export component SettingsView inherits Rectangle {
 	        text: @tr("Project settings");
 	    }
 
-        project-list := ScrollView {
-	        vertical-stretch: 1;
-	        horizontal-scrollbar-policy: always-off;
-
-			private property <bool> has-scrollbar: self.viewport-height > self.visible-height;
-
-	        VerticalLayout {
-	            x: 0px;
-	            cross-axis-alignment: stretch;
-	            spacing: 7px;
-                width: project-list.width - (project-list.has-scrollbar ? 20px : 0px);
-	            alignment: start;
-
+        ScrollableColumn {
             for project in root.projects: ProjectListItem {
                 project: project;
-	                clicked(id) => { open-rename-project(id)}
-	            }
+	            clicked(id) => { open-rename-project(id)}
 	        }
 	    }
 
@@ -89,14 +77,7 @@ export component SettingsView inherits Rectangle {
 	        width: 100%;
 	        label: @tr("Add");
 	        prefix-icon: @image-url("../assets/icons/add.svg");
-        clicked => { root.open-add-project(); }
+            clicked => { root.open-add-project(); }
 	    }
-
-
-
-
-
-
-
     }
 }

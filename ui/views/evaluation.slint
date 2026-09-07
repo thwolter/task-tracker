@@ -2,9 +2,15 @@ import { HorizontalBox, VerticalBox, ScrollView } from "std-widgets.slint";
 import { AppButton } from "../components/app-button.slint";
 import { RangeOption } from "../components/range-option.slint";
 import { TitleText, ViewHeader } from "../components/typography.slint";
-import { EvaluationState, Range, TaskItem, ProjectTotalItem } from "../models.slint";
+import {
+    EvaluationState,
+    Range,
+    TaskItem,
+    ProjectTotalItem,
+} from "../models.slint";
 import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
+import { ScrollableColumn } from "../components/scrollable-column.slint";
 
 component EvaluationSummary inherits Rectangle {
     in property <string> total;
@@ -70,55 +76,37 @@ export component ProjectCard inherits Rectangle {
     border-width: 1px;
     border-color: Theme.palette.border;
 
-	HorizontalLayout {
-		padding-top: 8px;
-		padding-bottom: 8px;
-		padding-left: 15px;
-		padding-right: 15px;
-		cross-axis-alignment: center;
+    HorizontalLayout {
+        padding-top: 8px;
+        padding-bottom: 8px;
+        padding-left: 15px;
+        padding-right: 15px;
+        cross-axis-alignment: center;
 
-		VerticalLayout {
-			spacing: 5px;
+        VerticalLayout {
+            spacing: 5px;
 
-			Text {
-		        text: root.entry.project;
-		        color: Theme.palette.text;
-		        font-size: Theme.typography.body.size;
-		        font-weight: Theme.typography.body-strong.weight;
-		    }
+            Text {
+                text: root.entry.project;
+                color: Theme.palette.text;
+                font-size: Theme.typography.body.size;
+                font-weight: Theme.typography.body-strong.weight;
+            }
 
-		    Text {
-		        text: @tr("{n} task" | "{n} tasks" % entry.num-tasks);
-		        color: Theme.palette.muted-text;
-		        font-size: Theme.typography.label.size;
-		    }
-		}
+            Text {
+                text: @tr("{n} task" | "{n} tasks" % entry.num-tasks);
+                color: Theme.palette.muted-text;
+                font-size: Theme.typography.label.size;
+            }
+        }
 
-	    Text {
-	        width: 52px;
-	        text: root.entry.total;
-	        color: Theme.palette.accent;
-	        font-size: Theme.typography.supporting.size;
-	        font-weight: Theme.typography.body-strong.weight;
-	        horizontal-alignment: right;
-	    }
-	}
-}
-
-component ProjectList inherits ScrollView {
-	in property <EvaluationState> state;
-
-	vertical-stretch: 1;
-	horizontal-scrollbar-policy: always-off;
-
-	private property <bool> has-scrollbar: self.viewport-height > self.visible-height;
-
-	VerticalLayout {
-		x: 0px;
-        spacing: 7px;
-        width: root.width - (has-scrollbar ? 20px : 0px);
-        for total in root.state.project_totals: ProjectCard {
-            entry: total;
+        Text {
+            width: 52px;
+            text: root.entry.total;
+            color: Theme.palette.accent;
+            font-size: Theme.typography.supporting.size;
+            font-weight: Theme.typography.body-strong.weight;
+            horizontal-alignment: right;
         }
     }
 }
@@ -130,48 +118,50 @@ export component EvaluationView inherits Rectangle {
     callback choose-range(Range);
     callback export-markdown();
 
-	VerticalLayout {
-		padding: 20px;
-		spacing: 20px;
+    VerticalLayout {
+        padding: 20px;
+        spacing: 20px;
 
-		BackLink {
-			text: @tr("Home");
-			clicked => { root.open-home-view(); }
-		}
+        BackLink {
+            text: @tr("Home");
+            clicked => { root.open-home-view(); }
+        }
 
-	    ViewHeader {
-	        text: @tr("Evaluation");
-	    }
+        ViewHeader {
+            text: @tr("Evaluation");
+        }
 
-	    HorizontalLayout {
-	        spacing: 6px;
-	        for option in [
-	            { label: @tr("Day"), value: Range.day },
-	            { label: @tr("Week"), value: Range.week },
-	            { label: @tr("Month"), value: Range.month },
-	            { label: @tr("Year"), value: Range.year }
-	        ]: RangeOption {
-	            label: option.label;
-	            value: option.value;
-	            selected: root.state.range == option.value;
-	            clicked(value) => { root.choose-range(value); }
-	        }
-	    }
+        HorizontalLayout {
+            spacing: 6px;
+            for option in [
+                { label: @tr("Day"), value: Range.day },
+                { label: @tr("Week"), value: Range.week },
+                { label: @tr("Month"), value: Range.month },
+                { label: @tr("Year"), value: Range.year }
+            ]: RangeOption {
+                label: option.label;
+                value: option.value;
+                selected: root.state.range == option.value;
+                clicked(value) => { root.choose-range(value); }
+            }
+        }
 
-	    EvaluationSummary {
-	        total: root.state.total;
-	        vertical-stretch: 0;
-	    }
+        EvaluationSummary {
+            total: root.state.total;
+            vertical-stretch: 0;
+        }
 
-		ProjectList {
-			state: root.state;
-		}
+        ScrollableColumn {
+            for total in root.state.project_totals: ProjectCard {
+                entry: total;
+            }
+        }
 
-	    AppButton {
-	        label: @tr("Export Markdown");
-	        prefix-icon: @image-url("../assets/icons/download.svg");
-	        primary: true;
-	        clicked => { root.export-markdown(); }
-	    }
+        AppButton {
+            label: @tr("Export Markdown");
+            prefix-icon: @image-url("../assets/icons/download.svg");
+            primary: true;
+            clicked => { root.export-markdown(); }
+        }
     }
 }

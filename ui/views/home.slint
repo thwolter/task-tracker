@@ -3,6 +3,7 @@ import { ProjectCard } from "../components/project-card.slint";
 import { HomeState, TaskItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { ViewHeader } from "../components/typography.slint";
+import { ScrollableColumn } from "../components/scrollable-column.slint";
 
 component HomeHeader inherits HorizontalLayout {
     alignment: stretch;
@@ -18,50 +19,50 @@ component HomeHeader inherits HorizontalLayout {
         text: @tr("What next?");
     }
 
-	HorizontalLayout {
-		spacing: 10px;
+    HorizontalLayout {
+        spacing: 10px;
 
-		Rectangle {
-			background: Theme.palette.soft-surface;
-			width: 20px;
-			height: 20px;
+        Rectangle {
+            background: Theme.palette.soft-surface;
+            width: 20px;
+            height: 20px;
 
-			Image {
-	            source: @image-url("../assets/icons/bar-chart.svg");
-	            colorize: Theme.palette.secondary-text;
-	            width: 18px;
-	        }
+            Image {
+                source: @image-url("../assets/icons/bar-chart.svg");
+                colorize: Theme.palette.secondary-text;
+                width: 18px;
+            }
 
-	        TouchArea {
-	            mouse-cursor: pointer;
-	            clicked => { open-evaluation(); }
-	        }
+            TouchArea {
+                mouse-cursor: pointer;
+                clicked => { open-evaluation(); }
+            }
 
-	        Tooltip {
-		        text: @markdown("\\{root.evaluation-tooltip}");
-		    }
-		}
+            Tooltip {
+                text: @markdown("\\{root.evaluation-tooltip}");
+            }
+        }
 
-		Rectangle {
-			background: Theme.palette.soft-surface;
-			width: 20px;
-			height: 20px;
+        Rectangle {
+            background: Theme.palette.soft-surface;
+            width: 20px;
+            height: 20px;
 
-	        Image {
-	            source: @image-url("../assets/icons/settings.svg");
-	            colorize: Theme.palette.secondary-text;
-	            width: 18px;
-	        }
+            Image {
+                source: @image-url("../assets/icons/settings.svg");
+                colorize: Theme.palette.secondary-text;
+                width: 18px;
+            }
 
-	        TouchArea {
-	            mouse-cursor: pointer;
-	            clicked => { open-settings(); }
-	        }
+            TouchArea {
+                mouse-cursor: pointer;
+                clicked => { open-settings(); }
+            }
 
-	        Tooltip {
-		        text: @markdown("\\{root.project-settings-tooltip}");
-		    }
-	    }
+            Tooltip {
+                text: @markdown("\\{root.project-settings-tooltip}");
+            }
+        }
     }
 }
 
@@ -76,62 +77,38 @@ component LastTaskCard inherits Rectangle {
     border-radius: 10px;
     background: Theme.palette.accent-surface;
 
-	TouchArea {
-		mouse-cursor: pointer;
-		clicked => { root.clicked(); }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
 
-		VerticalBox {
-			spacing: 5px;
+        VerticalBox {
+            spacing: 5px;
 
-			Text {
-		        text: @tr("LAST SESSION · TAP TO ADD A NOTE");
-		        color: Theme.palette.accent;
-		        font-size: Theme.typography.caption.size;
-		        font-weight: Theme.typography.caption.weight;
-		    }
+            Text {
+                text: @tr("LAST SESSION · TAP TO ADD A NOTE");
+                color: Theme.palette.accent;
+                font-size: Theme.typography.caption.size;
+                font-weight: Theme.typography.caption.weight;
+            }
 
-		    Text {
+            Text {
                 text: task.project + " · " + task.duration;
-		        color: Theme.palette.text;
-		        font-size: Theme.typography.body-strong.size;
-		        font-weight: Theme.typography.body-strong.weight;
-	        }
+                color: Theme.palette.text;
+                font-size: Theme.typography.body-strong.size;
+                font-weight: Theme.typography.body-strong.weight;
+            }
 
-	        Text {
-		        text: task.note != "" ? task.note : @tr("[No task description]");
-		        color: Theme.palette.muted-text;
-		        wrap: word-wrap;
-		        font-size: Theme.typography.label.size;
-		        font-weight: Theme.typography.label.weight;
-	        }
-	    }
+            Text {
+                text: task.note != "" ? task.note : @tr("[No task description]");
+                color: Theme.palette.muted-text;
+                wrap: word-wrap;
+                font-size: Theme.typography.label.size;
+                font-weight: Theme.typography.label.weight;
+            }
+        }
 
-	    Tooltip {
-	        text: @markdown("\\{root.add-task-tooltip}");
-	    }
-	}
-}
-
-component ProjectList inherits ScrollView {
-    in property <HomeState> state;
-    out property <bool> has-scrollbar: self.viewport-height > self.visible-height;
-
-    vertical-stretch: 1;
-    horizontal-scrollbar-policy: always-off;
-
-    callback clicked(string);
-
-    project-content := VerticalLayout {
-        x: 0px;
-        cross-axis-alignment: stretch;
-        padding-bottom: 16px;
-        spacing: 7px;
-        width: root.width - (root.has-scrollbar ? 20px : 0px);
-        alignment: start;
-
-        for project in root.state.projects: ProjectCard {
-            project: project;
-            clicked(id) => { root.clicked(id); }
+        Tooltip {
+            text: @markdown("\\{root.add-task-tooltip}");
         }
     }
 }
@@ -147,11 +124,12 @@ component Footer inherits Text {
 export component HomeView inherits Rectangle {
     in property <HomeState> state;
 
+    private property <length> footer-clearance: 20px;
+
     callback start-tracking(string);
     callback open-settings();
     callback open-last-task();
     callback open-evaluation();
-
 
     content := Rectangle {
         width: root.width;
@@ -182,16 +160,22 @@ export component HomeView inherits Rectangle {
                     font-weight: Theme.typography.label.weight;
                 }
 
-                project-list := ProjectList {
-                    state: root.state;
-                    clicked(project-id) => { root.start-tracking(project-id); }
+                project-list := ScrollableColumn {
+                    for project in root.state.projects: ProjectCard {
+                        project: project;
+                        clicked(id) => { root.start-tracking(id); }
+                    }
+                    // Always present: it is part of the scrollable viewport.
+	                Rectangle {
+	                    height: root.footer-clearance;
+	                }
                 }
             }
         }
-    }
 
-    if !project-list.has-scrollbar: Footer {
-        text: @tr("A quiet place to keep your day moving.");
-        y: root.height - self.height - 20px;
+        if (!project-list.has-scrollbar): Footer {
+            text: @tr("A quiet place to keep your day moving.");
+            y: root.height - self.height - 15px;
+        }
     }
 }
