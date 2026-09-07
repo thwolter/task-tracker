@@ -23,24 +23,31 @@ export struct TrackingState {
 export struct TaskItem {
     project: string,
     note: string,
-    duration: string,
+    duration-seconds: int,
     timestamp: string,
+}
+
+export struct EvaluationTaskItem {
+    project: string,
+    note: string,
+    duration-seconds: int,
 }
 
 export struct HomeState {
     projects: [ProjectItem],
     last-task: TaskItem,
+    has-last-task: bool,
 }
 
 export struct ProjectTotalItem {
 	project: string,
-	total: string,
+	duration-seconds: int,
 	num_tasks: int,
 }
 
 export struct EvaluationState {
-    tasks: [TaskItem],
-    total: string,
+    tasks: [EvaluationTaskItem],
+    total-seconds: int,
     range: Range,
     project-totals: [ProjectTotalItem]
 }

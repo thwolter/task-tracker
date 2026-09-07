@@ -1,13 +1,14 @@
 #[cfg(test)]
 mod tests {
     use crate::ui::bindings::bind;
-    use crate::{AppWindow, Page, application::Tracker};
+    use crate::{AppWindow, Page, application::Tracker, language::Language};
     use std::{cell::RefCell, rc::Rc};
 
     #[test]
     fn settings_home_callback_returns_to_home() {
         i_slint_backend_testing::init_no_event_loop();
         let ui = AppWindow::new().unwrap();
+        assert!(slint::select_bundled_translation("de").is_ok());
         ui.set_page(Page::Settings);
         ui.invoke_open_home_view();
         assert_eq!(ui.get_page(), Page::Home);
@@ -23,7 +24,7 @@ mod tests {
         ));
         let ui = AppWindow::new().unwrap();
         let tracker = Rc::new(RefCell::new(Tracker::at(path.clone())));
-        let _timer = bind(&ui, tracker);
+        let _timer = bind(&ui, tracker, Language::English);
 
         ui.invoke_open_add_project();
         assert_eq!(ui.get_page(), Page::ProjectEditor);
@@ -44,7 +45,7 @@ mod tests {
         ));
         let ui = AppWindow::new().unwrap();
         let tracker = Rc::new(RefCell::new(Tracker::at(path.clone())));
-        let _timer = bind(&ui, tracker.clone());
+        let _timer = bind(&ui, tracker.clone(), Language::English);
 
         ui.invoke_open_rename_project("project-1".into());
         ui.invoke_archive_project("project-1".into());

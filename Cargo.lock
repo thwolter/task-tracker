@@ -4819,6 +4819,7 @@ dependencies = [
  "serde_json",
  "slint",
  "slint-build",
+ "sys-locale",
  "thiserror 2.0.20",
  "winres",
 ]

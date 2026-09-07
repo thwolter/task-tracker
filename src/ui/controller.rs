@@ -1,6 +1,7 @@
 use crate::application::{ProjectDialog, SharedTracker};
 use crate::{
-    AppWindow, Page, ProjectDialogState, Status, StatusKind, domain, persistence, presentation,
+    AppWindow, Page, ProjectDialogState, Status, StatusKind, domain, language::Language,
+    persistence, presentation,
 };
 use rfd::FileDialog;
 use slint::{ComponentHandle, SharedString, Timer, TimerMode, Weak};
@@ -12,14 +13,16 @@ const STATUS_DURATION: Duration = Duration::from_secs(3);
 pub(super) struct UiController {
     ui: Weak<AppWindow>,
     tracker: SharedTracker,
+    language: Language,
     status_timer: Rc<Timer>,
 }
 
 impl UiController {
-    pub(super) fn new(ui: &AppWindow, tracker: SharedTracker) -> Self {
+    pub(super) fn new(ui: &AppWindow, tracker: SharedTracker, language: Language) -> Self {
         Self {
             ui: ui.as_weak(),
             tracker,
+            language,
             status_timer: Rc::new(Timer::default()),
         }
     }
@@ -213,7 +216,7 @@ impl UiController {
         else {
             return;
         };
-        let report = self.tracker.borrow().report(domain::now());
+        let report = self.tracker.borrow().report(domain::now(), self.language);
         match persistence::export_markdown(&path, &report) {
             Ok(()) => self.set_success(&ui, "Markdown exported"),
             Err(error) => self.set_error(&ui, format!("Export failed: {error}")),

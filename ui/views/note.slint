@@ -4,6 +4,7 @@ import { Theme } from "../theme.slint";
 import { VerticalBox } from "std-widgets.slint";
 import { BackLink } from "../components/back-link.slint";
 import { TaskItem } from "../models.slint";
+import { DurationLabel } from "../components/duration-label.slint";
 
 component NoteEditor inherits Rectangle {
     in-out property <string> text;
@@ -64,9 +65,13 @@ export component NoteView inherits Rectangle {
 		        }
 
 		        BodyText {
-                    text: root.last-task.project  + " · " + last-task.duration;
-		            color: Theme.palette.accent;
+                    text: root.last-task.project  + " · " + duration.text;
+			    color: Theme.palette.accent;
 		        }
+
+                duration := DurationLabel {
+                    seconds: root.last-task.duration-seconds;
+                }
 			}
         }
 

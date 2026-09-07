@@ -1,5 +1,6 @@
 use crate::{
-    EvaluationState, HomeState, ProjectItem, ProjectTotalItem, Range, TaskItem, TrackingState,
+    EvaluationState, EvaluationTaskItem, HomeState, ProjectItem, ProjectTotalItem, Range, TaskItem,
+    TrackingState,
     application::Tracker,
     domain::{self, Data, Range as DomainRange, Task},
 };
@@ -27,14 +28,15 @@ pub(crate) fn home(tracker: &Tracker) -> HomeState {
         .last()
         .map(|task| task_item(tracker.data(), task))
         .unwrap_or_else(|| TaskItem {
-            project: "No completed tasks yet".into(),
+            project: SharedString::new(),
             note: SharedString::new(),
-            duration: SharedString::new(),
+            duration_seconds: 0,
             timestamp: SharedString::new(),
         });
     HomeState {
         projects,
         last_task,
+        has_last_task: tracker.data().has_tasks(),
     }
 }
 
@@ -42,7 +44,7 @@ fn task_item(data: &Data, task: &Task) -> TaskItem {
     TaskItem {
         project: data.project_name(task.project_id()).into(),
         note: task.note().into(),
-        duration: domain::duration(task.ended() - task.started()).into(),
+        duration_seconds: slint_seconds(task.ended() - task.started()),
         timestamp: Local
             .timestamp_opt(task.ended(), 0)
             .single()
@@ -86,12 +88,16 @@ pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64) -> EvaluationState {
             .iter()
             .rev()
             .take(3)
-            .map(|task| task_item(tracker.data(), task))
+            .map(|task| EvaluationTaskItem {
+                project: tracker.data().project_name(task.project_id()).into(),
+                note: task.note().into(),
+                duration_seconds: slint_seconds(task.ended() - task.started()),
+            })
             .collect::<Vec<_>>(),
     ));
     EvaluationState {
         tasks,
-        total: format!("{}  {}", tracker.range().name(), domain::duration(total)).into(),
+        total_seconds: slint_seconds(total),
         range: slint_range(tracker.range()),
         project_totals,
     }
@@ -117,11 +123,15 @@ fn project_totals(data: &Data, tasks: &[&Task]) -> ModelRc<ProjectTotalItem> {
             .into_iter()
             .map(|(project_id, total, num_tasks)| ProjectTotalItem {
                 project: data.project_name(project_id).into(),
-                total: domain::duration(total).into(),
+                duration_seconds: slint_seconds(total),
                 num_tasks,
             })
             .collect::<Vec<_>>(),
     ))
+}
+
+fn slint_seconds(seconds: i64) -> i32 {
+    seconds.clamp(0, i64::from(i32::MAX)) as i32
 }
 
 pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
@@ -189,10 +199,7 @@ mod tests {
             domain::now()
         ));
         let mut tracker = Tracker::at(path.clone());
-        assert_eq!(
-            home(&tracker).last_task.project,
-            "No completed tasks yet"
-        );
+        assert!(!home(&tracker).has_last_task);
         assert_eq!(tracking(&tracker, 0).elapsed, "00:00");
 
         tracker.start_tracking("project-1".into(), 10).unwrap();
@@ -200,11 +207,16 @@ mod tests {
         tracker.toggle_tracking_pause(70).unwrap();
         assert!(tracking(&tracker, 90).paused);
         tracker.end_tracking(130).unwrap();
+        assert!(home(&tracker).has_last_task);
+        assert_eq!(home(&tracker).last_task.duration_seconds, 60);
         let evaluation = evaluation(&tracker, 130);
         assert_eq!(evaluation.tasks.row_count(), 1);
+        assert_eq!(evaluation.tasks.row_data(0).unwrap().duration_seconds, 60);
+        assert_eq!(evaluation.total_seconds, 60);
         assert_eq!(evaluation.project_totals.row_count(), 1);
         let total = evaluation.project_totals.row_data(0).unwrap();
         assert_eq!(total.project, "Project Atlas");
+        assert_eq!(total.duration_seconds, 60);
         assert_eq!(total.num_tasks, 1);
         std::fs::remove_file(path).unwrap();
     }

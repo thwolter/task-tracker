@@ -4,16 +4,26 @@ import { RangeOption } from "../components/range-option.slint";
 import { TitleText, ViewHeader } from "../components/typography.slint";
 import {
     EvaluationState,
+    EvaluationTaskItem,
     Range,
-    TaskItem,
     ProjectTotalItem,
 } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
+import { DurationLabel } from "../components/duration-label.slint";
 
 component EvaluationSummary inherits Rectangle {
-    in property <string> total;
+    in property <int> total-seconds;
+    in property <Range> range;
+
+    private property <string> range-label: root.range == Range.day
+        ? @tr("Today")
+        : root.range == Range.week
+        ? @tr("This week")
+        : root.range == Range.month
+        ? @tr("This month")
+        : @tr("This year");
 
     height: 40px;
     border-radius: Theme.border.radius;
@@ -21,16 +31,20 @@ component EvaluationSummary inherits Rectangle {
 
     Text {
         x: 10px;
-        text: root.total;
+        text: @tr("{} · {}", root.range-label, duration.text);
         color: Theme.palette.text;
         font-size: Theme.typography.supporting.size;
         font-weight: Theme.typography.supporting.weight;
         vertical-alignment: center;
     }
+
+    duration := DurationLabel {
+        seconds: root.total-seconds;
+    }
 }
 
 export component TaskCard inherits Rectangle {
-    in property <TaskItem> entry;
+    in property <EvaluationTaskItem> entry;
 
     height: 46px;
     border-radius: 12px;
@@ -59,11 +73,15 @@ export component TaskCard inherits Rectangle {
         x: 163px;
         y: 15px;
         width: 52px;
-        text: root.entry.duration;
+        text: duration.text;
         color: Theme.palette.accent;
         font-size: Theme.typography.supporting.size;
         font-weight: Theme.typography.body-strong.weight;
         horizontal-alignment: right;
+    }
+
+    duration := DurationLabel {
+        seconds: root.entry.duration-seconds;
     }
 }
 
@@ -102,12 +120,16 @@ export component ProjectCard inherits Rectangle {
 
         Text {
             width: 52px;
-            text: root.entry.total;
+            text: duration.text;
             color: Theme.palette.accent;
             font-size: Theme.typography.supporting.size;
             font-weight: Theme.typography.body-strong.weight;
             horizontal-alignment: right;
         }
+    }
+
+    duration := DurationLabel {
+        seconds: root.entry.duration-seconds;
     }
 }
 
@@ -147,7 +169,8 @@ export component EvaluationView inherits Rectangle {
         }
 
         EvaluationSummary {
-            total: root.state.total;
+            total-seconds: root.state.total-seconds;
+            range: root.state.range;
             vertical-stretch: 0;
         }
 

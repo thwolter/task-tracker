@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-09-06 16:41+0000\n"
+"POT-Creation-Date: 2026-09-07 09:01+0000\n"
 "PO-Revision-Date: 2026-09-06 16:00+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,6 +11,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# ui/app-window.slint: 22
+#: ui/app-window.slint:22
+msgctxt "AppWindow"
+msgid "paused"
+msgstr "pausiert"
 
 #: ui/components/app-button.slint:5
 msgctxt "AppButton"
@@ -21,6 +27,16 @@ msgstr "Schaltfläche"
 msgctxt "BackLink"
 msgid "Back"
 msgstr "Zurück"
+
+#: ui/components/duration-label.slint:4
+msgctxt "DurationLabel"
+msgid "{} h {} min"
+msgstr "{} Std. {} Min."
+
+#: ui/components/duration-label.slint:5
+msgctxt "DurationLabel"
+msgid "{} min"
+msgstr "{} Min."
 
 #: ui/views/project-dialog.slint:16
 msgctxt "ProjectSettingBox"
@@ -78,139 +94,159 @@ msgctxt "TrackingView"
 msgid "End task"
 msgstr "Aufgabe beenden"
 
-#: ui/views/home.slint:11
+#: ui/views/home.slint:13
 msgctxt "HomeHeader"
 msgid "Evaluation"
 msgstr "Auswertung"
 
-#: ui/views/home.slint:12
+#: ui/views/home.slint:14
 msgctxt "HomeHeader"
 msgid "Manage projects"
 msgstr "Projekte verwalten"
 
-#: ui/views/home.slint:18
+#: ui/views/home.slint:20
 msgctxt "HomeHeader"
 msgid "What next?"
 msgstr "Was steht an?"
 
-#: ui/views/home.slint:71
+#: ui/views/home.slint:73
 msgctxt "LastTaskCard"
 msgid "Add a task"
 msgstr "Aufgabe hinzufügen"
 
-#: ui/views/home.slint:87
+#: ui/views/home.slint:89
 msgctxt "LastTaskCard"
 msgid "LAST SESSION · TAP TO ADD A NOTE"
 msgstr "LETZTE SITZUNG · NOTIZ HINZUFÜGEN"
 
-#: ui/views/home.slint:101
+#: ui/views/home.slint:107
 msgctxt "LastTaskCard"
 msgid "[No task description]"
 msgstr "[Keine Aufgabenbeschreibung]"
 
-#: ui/views/home.slint:179
+#: ui/views/home.slint:162
 msgctxt "HomeView"
 msgid "Start a timer"
 msgstr "Timer starten"
 
-#: ui/views/home.slint:194
+#: ui/views/home.slint:182
 msgctxt "HomeView"
 msgid "A quiet place to keep your day moving."
 msgstr "Ein ruhiger Ort, um voranzukommen."
 
-#: ui/views/note.slint:33
+#: ui/views/note.slint:34
 msgctxt "NoteEditor"
 msgid "e.g. prepared the Q4 project brief"
 msgstr "z. B. Projektbeschreibung für Q4 vorbereitet"
 
-#: ui/views/note.slint:56
+#: ui/views/note.slint:57
 msgctxt "NoteView"
 msgid "Home"
 msgstr "Startseite"
 
-#: ui/views/note.slint:63
+#: ui/views/note.slint:64
 msgctxt "NoteView"
 msgid "What did you get done?"
 msgstr "Was hast du erledigt?"
 
-#: ui/views/note.slint:78
+#: ui/views/note.slint:83
 msgctxt "NoteView"
 msgid "Add a brief note for your activity log."
 msgstr "Füge eine kurze Notiz hinzu."
 
-#: ui/views/note.slint:96
+#: ui/views/note.slint:101
 msgctxt "NoteView"
 msgid "Save note"
 msgstr "Notiz speichern"
 
-#: ui/views/note.slint:104
+#: ui/views/note.slint:109
 msgctxt "NoteView"
 msgid "Skip for now"
 msgstr "Vorerst überspringen"
 
-#: ui/views/settings.slint:21
+#: ui/views/settings.slint:61
 msgctxt "SettingsView"
 msgid "Home"
 msgstr "Startseite"
 
-#: ui/views/settings.slint:26
+#: ui/views/settings.slint:66
 msgctxt "SettingsView"
 msgid "Project settings"
 msgstr "Projekteinstellungen"
 
-#: ui/views/settings.slint:51
+#: ui/views/settings.slint:78
 msgctxt "SettingsView"
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: ui/views/evaluation.slint:47
+#: ui/views/evaluation.slint:21
+msgctxt "EvaluationSummary"
+msgid "Today"
+msgstr "Heute"
+
+#: ui/views/evaluation.slint:23
+msgctxt "EvaluationSummary"
+msgid "This week"
+msgstr "Diese Woche"
+
+#: ui/views/evaluation.slint:25
+msgctxt "EvaluationSummary"
+msgid "This month"
+msgstr "Dieser Monat"
+
+#: ui/views/evaluation.slint:26
+msgctxt "EvaluationSummary"
+msgid "This year"
+msgstr "Dieses Jahr"
+
+#: ui/views/evaluation.slint:34
+msgctxt "EvaluationSummary"
+msgid "{} · {}"
+msgstr "{} · {}"
+
+#: ui/views/evaluation.slint:67
 msgctxt "TaskCard"
 msgid "No details added"
 msgstr "Keine Details hinzugefügt"
 
-#: ui/views/evaluation.slint:91
+#: ui/views/evaluation.slint:115
 msgctxt "ProjectCard"
 msgid "{n} task"
 msgid_plural "{n} tasks"
 msgstr[0] "{n} Aufgabe"
 msgstr[1] "{n} Aufgaben"
 
-#: ui/views/evaluation.slint:138
+#: ui/views/evaluation.slint:148
 msgctxt "EvaluationView"
 msgid "Home"
 msgstr "Startseite"
 
-#: ui/views/evaluation.slint:143
+#: ui/views/evaluation.slint:153
 msgctxt "EvaluationView"
 msgid "Evaluation"
 msgstr "Auswertung"
 
-#: ui/views/evaluation.slint:149
+#: ui/views/evaluation.slint:159
 msgctxt "EvaluationView"
 msgid "Day"
 msgstr "Tag"
 
-#: ui/views/evaluation.slint:150
+#: ui/views/evaluation.slint:160
 msgctxt "EvaluationView"
 msgid "Week"
 msgstr "Woche"
 
-#: ui/views/evaluation.slint:151
+#: ui/views/evaluation.slint:161
 msgctxt "EvaluationView"
 msgid "Month"
 msgstr "Monat"
 
-#: ui/views/evaluation.slint:152
+#: ui/views/evaluation.slint:162
 msgctxt "EvaluationView"
 msgid "Year"
 msgstr "Jahr"
 
-#: ui/views/evaluation.slint:171
+#: ui/views/evaluation.slint:184
 msgctxt "EvaluationView"
 msgid "Export Markdown"
 msgstr "Markdown exportieren"
-
-# ui/app-window.slint: 22
-msgctxt "AppWindow"
-msgid "paused"
-msgstr "pausiert"

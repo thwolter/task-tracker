@@ -1,7 +1,9 @@
 use crate::{
     domain::{self, Data, ProjectId, Range},
     error::Result,
+    language::Language,
     persistence::SqliteStore,
+    report,
 };
 use std::{cell::RefCell, rc::Rc};
 
@@ -158,8 +160,8 @@ impl Tracker {
         self.save()
     }
 
-    pub(crate) fn report(&self, timestamp: i64) -> String {
-        domain::markdown(&self.data, self.range, timestamp)
+    pub(crate) fn report(&self, timestamp: i64, language: Language) -> String {
+        report::markdown(&self.data, self.range, timestamp, language)
     }
 }
 

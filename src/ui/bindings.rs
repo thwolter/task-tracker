@@ -1,10 +1,11 @@
 use crate::AppWindow;
 use crate::application::SharedTracker;
+use crate::language::Language;
 use crate::ui::controller::UiController;
 use slint::Timer;
 
-pub(crate) fn bind(ui: &AppWindow, tracker: SharedTracker) -> Timer {
-    let controller = UiController::new(ui, tracker);
+pub(crate) fn bind(ui: &AppWindow, tracker: SharedTracker, language: Language) -> Timer {
+    let controller = UiController::new(ui, tracker, language);
     controller.refresh(ui);
     controller.persist_initial(ui);
     let timer = controller.start_timer();

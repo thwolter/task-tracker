@@ -8,6 +8,7 @@ homepage = "https://github.com/thwolter/task-tracker"
 
 [dependencies]
 slint = "1.17.1"
+sys-locale = "0.3.2"
 chrono = { version = "0.4", default-features = true }
 rfd = "0.17.2"
 rusqlite = { version = "0.40.2", features = ["bundled"] }

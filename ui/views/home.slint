@@ -4,6 +4,7 @@ import { HomeState, TaskItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { ViewHeader } from "../components/typography.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
+import { DurationLabel } from "../components/duration-label.slint";
 
 component HomeHeader inherits HorizontalLayout {
     alignment: stretch;
@@ -92,10 +93,14 @@ component LastTaskCard inherits Rectangle {
             }
 
             Text {
-                text: task.project + " · " + task.duration;
+                text: task.project + " · " + duration.text;
                 color: Theme.palette.text;
                 font-size: Theme.typography.body-strong.size;
                 font-weight: Theme.typography.body-strong.weight;
+            }
+
+            duration := DurationLabel {
+                seconds: root.task.duration-seconds;
             }
 
             Text {
@@ -145,7 +150,7 @@ export component HomeView inherits Rectangle {
                 open-evaluation => { open-evaluation(); }
             }
 
-            if (root.state.last-task.duration != ""): LastTaskCard {
+            if (root.state.has-last-task): LastTaskCard {
                 task: root.state.last-task;
                 clicked => { root.open-last-task(); }
             }

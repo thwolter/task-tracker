@@ -461,17 +461,6 @@ pub(crate) enum Range {
     Month,
     Year,
 }
-impl Range {
-    pub(crate) fn name(self) -> &'static str {
-        match self {
-            Self::Day => "TODAY",
-            Self::Week => "THIS WEEK",
-            Self::Month => "THIS MONTH",
-            Self::Year => "THIS YEAR",
-        }
-    }
-}
-
 pub(crate) fn validate_project_name(name: &str) -> Result<String> {
     let name = name.trim();
     (!name.is_empty())
@@ -484,15 +473,6 @@ pub(crate) fn now() -> i64 {
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
         .as_secs() as i64
-}
-
-pub(crate) fn duration(seconds: i64) -> String {
-    let minutes = (seconds.max(0) + 30) / 60;
-    if minutes >= 60 {
-        format!("{} h {}", minutes / 60, minutes % 60)
-    } else {
-        format!("{minutes} min")
-    }
 }
 
 pub(crate) fn in_range(task: &Task, range: Range, timestamp: i64) -> bool {
@@ -511,41 +491,6 @@ pub(crate) fn in_range(task: &Task, range: Range, timestamp: i64) -> bool {
         Range::Year => current.year() == item.year(),
     }
 }
-pub(crate) fn markdown(data: &Data, range: Range, timestamp: i64) -> String {
-    let tasks: Vec<_> = data
-        .tasks()
-        .iter()
-        .filter(|task| in_range(task, range, timestamp))
-        .collect();
-    let total: i64 = tasks.iter().map(|task| task.ended - task.started).sum();
-    let mut report = format!(
-        "# Tempo — {}\n\n**Total:** {}\n",
-        range.name(),
-        duration(total)
-    );
-    if tasks.is_empty() {
-        report.push_str("\nNo completed tasks.\n");
-    }
-    for task in tasks {
-        let date = Local
-            .timestamp_opt(task.ended, 0)
-            .single()
-            .unwrap_or_else(Local::now)
-            .format("%Y-%m-%d %H:%M");
-        report.push_str(&format!(
-            "\n- **{}** — {} ({})",
-            data.project_name(task.project_id()),
-            duration(task.ended - task.started),
-            date
-        ));
-        if !task.note.trim().is_empty() {
-            report.push_str(&format!(": {}", task.note.trim()));
-        }
-        report.push('\n');
-    }
-    report
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -628,15 +573,16 @@ mod tests {
         assert!(data.end_tracking(70));
         data.delete_project(&project_id);
 
-        assert!(data
-            .projects()
-            .iter()
-            .all(|project| project.id != project_id));
+        assert!(
+            data.projects()
+                .iter()
+                .all(|project| project.id != project_id)
+        );
         assert!(data.tasks().is_empty());
     }
 
     #[test]
-    fn duration_range_and_markdown_are_readable() {
+    fn range_checks_are_readable() {
         let mut data = Data::defaults();
         data.tasks.push(Task {
             id: TaskId::new("task-1"),
@@ -646,9 +592,7 @@ mod tests {
             ended: 2520,
             note: "Brief".into(),
         });
-        assert_eq!(duration(2520), "42 min");
         assert!(in_range(&data.tasks()[0], Range::Year, 2520));
-        assert!(markdown(&data, Range::Year, 2520).contains("Project Atlas"));
     }
 
     #[test]

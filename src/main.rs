@@ -3,17 +3,22 @@
 mod application;
 mod domain;
 mod error;
+mod language;
 mod persistence;
 mod presentation;
+mod report;
 mod ui;
 
 slint::include_modules!();
 
 fn main() -> Result<(), slint::PlatformError> {
+    let language = language::Language::system();
     let ui = AppWindow::new()?;
+    slint::select_bundled_translation(language.slint_locale())
+        .expect("the selected bundled translation is available");
 
     let tracker = application::Tracker::load_default();
-    let _timer = ui::bind(&ui, tracker);
+    let _timer = ui::bind(&ui, tracker, language);
 
     ui.run()
 }
