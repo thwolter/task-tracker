@@ -1,4 +1,7 @@
 export component DurationLabel {
+	visible: false;
+	height: 0px;
+
     in property <int> seconds;
     out property <string> text: minutes >= 60
         ? @tr("{} h {} min", minutes / 60, Math.mod(minutes, 60))

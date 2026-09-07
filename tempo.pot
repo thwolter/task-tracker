@@ -114,11 +114,6 @@ msgctxt "LastTaskCard"
 msgid "LAST SESSION · TAP TO ADD A NOTE"
 msgstr ""
 
-#: ui/views/home.slint:107
-msgctxt "LastTaskCard"
-msgid "[No task description]"
-msgstr ""
-
 #: ui/views/home.slint:162
 msgctxt "HomeView"
 msgid "Start a timer"

@@ -40,7 +40,7 @@ component HomeHeader inherits HorizontalLayout {
             }
 
             Tooltip {
-                text: @markdown("\\{root.evaluation-tooltip}");
+                text: @markdown("\{root.evaluation-tooltip}");
             }
         }
 
@@ -61,7 +61,7 @@ component HomeHeader inherits HorizontalLayout {
             }
 
             Tooltip {
-                text: @markdown("\\{root.project-settings-tooltip}");
+                text: @markdown("\{root.project-settings-tooltip}");
             }
         }
     }
@@ -82,6 +82,10 @@ component LastTaskCard inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
 
+        duration := DurationLabel {
+            seconds: root.task.duration-seconds;
+        }
+
         VerticalBox {
             spacing: 6px;
 
@@ -99,10 +103,6 @@ component LastTaskCard inherits Rectangle {
                 font-weight: Theme.typography.body-strong.weight;
             }
 
-            duration := DurationLabel {
-                seconds: root.task.duration-seconds;
-            }
-
             Text {
                 text: task.note != "" ? task.note : @tr("[No task description]");
                 color: Theme.palette.muted-text;
@@ -113,7 +113,7 @@ component LastTaskCard inherits Rectangle {
         }
 
         Tooltip {
-            text: @markdown("\\{root.add-task-tooltip}");
+            text: @markdown("\{root.add-task-tooltip}");
         }
     }
 }
