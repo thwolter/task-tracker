@@ -19,7 +19,7 @@ import { Theme } from "theme.slint";
 import { StatusText } from "components/status-text.slint";
 
 export component AppWindow inherits Window {
-    title: "Tempo";
+    title: "Tempo" + (tracking.paused ? " · " + @tr("paused") : "");
     width: 280px;
     preferred-height: 460px;
     min-height: 400px;

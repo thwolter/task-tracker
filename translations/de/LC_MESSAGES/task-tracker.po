@@ -209,3 +209,8 @@ msgstr "Jahr"
 msgctxt "EvaluationView"
 msgid "Export Markdown"
 msgstr "Markdown exportieren"
+
+# ui/app-window.slint: 22
+msgctxt "AppWindow"
+msgid "paused"
+msgstr "pausiert"
