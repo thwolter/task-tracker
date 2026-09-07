@@ -284,4 +284,15 @@ impl UiController {
         });
         ui.set_page(Page::Settings);
     }
+
+    pub(super) fn open_evaluate_tasks(&self, id: SharedString) {
+        let Some(ui) = self.ui.upgrade() else {
+            return;
+        };
+        self.tracker
+            .borrow_mut()
+            .select_evaluation_project(id.to_string());
+        self.refresh(&ui);
+        ui.set_page(Page::EvaluationTasks);
+    }
 }

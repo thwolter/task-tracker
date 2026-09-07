@@ -25,6 +25,7 @@ pub(crate) struct Tracker {
     store: SqliteStore,
     range: Range,
     editing_project_id: Option<ProjectId>,
+    evaluating_project: Option<ProjectId>,
 }
 
 impl Tracker {
@@ -38,6 +39,7 @@ impl Tracker {
             store,
             range: Range::Day,
             editing_project_id: None,
+            evaluating_project: None,
         }));
         let _ = tracker.borrow().save();
         tracker
@@ -49,6 +51,7 @@ impl Tracker {
             store: SqliteStore::at(path),
             range: Range::Day,
             editing_project_id: None,
+            evaluating_project: None,
         }
     }
     pub(crate) fn data(&self) -> &Data {
@@ -110,6 +113,16 @@ impl Tracker {
     /// Selects the in-memory range used by evaluation and report projections.
     pub(crate) fn choose_range(&mut self, range: Range) {
         self.range = range;
+    }
+
+    /// Selects a project whose tasks are shown in the evaluation detail view.
+    pub(crate) fn select_evaluation_project(&mut self, project_id: String) {
+        self.evaluating_project = Some(ProjectId::from(project_id));
+    }
+
+    /// Returns the project currently selected for evaluation detail, if any.
+    pub(crate) fn evaluating_project(&self) -> Option<&ProjectId> {
+        self.evaluating_project.as_ref()
     }
 
     /// Clears any pending rename and returns an empty project-editor state.

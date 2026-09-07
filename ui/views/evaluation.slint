@@ -1,6 +1,5 @@
 import { HorizontalBox, VerticalBox, ScrollView } from "std-widgets.slint";
 import { AppButton } from "../components/app-button.slint";
-import { RangeOption } from "../components/range-option.slint";
 import { TitleText, ViewHeader } from "../components/typography.slint";
 import {
     EvaluationState,
@@ -12,81 +11,14 @@ import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
 import { DurationLabel } from "../components/duration-label.slint";
+import { EvaluationSummary } from "../components/evaluation-summary.slint";
+import { RangeList } from "../components/range-list.slint";
 
-component EvaluationSummary inherits Rectangle {
-    in property <int> total-seconds;
-    in property <Range> range;
-
-    private property <string> range-label: root.range == Range.day
-        ? @tr("Today")
-        : root.range == Range.week
-        ? @tr("This week")
-        : root.range == Range.month
-        ? @tr("This month")
-        : @tr("This year");
-
-    height: 40px;
-    border-radius: Theme.border.radius;
-    background: Theme.palette.accent-surface;
-
-    Text {
-        x: 10px;
-        text: @tr("{} · {}", root.range-label, duration.text);
-        color: Theme.palette.text;
-        font-size: Theme.typography.supporting.size;
-        font-weight: Theme.typography.supporting.weight;
-        vertical-alignment: center;
-    }
-
-    duration := DurationLabel {
-        seconds: root.total-seconds;
-    }
-}
-
-export component TaskCard inherits Rectangle {
-    in property <EvaluationTaskItem> entry;
-
-    height: 46px;
-    border-radius: 12px;
-    background: Theme.palette.surface;
-    border-width: 1px;
-    border-color: Theme.palette.border;
-
-    Text {
-        x: 16px;
-        y: 7px;
-        text: root.entry.project;
-        color: Theme.palette.text;
-        font-size: Theme.typography.body.size;
-        font-weight: Theme.typography.body-strong.weight;
-    }
-
-    Text {
-        x: 16px;
-        y: 25px;
-        text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
-        color: Theme.palette.muted-text;
-        font-size: Theme.typography.label.size;
-    }
-
-    Text {
-        x: 163px;
-        y: 15px;
-        width: 52px;
-        text: duration.text;
-        color: Theme.palette.accent;
-        font-size: Theme.typography.supporting.size;
-        font-weight: Theme.typography.body-strong.weight;
-        horizontal-alignment: right;
-    }
-
-    duration := DurationLabel {
-        seconds: root.entry.duration-seconds;
-    }
-}
 
 export component ProjectCard inherits Rectangle {
     in property <ProjectTotalItem> entry;
+
+    callback clicked(string);
 
     height: 46px;
     border-radius: 12px;
@@ -95,6 +27,7 @@ export component ProjectCard inherits Rectangle {
     border-color: Theme.palette.border;
 
     HorizontalLayout {
+        width: 100%;
         padding-top: 8px;
         padding-bottom: 8px;
         padding-left: 15px;
@@ -103,6 +36,7 @@ export component ProjectCard inherits Rectangle {
 
         VerticalLayout {
             spacing: 5px;
+            horizontal-stretch: 1;
 
             Text {
                 text: root.entry.project;
@@ -112,14 +46,16 @@ export component ProjectCard inherits Rectangle {
             }
 
             Text {
-                text: @tr("{n} task" | "{n} tasks" % entry.num-tasks);
+                text: entry.num-tasks == 1
+				    ? @tr("1 task")
+				    : entry.num-tasks + " " + @tr("tasks");
                 color: Theme.palette.muted-text;
                 font-size: Theme.typography.label.size;
             }
         }
 
         Text {
-            width: 52px;
+            horizontal-stretch: 0;
             text: duration.text;
             color: Theme.palette.accent;
             font-size: Theme.typography.supporting.size;
@@ -127,13 +63,16 @@ export component ProjectCard inherits Rectangle {
             horizontal-alignment: right;
         }
 
-        TouchArea {
-            mouse-cursor: pointer;
-        }
+
     }
 
     duration := DurationLabel {
         seconds: root.entry.duration-seconds;
+    }
+
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(entry.id); }
     }
 }
 
@@ -141,6 +80,7 @@ export component EvaluationView inherits Rectangle {
     in property <EvaluationState> state;
 
     callback open-home-view();
+    callback open-evaluation-tasks(string);
     callback choose-range(Range);
     callback export-markdown();
 
@@ -157,19 +97,9 @@ export component EvaluationView inherits Rectangle {
             text: @tr("Evaluation");
         }
 
-        HorizontalLayout {
-            spacing: 6px;
-            for option in [
-                { label: @tr("Day"), value: Range.day },
-                { label: @tr("Week"), value: Range.week },
-                { label: @tr("Month"), value: Range.month },
-                { label: @tr("Year"), value: Range.year }
-            ]: RangeOption {
-                label: option.label;
-                value: option.value;
-                selected: root.state.range == option.value;
-                clicked(value) => { root.choose-range(value); }
-            }
+        RangeList {
+            range: root.state.range;
+            clicked(range) => root.choose-range(range);
         }
 
         EvaluationSummary {
@@ -179,8 +109,9 @@ export component EvaluationView inherits Rectangle {
         }
 
         ScrollableColumn {
-            for total in root.state.project_totals: ProjectCard {
-                entry: total;
+            for totals in root.state.project_totals: ProjectCard {
+                entry: totals;
+                clicked(project) => { open-evaluation-tasks(project)}
             }
         }
 

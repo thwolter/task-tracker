@@ -1,0 +1,46 @@
+import { Range } from "../models.slint";
+import { Theme } from "../theme.slint";
+
+export component RangeOption inherits Rectangle {
+    in property <string> label;
+    in property <Range> value;
+    in property <bool> selected;
+    callback clicked(Range);
+    width: 52px;
+    height: 30px;
+    border-radius: 16px;
+    background: root.selected ? Theme.palette.accent : Theme.palette.surface;
+    border-width: root.selected ? 0px : 1px;
+    border-color: Theme.palette.border;
+    Text {
+        text: root.label;
+        color: root.selected ? Theme.palette.on-accent : Theme.palette.muted-text;
+        font-size: Theme.typography.caption.size;
+        font-weight: Theme.typography.caption.weight;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    TouchArea {
+        clicked => { root.clicked(root.value); }
+    }
+}
+
+export component RangeList inherits HorizontalLayout {
+	in property <Range> range;
+
+	callback clicked(Range);
+
+	spacing: 6px;
+	for option in [
+	    { label: @tr("Day"), value: Range.day },
+	    { label: @tr("Week"), value: Range.week },
+	    { label: @tr("Month"), value: Range.month },
+	    { label: @tr("Year"), value: Range.year }
+	]: RangeOption {
+	    label: option.label;
+	    value: option.value;
+	    selected: root.range == option.value;
+	    clicked(value) => { root.clicked(value); }
+	}
+	}

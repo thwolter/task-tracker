@@ -1,0 +1,94 @@
+import { HorizontalBox, VerticalBox, ScrollView } from "std-widgets.slint";
+import { AppButton } from "../components/app-button.slint";
+import { TitleText, ViewHeader } from "../components/typography.slint";
+import {
+    EvaluationTasksState,
+    EvaluationTaskItem,
+    Range,
+} from "../models.slint";
+import { Theme } from "../theme.slint";
+import { BackLink } from "../components/back-link.slint";
+import { ScrollableColumn } from "../components/scrollable-column.slint";
+import { DurationLabel } from "../components/duration-label.slint";
+import { EvaluationSummary } from "../components/evaluation-summary.slint";
+import { RangeList } from "../components/range-list.slint";
+
+export component TaskCard inherits Rectangle {
+    in property <EvaluationTaskItem> entry;
+
+    height: 46px;
+    border-radius: 12px;
+    background: Theme.palette.surface;
+    border-width: 1px;
+    border-color: Theme.palette.border;
+
+    Text {
+        x: 16px;
+        y: 7px;
+        text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
+        color: Theme.palette.text;
+        font-size: Theme.typography.body.size;
+        font-weight: Theme.typography.body-strong.weight;
+    }
+
+    Text {
+        x: 163px;
+        y: 15px;
+        width: 52px;
+        text: duration.text;
+        color: Theme.palette.accent;
+        font-size: Theme.typography.supporting.size;
+        font-weight: Theme.typography.body-strong.weight;
+        horizontal-alignment: right;
+    }
+
+    duration := DurationLabel {
+        seconds: root.entry.duration-seconds;
+    }
+}
+
+export component EvaluationTasksView inherits Rectangle {
+    in property <EvaluationTasksState> state;
+
+    callback open-evaluation-view();
+    callback choose-range(Range);
+    callback export-markdown();
+
+    VerticalLayout {
+        padding: 20px;
+        spacing: 20px;
+
+        BackLink {
+            text: @tr("Projects");
+            clicked => { root.open-evaluation-view(); }
+        }
+
+        ViewHeader {
+            text: root.state.project;
+        }
+
+        RangeList {
+            range: root.state.range;
+            clicked(range) => root.choose-range(range);
+        }
+
+        EvaluationSummary {
+            total-seconds: root.state.total-seconds;
+            range: root.state.range;
+            vertical-stretch: 0;
+        }
+
+        ScrollableColumn {
+            for task in root.state.tasks: TaskCard {
+                entry: task;
+            }
+        }
+
+        AppButton {
+            label: @tr("Export Markdown");
+            prefix-icon: @image-url("../assets/icons/download.svg");
+            primary: true;
+            clicked => { root.export-markdown(); }
+        }
+    }
+}

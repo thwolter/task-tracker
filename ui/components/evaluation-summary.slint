@@ -1,0 +1,33 @@
+import { Theme } from "../theme.slint";
+import { Range } from "../models.slint";
+import { DurationLabel } from "duration-label.slint";
+
+export component EvaluationSummary inherits Rectangle {
+    in property <int> total-seconds;
+    in property <Range> range;
+
+    private property <string> range-label: root.range == Range.day
+        ? @tr("Today")
+        : root.range == Range.week
+        ? @tr("This week")
+        : root.range == Range.month
+        ? @tr("This month")
+        : @tr("This year");
+
+    height: 40px;
+    border-radius: Theme.border.radius;
+    background: Theme.palette.accent-surface;
+
+    Text {
+        x: 10px;
+        text: @tr("{} · {}", root.range-label, duration.text);
+        color: Theme.palette.text;
+        font-size: Theme.typography.supporting.size;
+        font-weight: Theme.typography.supporting.weight;
+        vertical-alignment: center;
+    }
+
+    duration := DurationLabel {
+        seconds: root.total-seconds;
+    }
+}

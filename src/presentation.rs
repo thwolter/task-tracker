@@ -4,10 +4,10 @@
 //! reads [`Tracker`] state but does not mutate domain state or persist data.
 
 use crate::{
-    EvaluationState, EvaluationTaskItem, HomeState, ProjectItem, ProjectTotalItem, Range, TaskItem,
-    TrackingState,
+    EvaluationState, EvaluationTaskItem, EvaluationTasksState, HomeState, ProjectItem,
+    ProjectTotalItem, Range, TaskItem, TrackingState,
     application::Tracker,
-    domain::{self, Data, Range as DomainRange, Task},
+    domain::{self, Data, ProjectId, Range as DomainRange, Task},
 };
 use chrono::{Local, TimeZone};
 use slint::{ModelRc, SharedString, VecModel};
@@ -111,6 +111,42 @@ pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64) -> EvaluationState {
     }
 }
 
+/// Builds the selected project's complete task list for the current evaluation range.
+pub(crate) fn evaluation_tasks(
+    tracker: &Tracker,
+    timestamp: i64,
+    project_id: &ProjectId,
+) -> EvaluationTasksState {
+    let matching: Vec<_> = tracker
+        .data()
+        .tasks()
+        .iter()
+        .filter(|task| domain::in_range(task, tracker.range(), timestamp))
+        .filter(|task| task.project_id() == project_id)
+        .collect();
+    let total: i64 = matching
+        .iter()
+        .map(|task| task.ended() - task.started())
+        .sum();
+
+    EvaluationTasksState {
+        project: tracker.data().project_name(project_id).into(),
+        tasks: ModelRc::new(VecModel::from(
+            matching
+                .iter()
+                .rev()
+                .map(|task| EvaluationTaskItem {
+                    project: tracker.data().project_name(task.project_id()).into(),
+                    note: task.note().into(),
+                    duration_seconds: slint_seconds(task.ended() - task.started()),
+                })
+                .collect::<Vec<_>>(),
+        )),
+        total_seconds: slint_seconds(total),
+        range: slint_range(tracker.range()),
+    }
+}
+
 fn project_totals(data: &Data, tasks: &[&Task]) -> ModelRc<ProjectTotalItem> {
     let mut totals = Vec::new();
     for task in tasks {
@@ -130,6 +166,7 @@ fn project_totals(data: &Data, tasks: &[&Task]) -> ModelRc<ProjectTotalItem> {
         totals
             .into_iter()
             .map(|(project_id, total, num_tasks)| ProjectTotalItem {
+                id: project_id.as_str().into(),
                 project: data.project_name(project_id).into(),
                 duration_seconds: slint_seconds(total),
                 num_tasks,
@@ -170,6 +207,9 @@ pub(crate) fn refresh(ui: &crate::AppWindow, tracker: &Tracker, timestamp: i64) 
     ui.set_home(home(tracker));
     ui.set_project_settings(project_settings(tracker));
     ui.set_evaluation(evaluation(tracker, timestamp));
+    if let Some(project) = tracker.evaluating_project() {
+        ui.set_evaluation_tasks(evaluation_tasks(tracker, timestamp, project));
+    }
     ui.set_tracking(tracking(tracker, timestamp));
 }
 
@@ -229,6 +269,31 @@ mod tests {
         assert_eq!(total.project, "Project Atlas");
         assert_eq!(total.duration_seconds, 60);
         assert_eq!(total.num_tasks, 1);
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn project_evaluation_contains_only_that_projects_tasks() {
+        let path = std::env::temp_dir().join(format!(
+            "tempo-project-evaluation-test-{}-{}.sqlite",
+            std::process::id(),
+            domain::now()
+        ));
+        let mut tracker = Tracker::at(path.clone());
+
+        tracker.start_tracking("project-1".into(), 10).unwrap();
+        tracker.end_tracking(70).unwrap();
+        tracker.save_task_note("Planning".into()).unwrap();
+        tracker.start_tracking("project-2".into(), 80).unwrap();
+        tracker.end_tracking(110).unwrap();
+
+        let project_id = ProjectId::from("project-1".to_owned());
+        let evaluation = evaluation_tasks(&tracker, 130, &project_id);
+        assert_eq!(evaluation.project, "Project Atlas");
+        assert_eq!(evaluation.tasks.row_count(), 1);
+        assert_eq!(evaluation.tasks.row_data(0).unwrap().note, "Planning");
+        assert_eq!(evaluation.total_seconds, 60);
+
         std::fs::remove_file(path).unwrap();
     }
 

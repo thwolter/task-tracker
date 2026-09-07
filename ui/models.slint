@@ -1,4 +1,4 @@
-export enum Page { home, tracking, note, settings, evaluation, project-editor }
+export enum Page { home, tracking, note, settings, evaluation, evaluation-tasks, project-editor }
 export enum Range { day, week, month, year }
 export enum StatusKind { success, error }
 
@@ -40,6 +40,7 @@ export struct HomeState {
 }
 
 export struct ProjectTotalItem {
+	id: string,
 	project: string,
 	duration-seconds: int,
 	num_tasks: int,
@@ -50,6 +51,13 @@ export struct EvaluationState {
     total-seconds: int,
     range: Range,
     project-totals: [ProjectTotalItem]
+}
+
+export struct EvaluationTasksState {
+    project: string,
+    tasks: [EvaluationTaskItem],
+    total-seconds: int,
+    range: Range,
 }
 
 export struct ProjectDialogState {
