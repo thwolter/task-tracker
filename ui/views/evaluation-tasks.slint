@@ -78,11 +78,19 @@ export component EvaluationTasksView inherits Rectangle {
             vertical-stretch: 0;
         }
 
-        ScrollableColumn {
-            for task in root.state.tasks: TaskCard {
-                entry: task;
-            }
-        }
+		VerticalLayout {
+			spacing: 10px;
+			Text {
+	            text: state.tasks.length + " " + @tr("completed entries");
+	        }
+
+	        ScrollableColumn {
+	            for task in root.state.tasks: TaskCard {
+	                entry: task;
+	            }
+	        }
+		}
+
 
         AppButton {
             label: @tr("Export Markdown");
