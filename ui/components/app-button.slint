@@ -8,7 +8,7 @@ export component AppButton inherits Rectangle {
     in property <image> suffix-icon;
     in property <image> prefix-icon;
     in property <color> fill: root.primary ? Theme.palette.accent : Theme.palette.accent-surface;
-    in property <color> label-color: root.primary ? Theme.palette.on-accent : Theme.palette.text;
+    in property <color> label-color: root.primary && !root.inactive ? Theme.palette.on-accent : Theme.palette.text;
     in property <color> outline-color: Theme.palette.border;
     in property <length> label-font-size: Theme.typography.body-strong.size;
     in property <float> label-font-weight: Theme.typography.body-strong.weight;
@@ -22,7 +22,7 @@ export component AppButton inherits Rectangle {
     border-radius: Theme.border.radius;
     border-width: root.outlined ? Theme.border.width : 0px;
     border-color: root.outline-color;
-    background: (inactive) ? Theme.palette.inactive : root.fill;
+    background: root.inactive ? Theme.palette.disabled-surface : root.fill;
 
 	HorizontalBox {
 		alignment: center;

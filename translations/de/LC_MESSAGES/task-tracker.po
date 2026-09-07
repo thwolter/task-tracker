@@ -22,11 +22,6 @@ msgctxt "BackLink"
 msgid "Back"
 msgstr "Zurück"
 
-#: ui/components/settings-project-row.slint:30
-msgctxt "SettingsProjectRow"
-msgid "Edit"
-msgstr "Bearbeiten"
-
 #: ui/views/project-dialog.slint:16
 msgctxt "ProjectSettingBox"
 msgid "New project"

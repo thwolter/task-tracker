@@ -1,10 +1,49 @@
-import { ScrollView } from "std-widgets.slint";
+import { ScrollView, HorizontalBox } from "std-widgets.slint";
 import { AppButton } from "../components/app-button.slint";
-import { SettingsProjectRow } from "../components/settings-project-row.slint";
 import { ProjectItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
 import { TitleText } from "../components/typography.slint";
+
+
+export component ProjectListItem inherits Rectangle {
+    in property <ProjectItem> project;
+
+    height: 38px;
+    border-radius: Theme.border.radius;
+    background: project.archived ? Theme.palette.archived-surface : Theme.palette.surface;
+    border-width: Theme.border.width;
+    border-color: Theme.palette.border;
+
+    callback clicked(string);
+
+	HorizontalBox {
+		horizontal-stretch: 1;
+
+	    Text {
+            text: root.project.name;
+	        color: Theme.palette.text;
+	        font-size: Theme.typography.body.size;
+	        font-weight: Theme.typography.body.weight;
+	        font-italic: project.archived ? true : false;
+	        vertical-alignment: center;
+	        horizontal-alignment: start;
+	    }
+
+	    Image {
+	        source: @image-url("../assets/icons/edit.svg");
+	        width: 18px;
+	        colorize: Theme.palette.secondary-text;
+	        horizontal-alignment: right;
+	        vertical-alignment: center;
+	    }
+    }
+
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(root.project.id); }
+    }
+}
 
 export component SettingsView inherits Rectangle {
     in property <[ProjectItem]> projects;
@@ -39,7 +78,7 @@ export component SettingsView inherits Rectangle {
                 width: project-list.width - (project-list.has-scrollbar ? 20px : 0px);
 	            alignment: start;
 
-            for project in root.projects: SettingsProjectRow {
+            for project in root.projects: ProjectListItem {
                 project: project;
 	                clicked(id) => { open-rename-project(id)}
 	            }
