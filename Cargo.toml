@@ -6,6 +6,9 @@ edition = "2024"
 authors = ["Thomas Wolter"]
 homepage = "https://github.com/thwolter/task-tracker"
 
+[features]
+live-preview = ["slint/live-preview"]
+
 [dependencies]
 slint = "1.17.1"
 sys-locale = "0.3.2"

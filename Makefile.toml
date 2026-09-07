@@ -1,7 +1,7 @@
 [tasks.slint]
 env = { SLINT_LIVE_PREVIEW = "1" }
 command = "cargo"
-args = ["run", "--features", "slint/live-preview"]
+args = ["run", "--features", "live-preview"]
 
 [tasks.extract-translations]
 script = '''

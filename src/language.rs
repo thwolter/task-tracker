@@ -17,6 +17,7 @@ impl Language {
     }
 
     /// Returns the bundled Slint translation locale for this language.
+    #[cfg(not(feature = "live-preview"))]
     pub(crate) fn slint_locale(self) -> &'static str {
         match self {
             Self::English => "en",
