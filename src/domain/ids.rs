@@ -1,7 +1,10 @@
-use serde::{Deserialize, Serialize};
+//! Distinct identifiers for projects and recorded tasks.
+//!
+//! They remain separate Rust types so a task identifier cannot be used where a
+//! project identifier is required.
 
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[serde(transparent)]
+/// Identifies one project within the tracker data set.
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) struct ProjectId(String);
 
 impl ProjectId {
@@ -19,8 +22,8 @@ impl From<String> for ProjectId {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[serde(transparent)]
+/// Identifies one completed or active task within the tracker data set.
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) struct TaskId(String);
 
 impl TaskId {

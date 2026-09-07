@@ -1,104 +1,23 @@
-use serde::{Deserialize, Deserializer, Serialize};
+//! The aggregate that owns project configuration and tracked work.
+//!
+//! It is the domain boundary for starting, pausing, finishing, and recovering
+//! tracking, as well as for project lifecycle changes.
 
 use super::{ActiveTask, Project, ProjectId, Task, TaskId};
 
-/// The aggregate that owns all projects and their tracked work.
-#[derive(Clone, Serialize)]
+/// Owns all projects, completed tasks, and at most one active task.
+///
+/// Project deletion also removes its completed work and any matching active
+/// task. Archiving, by contrast, retains the project's history.
+#[derive(Clone)]
 pub(crate) struct Data {
     projects: Vec<Project>,
     tasks: Vec<Task>,
     active_task: Option<ActiveTask>,
 }
 
-#[derive(Deserialize)]
-struct CurrentData {
-    projects: Vec<Project>,
-    tasks: Vec<Task>,
-    active_task: Option<ActiveTask>,
-}
-
-#[derive(Deserialize)]
-struct LegacyData {
-    tasks: Vec<LegacyProject>,
-    sessions: Vec<LegacyTask>,
-    active: Option<LegacyActiveTask>,
-}
-
-#[derive(Deserialize)]
-struct LegacyProject {
-    id: String,
-    title: String,
-}
-
-#[derive(Deserialize)]
-struct LegacyTask {
-    task_id: String,
-    started: i64,
-    ended: i64,
-    note: String,
-}
-
-#[derive(Deserialize)]
-struct LegacyActiveTask {
-    task_id: String,
-    started: i64,
-    checkpoint: i64,
-}
-
-#[derive(Deserialize)]
-#[serde(untagged)]
-enum StoredData {
-    Current(CurrentData),
-    Legacy(LegacyData),
-}
-
-impl<'de> Deserialize<'de> for Data {
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        match StoredData::deserialize(deserializer)? {
-            StoredData::Current(current) => Ok(Self::from_storage(
-                current.projects,
-                current.tasks,
-                current.active_task,
-            )),
-            StoredData::Legacy(legacy) => Ok(Self {
-                projects: legacy
-                    .tasks
-                    .into_iter()
-                    .map(|project| Project::new(ProjectId::new(project.id), project.title))
-                    .collect(),
-                tasks: legacy
-                    .sessions
-                    .into_iter()
-                    .enumerate()
-                    .map(|(index, task)| {
-                        Task::from_storage(
-                            TaskId::new(format!("legacy-task-{}", index + 1)),
-                            ProjectId::new(task.task_id),
-                            None,
-                            task.started,
-                            task.ended,
-                            task.note,
-                        )
-                    })
-                    .collect(),
-                active_task: legacy.active.map(|task| {
-                    ActiveTask::from_storage(
-                        TaskId::new(format!("legacy-active-task-{}", task.started)),
-                        ProjectId::new(task.task_id),
-                        task.started,
-                        task.checkpoint,
-                        false,
-                    )
-                }),
-            }),
-        }
-    }
-}
-
 impl Data {
+    /// Reconstructs the aggregate from the persistence adapter's records.
     pub(crate) fn from_storage(
         projects: Vec<Project>,
         tasks: Vec<Task>,
@@ -111,6 +30,7 @@ impl Data {
         }
     }
 
+    /// Creates the initial set of projects with no recorded or active work.
     pub(crate) fn defaults() -> Self {
         Self {
             projects: ["Project Atlas", "Admin", "Writing", "Personal"]
@@ -141,6 +61,7 @@ impl Data {
         !self.tasks.is_empty()
     }
 
+    /// Returns the project's name, or a display label when its project was deleted.
     pub(crate) fn project_name(&self, id: &ProjectId) -> String {
         self.projects
             .iter()
@@ -155,20 +76,32 @@ impl Data {
             .map(Project::name)
     }
 
+    /// Stops a restored active task at its most recently persisted checkpoint.
+    ///
+    /// This prevents time spent while the application was not running from
+    /// being included in the completed task.
     pub(crate) fn recover_active(&mut self) {
         if let Some(active) = self.active_task.take() {
             self.tasks.push(active.recover());
         }
     }
+
+    /// Begins a task for `project_id`, replacing any existing active task.
     pub(crate) fn start_tracking(&mut self, project_id: ProjectId, timestamp: i64) {
         let id = TaskId::new(format!("task-{timestamp}-{}", self.tasks.len() + 1));
         self.active_task = Some(ActiveTask::new(id, project_id, timestamp));
     }
+    /// Records elapsed work through `timestamp` when an unpaused task is active.
+    ///
+    /// Returns `false` when there is no active task or it is paused.
     pub(crate) fn checkpoint_active(&mut self, timestamp: i64) -> bool {
         self.active_task
             .as_mut()
             .is_some_and(|active| active.checkpoint_at(timestamp))
     }
+    /// Pauses or resumes the active task at `timestamp`.
+    ///
+    /// Returns `false` when there is no active task.
     pub(crate) fn toggle_pause(&mut self, timestamp: i64) -> bool {
         let Some(active) = &mut self.active_task else {
             return false;
@@ -176,6 +109,10 @@ impl Data {
         active.toggle_pause(timestamp);
         true
     }
+
+    /// Converts the active task into a completed task at `timestamp`.
+    ///
+    /// Returns `false` when no task is active.
     pub(crate) fn end_tracking(&mut self, timestamp: i64) -> bool {
         let Some(active) = self.active_task.take() else {
             return false;
@@ -183,29 +120,36 @@ impl Data {
         self.tasks.push(active.into_task(timestamp));
         true
     }
+    /// Replaces the note on the most recently completed task, if there is one.
     pub(crate) fn save_task_note(&mut self, note: String) {
         if let Some(task) = self.tasks.last_mut() {
             task.set_note(note);
         }
     }
+    /// Adds an active project with the supplied identifier and name.
     pub(crate) fn add_project(&mut self, id: ProjectId, name: String) {
         self.projects.push(Project::new(id, name));
     }
+    /// Renames the matching project; an unknown identifier leaves the aggregate unchanged.
     pub(crate) fn rename_project(&mut self, id: &ProjectId, name: String) {
         if let Some(project) = self.projects.iter_mut().find(|project| project.id() == id) {
             project.rename(name);
         }
     }
+    /// Archives the matching project without removing its work history.
     pub(crate) fn archive_project(&mut self, id: &ProjectId) {
         if let Some(project) = self.projects.iter_mut().find(|project| project.id() == id) {
             project.archive();
         }
     }
+    /// Restores the matching project to the active lifecycle state.
     pub(crate) fn unarchive_project(&mut self, id: &ProjectId) {
         if let Some(project) = self.projects.iter_mut().find(|project| project.id() == id) {
             project.unarchive();
         }
     }
+
+    /// Removes a project and every task associated with it.
     pub(crate) fn delete_project(&mut self, id: &ProjectId) {
         self.projects.retain(|project| project.id() != id);
         self.tasks.retain(|task| task.project_id() != id);
@@ -300,28 +244,5 @@ mod tests {
                 .all(|project| project.id() != &project_id)
         );
         assert!(data.tasks().is_empty());
-    }
-
-    #[test]
-    fn legacy_data_migrates_projects_and_tasks_without_losing_history() {
-        let legacy = r#"{"tasks": [{"id": "task-1", "title": "Project Atlas"}], "sessions": [{"task_id": "task-1", "started": 10, "ended": 70, "note": "Brief"}], "active": null}"#;
-        let data: Data = serde_json::from_str(legacy).unwrap();
-        assert_eq!(data.projects()[0].name(), "Project Atlas");
-        assert_eq!(
-            data.project_name(data.tasks()[0].project_id()),
-            "Project Atlas"
-        );
-        assert_eq!(data.tasks()[0].note(), "Brief");
-        let saved = serde_json::to_value(&data).unwrap();
-        assert!(saved.get("projects").is_some());
-        assert!(saved.get("sessions").is_none());
-    }
-
-    #[test]
-    fn legacy_active_session_becomes_an_active_task_for_its_project() {
-        let legacy = r#"{"tasks": [{"id": "task-1", "title": "Project Atlas"}], "sessions": [], "active": {"task_id": "task-1", "started": 10, "checkpoint": 40}}"#;
-        let data: Data = serde_json::from_str(legacy).unwrap();
-        let active = data.active_task().unwrap();
-        assert_eq!(data.project_name(active.project_id()), "Project Atlas");
     }
 }

@@ -4815,8 +4815,6 @@ dependencies = [
  "i-slint-backend-testing",
  "rfd",
  "rusqlite",
- "serde",
- "serde_json",
  "slint",
  "slint-build",
  "sys-locale",

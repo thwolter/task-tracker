@@ -1,7 +1,13 @@
-use super::{ProjectId, TaskId};
-use serde::{Deserialize, Serialize};
+//! Completed tasks and the mutable state of an active tracking session.
+//!
+//! Timestamps are Unix seconds. An active task uses its checkpoint and paused
+//! state to exclude paused intervals before it becomes an immutable completed
+//! task.
 
-#[derive(Clone, Serialize, Deserialize)]
+use super::{ProjectId, TaskId};
+
+/// A completed interval of tracked work associated with one project.
+#[derive(Clone)]
 pub(crate) struct Task {
     id: TaskId,
     project_id: ProjectId,
@@ -22,6 +28,7 @@ impl Task {
             note: String::new(),
         }
     }
+    /// Reconstructs a completed task from persistence without changing its timestamps.
     pub(crate) fn from_storage(
         id: TaskId,
         project_id: ProjectId,
@@ -62,13 +69,16 @@ impl Task {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+/// The single task currently being tracked, if the aggregate has one.
+///
+/// When paused, `checkpoint` marks the end of counted work; resuming shifts
+/// `started` forward to exclude the paused interval from the final duration.
+#[derive(Clone)]
 pub(crate) struct ActiveTask {
     id: TaskId,
     project_id: ProjectId,
     started: i64,
     checkpoint: i64,
-    #[serde(default)]
     paused: bool,
 }
 
@@ -82,6 +92,7 @@ impl ActiveTask {
             paused: false,
         }
     }
+    /// Reconstructs an active task from its last persisted tracking state.
     pub(crate) fn from_storage(
         id: TaskId,
         project_id: ProjectId,
@@ -112,6 +123,7 @@ impl ActiveTask {
     pub(crate) fn paused(&self) -> bool {
         self.paused
     }
+    /// Returns elapsed tracked seconds at `timestamp`, excluding a pause in progress.
     pub(crate) fn elapsed_until(&self, timestamp: i64) -> i64 {
         self.checkpoint - self.started
             + if self.paused {
@@ -120,6 +132,9 @@ impl ActiveTask {
                 timestamp - self.checkpoint
             }
     }
+    /// Moves the elapsed-work checkpoint when tracking is not paused.
+    ///
+    /// Returns `false` without changing state while paused.
     pub(super) fn checkpoint_at(&mut self, timestamp: i64) -> bool {
         if self.paused {
             return false;
@@ -127,6 +142,7 @@ impl ActiveTask {
         self.checkpoint = timestamp;
         true
     }
+    /// Pauses or resumes at `timestamp`, excluding a completed pause on resume.
     pub(super) fn toggle_pause(&mut self, timestamp: i64) {
         if self.paused {
             self.started += timestamp - self.checkpoint;
@@ -137,6 +153,7 @@ impl ActiveTask {
             self.paused = true;
         }
     }
+    /// Finishes tracking, using the checkpoint rather than `timestamp` if paused.
     pub(super) fn into_task(self, timestamp: i64) -> Task {
         let ended = if self.paused {
             self.checkpoint
@@ -145,6 +162,7 @@ impl ActiveTask {
         };
         Task::from_active(self, ended)
     }
+    /// Turns restored active work into a completed task at its last checkpoint.
     pub(super) fn recover(self) -> Task {
         let ended = self.checkpoint;
         Task::from_active(self, ended)

@@ -6,9 +6,6 @@ pub enum TrackerError {
     EmptyProjectName,
 
     #[error(transparent)]
-    Json(#[from] serde_json::Error),
-
-    #[error(transparent)]
     Sqlite(#[from] rusqlite::Error),
 
     #[error("IO error: {0}")]

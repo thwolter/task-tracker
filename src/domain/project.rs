@@ -1,13 +1,18 @@
-use crate::error::{Result, TrackerError};
-use serde::{Deserialize, Serialize};
+//! Projects and the validation applied to their editable names.
+//!
+//! A project may be archived while its previously recorded tasks remain part
+//! of the tracker history. Persistence supplies stable project identifiers.
 
 use super::ProjectId;
+use crate::error::{Result, TrackerError};
 
-#[derive(Clone, Serialize, Deserialize)]
+/// A named bucket to which tracked tasks belong.
+///
+/// Archiving affects project lifecycle state without deleting its historical tasks.
+#[derive(Clone)]
 pub(crate) struct Project {
     id: ProjectId,
     name: String,
-    #[serde(default)]
     archived: bool,
 }
 
@@ -19,6 +24,7 @@ impl Project {
             archived: false,
         }
     }
+    /// Reconstructs a project including its persisted archive state.
     pub(crate) fn from_storage(id: ProjectId, name: String, archived: bool) -> Self {
         Self { id, name, archived }
     }
@@ -42,6 +48,7 @@ impl Project {
     }
 }
 
+/// Trims a project name and rejects an empty result.
 pub(crate) fn validate_project_name(name: &str) -> Result<String> {
     let name = name.trim();
     (!name.is_empty())

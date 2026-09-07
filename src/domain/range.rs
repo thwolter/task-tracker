@@ -1,6 +1,12 @@
+//! Calendar ranges used to filter completed tasks for presentation and reports.
+//!
+//! Membership is determined from each task's end timestamp in the local time
+//! zone, relative to a supplied reference timestamp.
+
 use super::Task;
 use chrono::{Datelike, Local, TimeZone};
 
+/// A calendar period relative to a reference timestamp in the local time zone.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum Range {
     Day,
@@ -9,6 +15,10 @@ pub(crate) enum Range {
     Year,
 }
 
+/// Returns whether the task ended within `range` containing `timestamp`.
+///
+/// Invalid timestamps fall back to the current local time, matching report
+/// date formatting.
 pub(crate) fn in_range(task: &Task, range: Range, timestamp: i64) -> bool {
     let current = Local
         .timestamp_opt(timestamp, 0)
