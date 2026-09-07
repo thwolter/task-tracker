@@ -54,9 +54,10 @@ component TaskTimelineMarker inherits Rectangle {
 }
 
 component TaskDetails inherits Rectangle {
+    editing: true;
     in property <EvaluationTaskItem> entry;
     in property <bool> editing;
-    in-out property <string> description-draft;
+    in-out property <string> description-draft: root.entry.note;
 
     callback edit-requested();
     callback save-requested();
@@ -94,6 +95,20 @@ component TaskDetails inherits Rectangle {
 
 		    if (root.editing): Rectangle {
 		        height: 34px;
+		        background: Theme.palette.surface;
+
+		        description-input := TextInput {
+			        x: 10px;
+			        y: 0px;
+			        width: 100%;
+			        height: 34px;
+			        single-line: false;
+			        wrap: word-wrap;
+			        font-size: Theme.typography.body.size;
+			        font-weight: Theme.typography.body.weight;
+			        text <=> root.description-draft;
+			        accepted => { root.save-requested(); }
+			    }
 		    }
         }
 
@@ -128,18 +143,7 @@ component TaskDetails inherits Rectangle {
         }
     }
 
-    if (root.editing): description-input := TextInput {
-        x: 10px;
-        y: 30px;
-        width: parent.width - 90px;
-        height: 34px;
-        single-line: false;
-        wrap: word-wrap;
-        font-size: Theme.typography.body.size;
-        font-weight: Theme.typography.body.weight;
-        text <=> root.description-draft;
-        accepted => { root.save-requested(); }
-    }
+
 
     Rectangle {
         y: parent.height - 1px;
@@ -155,10 +159,11 @@ component TaskDetails inherits Rectangle {
 
 export component TaskCard inherits Rectangle {
     in property <EvaluationTaskItem> entry;
-    private property <bool> editing: false;
-    private property <string> description-draft: root.entry.note;
+    in property <bool> editing;
+    in-out property <string> description-draft;
 
-    callback update-task(string, string);
+    callback edit-requested(string, string);
+    callback save-requested(string, string);
     callback delete-task(string);
 
     min-width: 0px;
@@ -175,12 +180,10 @@ export component TaskCard inherits Rectangle {
             editing: root.editing;
             description-draft <=> root.description-draft;
             edit-requested => {
-                root.description-draft = root.entry.note;
-                root.editing = true;
+                root.edit-requested(root.entry.id, root.entry.note);
             }
             save-requested => {
-                root.update-task(root.entry.id, root.description-draft);
-                root.editing = false;
+                root.save-requested(root.entry.id, root.description-draft);
             }
             delete-requested => { root.delete-task(root.entry.id); }
         }
@@ -189,6 +192,8 @@ export component TaskCard inherits Rectangle {
 
 export component EvaluationTasksView inherits Rectangle {
     in property <EvaluationTasksState> state;
+    private property <string> editing-task-id: "";
+    private property <string> description-draft: "";
 
     callback open-evaluation-view();
     callback choose-range(Range);
@@ -234,7 +239,16 @@ export component EvaluationTasksView inherits Rectangle {
 
             for task in root.state.tasks: TaskCard {
                 entry: task;
-                update-task(id, note) => { root.update-task(id, note); }
+                editing: root.editing-task-id == task.id;
+                description-draft <=> root.description-draft;
+                edit-requested(id, note) => {
+                    root.editing-task-id = id;
+                    root.description-draft = note;
+                }
+                save-requested(id, note) => {
+                    root.update-task(id, note);
+                    root.editing-task-id = "";
+                }
                 delete-task(id) => { root.delete-task(id); }
             }
         }

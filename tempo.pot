@@ -124,6 +124,31 @@ msgctxt "HomeView"
 msgid "A quiet place to keep your day moving."
 msgstr ""
 
+#: ui/views/evaluation-tasks.slint:85
+msgctxt "TaskDetails"
+msgid "No details added"
+msgstr ""
+
+#: ui/views/evaluation-tasks.slint:204
+msgctxt "EvaluationTasksView"
+msgid "Projects"
+msgstr ""
+
+#: ui/views/evaluation-tasks.slint:225
+msgctxt "EvaluationTasksView"
+msgid "1 completed task"
+msgstr ""
+
+#: ui/views/evaluation-tasks.slint:226
+msgctxt "EvaluationTasksView"
+msgid "completed tasks"
+msgstr ""
+
+#: ui/views/evaluation-tasks.slint:244
+msgctxt "EvaluationTasksView"
+msgid "Export Markdown"
+msgstr ""
+
 #: ui/views/note.slint:34
 msgctxt "NoteEditor"
 msgid "e.g. prepared the Q4 project brief"
