@@ -5,6 +5,7 @@ import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
 import { TitleText } from "../components/typography.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
+import { IconButton } from "../components/icon-button.slint";
 
 
 export component ProjectListItem inherits Rectangle {
@@ -31,18 +32,10 @@ export component ProjectListItem inherits Rectangle {
 	        horizontal-alignment: start;
 	    }
 
-	    Image {
-	        source: @image-url("../assets/icons/edit.svg");
-	        width: 18px;
-	        colorize: Theme.palette.secondary-text;
-	        horizontal-alignment: right;
-	        vertical-alignment: center;
+	    IconButton {
+	        icon: @image-url("../assets/icons/edit.svg");
+	        clicked => { root.clicked(root.project.id); }
 	    }
-    }
-
-    TouchArea {
-        mouse-cursor: pointer;
-        clicked => { root.clicked(root.project.id); }
     }
 }
 

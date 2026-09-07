@@ -1,0 +1,27 @@
+import { Theme } from "../theme.slint";
+
+export component IconButton inherits Rectangle {
+    in property <image> icon;
+    in property <color> icon-color: Theme.palette.secondary-text;
+
+    callback clicked();
+
+	background: Theme.palette.grey-surface;
+    border-radius: 5px;
+    width: 20px;
+    height: 20px;
+
+    Image {
+        width: parent.width - 4px;
+        height: parent.height - 4px;
+        source: root.icon;
+        colorize: root.icon-color;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tempo Palette</title>
+    <style>
+      :root {
+        --window-background: #f6f8f6;
+        --surface: #fffffc;
+        --soft-surface: #edf5eb;
+        --accent-surface: #e0f0de;
+        --accent: #296e45;
+        --on-accent: #ffffff;
+        --timer-ring: #d6f0d6;
+        --text: #14241a;
+        --muted-text: #526654;
+        --secondary-text: #637d66;
+        --border: #d6e0d4;
+        --soft-border: #c9d6c7;
+        --section-divider: #c7d6c4;
+        --archived-surface: #d6d9de;
+        --disabled-surface: #e7ece6;
+        --danger: #ad3b2b;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 40px 24px;
+        background: var(--window-background);
+        color: var(--text);
+        font: 15px/1.4 system-ui, sans-serif;
+      }
+      main { max-width: 840px; margin: auto; }
+      h1 { margin: 0 0 6px; font-size: 28px; }
+      p { margin: 0 0 28px; color: var(--muted-text); }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+      .swatch {
+        min-height: 116px;
+        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--color);
+        color: var(--ink, var(--text));
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
+      .name { font-weight: 700; }
+      .hex { font: 12px ui-monospace, monospace; opacity: .8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Tempo palette</h1>
+      <p>A small visual reference for the application colors.</p>
+      <section class="grid" aria-label="Color swatches">
+        <div class="swatch" style="--color: var(--window-background)"><span class="name">window-background</span><span class="hex">#f6f8f6</span></div>
+        <div class="swatch" style="--color: var(--surface)"><span class="name">surface</span><span class="hex">#fffffc</span></div>
+        <div class="swatch" style="--color: var(--soft-surface)"><span class="name">soft-surface</span><span class="hex">#edf5eb</span></div>
+        <div class="swatch" style="--color: var(--accent-surface)"><span class="name">accent-surface</span><span class="hex">#e0f0de</span></div>
+        <div class="swatch" style="--color: var(--accent); --ink: var(--on-accent)"><span class="name">accent</span><span class="hex">#296e45</span></div>
+        <div class="swatch" style="--color: var(--on-accent)"><span class="name">on-accent</span><span class="hex">#ffffff</span></div>
+        <div class="swatch" style="--color: var(--timer-ring)"><span class="name">timer-ring</span><span class="hex">#d6f0d6</span></div>
+        <div class="swatch" style="--color: var(--text); --ink: var(--on-accent)"><span class="name">text</span><span class="hex">#14241a</span></div>
+        <div class="swatch" style="--color: var(--muted-text); --ink: var(--on-accent)"><span class="name">muted-text</span><span class="hex">#526654</span></div>
+        <div class="swatch" style="--color: var(--secondary-text); --ink: var(--on-accent)"><span class="name">secondary-text</span><span class="hex">#637d66</span></div>
+        <div class="swatch" style="--color: var(--border)"><span class="name">border</span><span class="hex">#d6e0d4</span></div>
+        <div class="swatch" style="--color: var(--soft-border)"><span class="name">soft-border</span><span class="hex">#c9d6c7</span></div>
+        <div class="swatch" style="--color: var(--section-divider)"><span class="name">section-divider</span><span class="hex">#c7d6c4</span></div>
+        <div class="swatch" style="--color: var(--archived-surface)"><span class="name">archived-surface</span><span class="hex">#d6d9de</span></div>
+        <div class="swatch" style="--color: var(--disabled-surface)"><span class="name">disabled-surface</span><span class="hex">#e7ece6</span></div>
+        <div class="swatch" style="--color: var(--danger); --ink: var(--on-accent)"><span class="name">danger</span><span class="hex">#ad3b2b</span></div>
+      </section>
+    </main>
+  </body>
+</html>
