@@ -5,7 +5,7 @@
 //! It does not format data for Slint or handle widget callbacks.
 
 use crate::{
-    domain::{self, Data, ProjectId, Range},
+    domain::{self, Data, ProjectId, Range, TaskId},
     error::Result,
     language::Language,
     persistence::SqliteStore,
@@ -108,6 +108,24 @@ impl Tracker {
     pub(crate) fn save_task_note(&mut self, note: String) -> Result<()> {
         self.data.save_task_note(note);
         self.save()
+    }
+
+    /// Updates a completed task's note and persists only when the task exists.
+    pub(crate) fn update_task_note(&mut self, id: String, note: String) -> Result<bool> {
+        let updated = self.data.update_task_note(&TaskId::from(id), note);
+        if updated {
+            self.save()?;
+        }
+        Ok(updated)
+    }
+
+    /// Deletes one completed task and persists only when the task exists.
+    pub(crate) fn delete_task(&mut self, id: String) -> Result<bool> {
+        let deleted = self.data.delete_task(&TaskId::from(id));
+        if deleted {
+            self.save()?;
+        }
+        Ok(deleted)
     }
 
     /// Selects the in-memory range used by evaluation and report projections.

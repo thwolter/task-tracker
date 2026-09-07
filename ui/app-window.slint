@@ -42,6 +42,8 @@ export component AppWindow inherits Window {
     callback end-tracking();
     callback toggle-tracking-pause();
     callback save-task-note(string);
+    callback update-evaluation-task(string, string);
+    callback delete-evaluation-task(string);
     callback skip-note();
     callback open-evaluation();
     callback open-evaluation-tasks(string);
@@ -127,6 +129,8 @@ export component AppWindow inherits Window {
                 open-evaluation-view => { root.open-evaluation(); }
                 choose-range(value) => { root.choose-range(value); }
                 export-markdown => { root.export-markdown(); }
+                update-task(id, note) => { root.update-evaluation-task(id, note); }
+                delete-task(id) => { root.delete-evaluation-task(id); }
             }
         }
 

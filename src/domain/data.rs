@@ -126,6 +126,20 @@ impl Data {
             task.set_note(note);
         }
     }
+    /// Replaces one completed task's note, returning whether its identifier was found.
+    pub(crate) fn update_task_note(&mut self, id: &TaskId, note: String) -> bool {
+        let Some(task) = self.tasks.iter_mut().find(|task| task.id() == id) else {
+            return false;
+        };
+        task.set_note(note);
+        true
+    }
+    /// Removes one completed task, returning whether its identifier was found.
+    pub(crate) fn delete_task(&mut self, id: &TaskId) -> bool {
+        let previous_len = self.tasks.len();
+        self.tasks.retain(|task| task.id() != id);
+        self.tasks.len() != previous_len
+    }
     /// Adds an active project with the supplied identifier and name.
     pub(crate) fn add_project(&mut self, id: ProjectId, name: String) {
         self.projects.push(Project::new(id, name));
@@ -181,6 +195,13 @@ mod tests {
         assert!(data.end_tracking(80));
         data.save_task_note("Brief".into());
         assert_eq!(data.tasks()[1].note(), "Brief");
+
+        let first_id = data.tasks()[0].id().clone();
+        assert!(data.update_task_note(&first_id, "Updated planning".into()));
+        assert_eq!(data.tasks()[0].note(), "Updated planning");
+        assert!(data.delete_task(&first_id));
+        assert_eq!(data.tasks().len(), 1);
+        assert!(!data.delete_task(&first_id));
     }
 
     #[test]

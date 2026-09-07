@@ -109,6 +109,32 @@ impl UiController {
         self.refresh(&ui);
     }
 
+    pub(super) fn update_evaluation_task(&self, id: SharedString, note: SharedString) {
+        let Some(ui) = self.ui.upgrade() else {
+            return;
+        };
+        match self
+            .tracker
+            .borrow_mut()
+            .update_task_note(id.to_string(), note.to_string())
+        {
+            Ok(true) => self.refresh(&ui),
+            Ok(false) => self.set_error(&ui, "The session no longer exists"),
+            Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
+        }
+    }
+
+    pub(super) fn delete_evaluation_task(&self, id: SharedString) {
+        let Some(ui) = self.ui.upgrade() else {
+            return;
+        };
+        match self.tracker.borrow_mut().delete_task(id.to_string()) {
+            Ok(true) => self.refresh(&ui),
+            Ok(false) => self.set_error(&ui, "The session no longer exists"),
+            Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
+        }
+    }
+
     pub(super) fn choose_range(&self, range: crate::Range) {
         let Some(ui) = self.ui.upgrade() else {
             return;
@@ -224,7 +250,7 @@ impl UiController {
     }
 
     pub(super) fn refresh(&self, ui: &AppWindow) {
-        presentation::refresh(ui, &self.tracker.borrow(), domain::now());
+        presentation::refresh(ui, &self.tracker.borrow(), domain::now(), self.language);
     }
 
     pub(super) fn persist_initial(&self, ui: &AppWindow) {

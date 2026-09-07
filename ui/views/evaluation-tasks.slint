@@ -12,10 +12,34 @@ import { DurationLabel } from "../components/duration-label.slint";
 import { EvaluationSummary } from "../components/evaluation-summary.slint";
 import { RangeList } from "../components/range-list.slint";
 
+component SessionIconButton inherits Rectangle {
+    in property <image> icon;
+    in property <color> icon-color: Theme.palette.secondary-text;
+
+    callback clicked();
+
+    Image {
+        width: 16px;
+        height: 16px;
+        source: root.icon;
+        colorize: root.icon-color;
+    }
+
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
 export component TaskCard inherits Rectangle {
     in property <EvaluationTaskItem> entry;
+    private property <bool> editing: false;
+    private property <string> description-draft: root.entry.note;
 
-    height: 72px;
+    callback update-task(string, string);
+    callback delete-task(string);
+
+    height: 86px;
 
     Rectangle {
         x: 4px;
@@ -26,7 +50,7 @@ export component TaskCard inherits Rectangle {
 
     Rectangle {
         x: 0px;
-        y: 8px;
+        y: 7px;
         width: 10px;
         height: 10px;
         border-radius: 5px;
@@ -37,7 +61,17 @@ export component TaskCard inherits Rectangle {
         x: 22px;
         y: 7px;
         width: parent.width - 96px;
-        height: 36px;
+        text: root.entry.completed-label;
+        color: Theme.palette.secondary-text;
+        font-size: Theme.typography.caption.size;
+        font-weight: Theme.typography.caption.weight;
+    }
+
+    if (!root.editing): Text {
+        x: 22px;
+        y: 23px;
+        width: parent.width - 22px;
+        height: 32px;
         text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
         color: Theme.palette.text;
         font-size: Theme.typography.body.size;
@@ -45,9 +79,25 @@ export component TaskCard inherits Rectangle {
         wrap: word-wrap;
     }
 
+    if (root.editing): description-input := TextInput {
+        x: 22px;
+        y: 22px;
+        width: parent.width - 22px;
+        height: 34px;
+        single-line: false;
+        wrap: word-wrap;
+        font-size: Theme.typography.body.size;
+        font-weight: Theme.typography.body.weight;
+        text <=> root.description-draft;
+        accepted => {
+            root.update-task(root.entry.id, root.description-draft);
+            root.editing = false;
+        }
+    }
+
     Text {
         x: parent.width - 72px;
-        y: 8px;
+        y: 7px;
         width: 72px;
         text: duration.text;
         color: Theme.palette.accent;
@@ -56,13 +106,39 @@ export component TaskCard inherits Rectangle {
         horizontal-alignment: right;
     }
 
-    Text {
-        x: 22px;
-        y: 48px;
-        text: @tr("Completed session");
-        color: Theme.palette.secondary-text;
-        font-size: Theme.typography.caption.size;
-        font-weight: Theme.typography.caption.weight;
+    if (!root.editing): SessionIconButton {
+        x: parent.width - 48px;
+        y: 60px;
+        width: 18px;
+        height: 18px;
+        icon: @image-url("../assets/icons/edit.svg");
+        clicked => {
+            root.description-draft = root.entry.note;
+            root.editing = true;
+        }
+    }
+
+    if (root.editing): SessionIconButton {
+        x: parent.width - 48px;
+        y: 60px;
+        width: 18px;
+        height: 18px;
+        icon: @image-url("../assets/icons/check.svg");
+        icon-color: Theme.palette.accent;
+        clicked => {
+            root.update-task(root.entry.id, root.description-draft);
+            root.editing = false;
+        }
+    }
+
+    SessionIconButton {
+        x: parent.width - 22px;
+        y: 60px;
+        width: 18px;
+        height: 18px;
+        icon: @image-url("../assets/icons/delete.svg");
+        icon-color: Theme.palette.danger;
+        clicked => { root.delete-task(root.entry.id); }
     }
 
     Rectangle {
@@ -84,6 +160,8 @@ export component EvaluationTasksView inherits Rectangle {
     callback open-evaluation-view();
     callback choose-range(Range);
     callback export-markdown();
+    callback update-task(string, string);
+    callback delete-task(string);
 
     VerticalLayout {
         padding: 20px;
@@ -123,6 +201,8 @@ export component EvaluationTasksView inherits Rectangle {
 
             for task in root.state.tasks: TaskCard {
                 entry: task;
+                update-task(id, note) => { root.update-task(id, note); }
+                delete-task(id) => { root.delete-task(id); }
             }
         }
 

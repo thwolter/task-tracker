@@ -28,9 +28,11 @@ export struct TaskItem {
 }
 
 export struct EvaluationTaskItem {
+    id: string,
     project: string,
     note: string,
     duration-seconds: int,
+    completed-label: string,
 }
 
 export struct HomeState {

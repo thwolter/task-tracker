@@ -8,8 +8,9 @@ use crate::{
     ProjectTotalItem, Range, TaskItem, TrackingState,
     application::Tracker,
     domain::{self, Data, ProjectId, Range as DomainRange, Task},
+    language::Language,
 };
-use chrono::{Local, TimeZone};
+use chrono::{Datelike, Local, TimeZone, Weekday};
 use slint::{ModelRc, SharedString, VecModel};
 
 /// Builds the Home-page snapshot, omitting archived projects.
@@ -79,7 +80,7 @@ pub(crate) fn project_settings(tracker: &Tracker) -> ModelRc<ProjectItem> {
 }
 
 /// Builds the selected calendar range's totals and up to three newest tasks.
-pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64) -> EvaluationState {
+pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64, language: Language) -> EvaluationState {
     let matching: Vec<_> = tracker
         .data()
         .tasks()
@@ -97,9 +98,11 @@ pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64) -> EvaluationState {
             .rev()
             .take(3)
             .map(|task| EvaluationTaskItem {
+                id: task.id().as_str().into(),
                 project: tracker.data().project_name(task.project_id()).into(),
                 note: task.note().into(),
                 duration_seconds: slint_seconds(task.ended() - task.started()),
+                completed_label: localized_completion_date(task, language).into(),
             })
             .collect::<Vec<_>>(),
     ));
@@ -116,6 +119,7 @@ pub(crate) fn evaluation_tasks(
     tracker: &Tracker,
     timestamp: i64,
     project_id: &ProjectId,
+    language: Language,
 ) -> EvaluationTasksState {
     let matching: Vec<_> = tracker
         .data()
@@ -136,9 +140,11 @@ pub(crate) fn evaluation_tasks(
                 .iter()
                 .rev()
                 .map(|task| EvaluationTaskItem {
+                    id: task.id().as_str().into(),
                     project: tracker.data().project_name(task.project_id()).into(),
                     note: task.note().into(),
                     duration_seconds: slint_seconds(task.ended() - task.started()),
+                    completed_label: localized_completion_date(task, language).into(),
                 })
                 .collect::<Vec<_>>(),
         )),
@@ -179,6 +185,69 @@ fn slint_seconds(seconds: i64) -> i32 {
     seconds.clamp(0, i64::from(i32::MAX)) as i32
 }
 
+fn localized_completion_date(task: &Task, language: Language) -> String {
+    let completed_at = Local
+        .timestamp_opt(task.ended(), 0)
+        .single()
+        .unwrap_or_else(Local::now);
+    let weekday = localized_weekday(completed_at.weekday(), language);
+    let month = localized_month(completed_at.month(), language);
+    match language {
+        Language::English => format!("{weekday}, {} {month}", completed_at.day()),
+        Language::German => format!("{weekday}, {}. {month}", completed_at.day()),
+    }
+    .to_uppercase()
+}
+
+fn localized_weekday(weekday: Weekday, language: Language) -> &'static str {
+    match (language, weekday) {
+        (Language::English, Weekday::Mon) => "Mon",
+        (Language::English, Weekday::Tue) => "Tue",
+        (Language::English, Weekday::Wed) => "Wed",
+        (Language::English, Weekday::Thu) => "Thu",
+        (Language::English, Weekday::Fri) => "Fri",
+        (Language::English, Weekday::Sat) => "Sat",
+        (Language::English, Weekday::Sun) => "Sun",
+        (Language::German, Weekday::Mon) => "Mo.",
+        (Language::German, Weekday::Tue) => "Di.",
+        (Language::German, Weekday::Wed) => "Mi.",
+        (Language::German, Weekday::Thu) => "Do.",
+        (Language::German, Weekday::Fri) => "Fr.",
+        (Language::German, Weekday::Sat) => "Sa.",
+        (Language::German, Weekday::Sun) => "So.",
+    }
+}
+
+fn localized_month(month: u32, language: Language) -> &'static str {
+    match (language, month) {
+        (Language::English, 1) => "Jan",
+        (Language::English, 2) => "Feb",
+        (Language::English, 3) => "Mar",
+        (Language::English, 4) => "Apr",
+        (Language::English, 5) => "May",
+        (Language::English, 6) => "Jun",
+        (Language::English, 7) => "Jul",
+        (Language::English, 8) => "Aug",
+        (Language::English, 9) => "Sep",
+        (Language::English, 10) => "Oct",
+        (Language::English, 11) => "Nov",
+        (Language::English, 12) => "Dec",
+        (Language::German, 1) => "Jan.",
+        (Language::German, 2) => "Feb.",
+        (Language::German, 3) => "März",
+        (Language::German, 4) => "Apr.",
+        (Language::German, 5) => "Mai",
+        (Language::German, 6) => "Juni",
+        (Language::German, 7) => "Juli",
+        (Language::German, 8) => "Aug.",
+        (Language::German, 9) => "Sept.",
+        (Language::German, 10) => "Okt.",
+        (Language::German, 11) => "Nov.",
+        (Language::German, 12) => "Dez.",
+        (_, _) => unreachable!("chrono months are always in 1..=12"),
+    }
+}
+
 /// Builds the active-tracking display, or the empty state when no task is active.
 pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
     let (active_task, elapsed, paused) = tracker.data().active_task().map_or_else(
@@ -203,12 +272,17 @@ pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
 }
 
 /// Replaces every Slint state projection with a consistent tracker snapshot.
-pub(crate) fn refresh(ui: &crate::AppWindow, tracker: &Tracker, timestamp: i64) {
+pub(crate) fn refresh(
+    ui: &crate::AppWindow,
+    tracker: &Tracker,
+    timestamp: i64,
+    language: Language,
+) {
     ui.set_home(home(tracker));
     ui.set_project_settings(project_settings(tracker));
-    ui.set_evaluation(evaluation(tracker, timestamp));
+    ui.set_evaluation(evaluation(tracker, timestamp, language));
     if let Some(project) = tracker.evaluating_project() {
-        ui.set_evaluation_tasks(evaluation_tasks(tracker, timestamp, project));
+        ui.set_evaluation_tasks(evaluation_tasks(tracker, timestamp, project, language));
     }
     ui.set_tracking(tracking(tracker, timestamp));
 }
@@ -239,7 +313,7 @@ fn format_elapsed(seconds: i64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{application::Tracker, domain};
+    use crate::{application::Tracker, domain, language::Language};
     use slint::Model;
 
     #[test]
@@ -260,7 +334,7 @@ mod tests {
         tracker.end_tracking(130).unwrap();
         assert!(home(&tracker).has_last_task);
         assert_eq!(home(&tracker).last_task.duration_seconds, 60);
-        let evaluation = evaluation(&tracker, 130);
+        let evaluation = evaluation(&tracker, 130, Language::English);
         assert_eq!(evaluation.tasks.row_count(), 1);
         assert_eq!(evaluation.tasks.row_data(0).unwrap().duration_seconds, 60);
         assert_eq!(evaluation.total_seconds, 60);
@@ -288,10 +362,23 @@ mod tests {
         tracker.end_tracking(110).unwrap();
 
         let project_id = ProjectId::from("project-1".to_owned());
-        let evaluation = evaluation_tasks(&tracker, 130, &project_id);
+        let evaluation = evaluation_tasks(&tracker, 130, &project_id, Language::English);
         assert_eq!(evaluation.project, "Project Atlas");
         assert_eq!(evaluation.tasks.row_count(), 1);
         assert_eq!(evaluation.tasks.row_data(0).unwrap().note, "Planning");
+        assert_eq!(evaluation.tasks.row_data(0).unwrap().id, "task-10-1");
+        assert_eq!(
+            evaluation.tasks.row_data(0).unwrap().completed_label,
+            "THU, 1 JAN"
+        );
+        assert_eq!(
+            evaluation_tasks(&tracker, 130, &project_id, Language::German)
+                .tasks
+                .row_data(0)
+                .unwrap()
+                .completed_label,
+            "DO., 1. JAN."
+        );
         assert_eq!(evaluation.total_seconds, 60);
 
         std::fs::remove_file(path).unwrap();

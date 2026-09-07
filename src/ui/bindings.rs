@@ -58,4 +58,12 @@ fn bind_callbacks(ui: &AppWindow, controller: &UiController) {
 
     let evaluate_tasks = controller.clone();
     ui.on_open_evaluation_tasks(move |id| evaluate_tasks.open_evaluate_tasks(id));
+
+    let update_evaluation_task = controller.clone();
+    ui.on_update_evaluation_task(move |id, note| {
+        update_evaluation_task.update_evaluation_task(id, note)
+    });
+
+    let delete_evaluation_task = controller.clone();
+    ui.on_delete_evaluation_task(move |id| delete_evaluation_task.delete_evaluation_task(id));
 }
