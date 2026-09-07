@@ -1,3 +1,9 @@
+//! SQLite persistence for the complete tracker aggregate.
+//!
+//! The store owns schema initialization and maps SQLite rows to domain values;
+//! it does not enforce domain lifecycle rules. Each save replaces all stored
+//! aggregate rows inside one transaction.
+
 use crate::{
     domain::{ActiveTask, Data, Project, ProjectId, Task, TaskId},
     error::Result,
@@ -74,7 +80,10 @@ impl SqliteStore {
         Ok(connection)
     }
 
-    /// Loads saved data, returning defaults when the database is empty.
+    /// Loads saved data, returning defaults when the database is empty or unreadable.
+    ///
+    /// Errors from opening, initializing, or reading the database are
+    /// intentionally not surfaced through this startup-oriented operation.
     pub(crate) fn load_or_default(&self) -> Data {
         self.load().unwrap_or_else(|_| Data::defaults())
     }

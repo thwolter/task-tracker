@@ -1,3 +1,9 @@
+//! Application-level orchestration for the tracker.
+//!
+//! [`Tracker`] coordinates domain mutations with SQLite persistence and holds
+//! UI-only state such as the selected reporting range and open project editor.
+//! It does not format data for Slint or handle widget callbacks.
+
 use crate::{
     domain::{self, Data, ProjectId, Range},
     error::Result,
@@ -10,8 +16,10 @@ use std::{cell::RefCell, rc::Rc};
 #[cfg(test)]
 use std::path::PathBuf;
 
+/// Shared mutable access to the single tracker instance used by the UI.
 pub(crate) type SharedTracker = Rc<RefCell<Tracker>>;
 
+/// Coordinates domain state, persistence, and application-only interaction state.
 pub(crate) struct Tracker {
     data: Data,
     store: SqliteStore,
@@ -20,6 +28,7 @@ pub(crate) struct Tracker {
 }
 
 impl Tracker {
+    /// Loads the default database, closes any restored active task, and saves that recovery.
     pub(crate) fn load_default() -> SharedTracker {
         let store = SqliteStore::at(SqliteStore::default_path());
         let mut data = store.load_or_default();
@@ -50,16 +59,19 @@ impl Tracker {
         self.range
     }
 
+    /// Persists the complete current domain aggregate.
     pub(crate) fn save(&self) -> Result<()> {
         self.store.save(&self.data)
     }
 
+    /// Starts tracking for a project and persists the resulting active task.
     pub(crate) fn start_tracking(&mut self, project_id: String, timestamp: i64) -> Result<()> {
         self.data
             .start_tracking(ProjectId::from(project_id), timestamp);
         self.save()
     }
 
+    /// Checkpoints active, unpaused work and saves only when the checkpoint changed.
     pub(crate) fn tick(&mut self, timestamp: i64) -> Result<()> {
         if self.data.checkpoint_active(timestamp) {
             self.save()?;
@@ -67,6 +79,9 @@ impl Tracker {
         Ok(())
     }
 
+    /// Pauses or resumes active work and persists it when an active task exists.
+    ///
+    /// Returns whether the tracking state changed.
     pub(crate) fn toggle_tracking_pause(&mut self, timestamp: i64) -> Result<bool> {
         let changed = self.data.toggle_pause(timestamp);
         if changed {
@@ -75,6 +90,9 @@ impl Tracker {
         Ok(changed)
     }
 
+    /// Finishes active work at `timestamp` and persists the completed task.
+    ///
+    /// Returns whether an active task was finished.
     pub(crate) fn end_tracking(&mut self, timestamp: i64) -> Result<bool> {
         let ended = self.data.end_tracking(timestamp);
         if ended {
@@ -83,15 +101,18 @@ impl Tracker {
         Ok(ended)
     }
 
+    /// Sets the latest completed task's note, then persists the aggregate.
     pub(crate) fn save_task_note(&mut self, note: String) -> Result<()> {
         self.data.save_task_note(note);
         self.save()
     }
 
+    /// Selects the in-memory range used by evaluation and report projections.
     pub(crate) fn choose_range(&mut self, range: Range) {
         self.range = range;
     }
 
+    /// Clears any pending rename and returns an empty project-editor state.
     pub(crate) fn begin_add_project(&mut self) -> ProjectDialog {
         self.editing_project_id = None;
         ProjectDialog {
@@ -102,6 +123,10 @@ impl Tracker {
         }
     }
 
+    /// Selects a project for editing and returns its current editor state.
+    ///
+    /// An unknown identifier produces an empty draft but is retained as the
+    /// pending identifier until the dialog is saved or cancelled.
     pub(crate) fn begin_rename_project(&mut self, id: String) -> ProjectDialog {
         let initial_draft = self
             .data
@@ -127,6 +152,10 @@ impl Tracker {
         }
     }
 
+    /// Validates and saves either the pending rename or a new timestamp-based project.
+    ///
+    /// A successful save clears the pending rename; validation errors leave it
+    /// available for further editing.
     pub(crate) fn save_project(&mut self, name: &str, timestamp: i64) -> Result<()> {
         let name = domain::validate_project_name(name)?;
         if let Some(id) = self.editing_project_id.take() {
@@ -139,20 +168,24 @@ impl Tracker {
         Ok(())
     }
 
+    /// Discards any pending project rename.
     pub(crate) fn cancel_project_dialog(&mut self) {
         self.editing_project_id = None;
     }
 
+    /// Archives a project while retaining its recorded work, then saves.
     pub(crate) fn archive_project(&mut self, id: String) -> Result<()> {
         self.data.archive_project(&ProjectId::from(id));
         self.save()
     }
 
+    /// Restores an archived project to the active lifecycle state, then saves.
     pub(crate) fn unarchive_project(&mut self, id: String) -> Result<()> {
         self.data.unarchive_project(&ProjectId::from(id));
         self.save()
     }
 
+    /// Deletes a project and its work, clears pending editor state, then saves.
     pub(crate) fn delete_project(&mut self, id: String) -> Result<()> {
         let id = ProjectId::from(id);
         self.data.delete_project(&id);
@@ -160,11 +193,13 @@ impl Tracker {
         self.save()
     }
 
+    /// Renders the selected range as a localized Markdown report without saving.
     pub(crate) fn report(&self, timestamp: i64, language: Language) -> String {
         report::markdown(&self.data, self.range, timestamp, language)
     }
 }
 
+/// The UI-facing state needed to render the project editor.
 pub(crate) struct ProjectDialog {
     pub(crate) rename_mode: bool,
     pub(crate) initial_draft: String,

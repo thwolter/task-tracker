@@ -1,3 +1,9 @@
+//! Runtime language selection for translated UI and report text.
+//!
+//! German is selected only when the system locale begins with `de`; all other
+//! or unavailable locales use English.
+
+/// A supported application language.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum Language {
     English,
@@ -5,10 +11,12 @@ pub(crate) enum Language {
 }
 
 impl Language {
+    /// Selects a supported language from the operating system locale.
     pub(crate) fn system() -> Self {
         Self::from_locale(sys_locale::get_locale().as_deref())
     }
 
+    /// Returns the bundled Slint translation locale for this language.
     pub(crate) fn slint_locale(self) -> &'static str {
         match self {
             Self::English => "en",

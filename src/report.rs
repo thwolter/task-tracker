@@ -1,9 +1,18 @@
+//! Localized Markdown reporting over completed tasks.
+//!
+//! Reports are read-only projections of the selected calendar range. This
+//! module owns report copy and duration formatting, not file export.
+
 use crate::{
     domain::{self, Data, Range},
     language::Language,
 };
 use chrono::{Local, TimeZone};
 
+/// Renders completed tasks in `range` as a localized Markdown report.
+///
+/// Durations are rounded to the nearest minute and task timestamps are shown
+/// in the local time zone.
 pub(crate) fn markdown(data: &Data, range: Range, timestamp: i64, language: Language) -> String {
     let tasks: Vec<_> = data
         .tasks()

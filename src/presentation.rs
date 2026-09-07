@@ -1,3 +1,8 @@
+//! Projections from application state into Slint view models.
+//!
+//! This module owns UI-ready formatting, range grouping, and filtering. It
+//! reads [`Tracker`] state but does not mutate domain state or persist data.
+
 use crate::{
     EvaluationState, EvaluationTaskItem, HomeState, ProjectItem, ProjectTotalItem, Range, TaskItem,
     TrackingState,
@@ -7,6 +12,7 @@ use crate::{
 use chrono::{Local, TimeZone};
 use slint::{ModelRc, SharedString, VecModel};
 
+/// Builds the Home-page snapshot, omitting archived projects.
 pub(crate) fn home(tracker: &Tracker) -> HomeState {
     let projects = ModelRc::new(VecModel::from(
         tracker
@@ -55,6 +61,7 @@ fn task_item(data: &Data, task: &Task) -> TaskItem {
     }
 }
 
+/// Builds the Settings project list, including archived projects and their state.
 pub(crate) fn project_settings(tracker: &Tracker) -> ModelRc<ProjectItem> {
     ModelRc::new(VecModel::from(
         tracker
@@ -71,6 +78,7 @@ pub(crate) fn project_settings(tracker: &Tracker) -> ModelRc<ProjectItem> {
     ))
 }
 
+/// Builds the selected calendar range's totals and up to three newest tasks.
 pub(crate) fn evaluation(tracker: &Tracker, timestamp: i64) -> EvaluationState {
     let matching: Vec<_> = tracker
         .data()
@@ -134,6 +142,7 @@ fn slint_seconds(seconds: i64) -> i32 {
     seconds.clamp(0, i64::from(i32::MAX)) as i32
 }
 
+/// Builds the active-tracking display, or the empty state when no task is active.
 pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
     let (active_task, elapsed, paused) = tracker.data().active_task().map_or_else(
         || (SharedString::new(), SharedString::from("00:00"), false),
@@ -156,6 +165,7 @@ pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
     }
 }
 
+/// Replaces every Slint state projection with a consistent tracker snapshot.
 pub(crate) fn refresh(ui: &crate::AppWindow, tracker: &Tracker, timestamp: i64) {
     ui.set_home(home(tracker));
     ui.set_project_settings(project_settings(tracker));
@@ -163,6 +173,7 @@ pub(crate) fn refresh(ui: &crate::AppWindow, tracker: &Tracker, timestamp: i64) 
     ui.set_tracking(tracking(tracker, timestamp));
 }
 
+/// Converts the UI-generated range enum into the domain enum.
 pub(crate) fn domain_range(range: Range) -> DomainRange {
     match range {
         Range::Day => DomainRange::Day,
