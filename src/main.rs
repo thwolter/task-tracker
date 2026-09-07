@@ -12,7 +12,14 @@ mod ui;
 slint::include_modules!();
 
 fn main() -> Result<(), slint::PlatformError> {
-    let language = language::Language::system();
+    // The live preview has no bundled translation catalog, so its visible UI
+    // remains English. Keep Rust-projected strings, such as completion dates,
+    // in the same language.
+    let language = if cfg!(feature = "live-preview") {
+        language::Language::English
+    } else {
+        language::Language::system()
+    };
     let ui = AppWindow::new()?;
 
     // Live preview reloads .slint source files and does not include the bundle
