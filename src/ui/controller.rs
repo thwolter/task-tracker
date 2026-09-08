@@ -113,11 +113,12 @@ impl UiController {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        match self
-            .tracker
-            .borrow_mut()
-            .update_task_note(id.to_string(), note.to_string())
-        {
+        let result = {
+            self.tracker
+                .borrow_mut()
+                .update_task_note(id.to_string(), note.to_string())
+        };
+        match result {
             Ok(true) => self.refresh(&ui),
             Ok(false) => self.set_error(&ui, "The session no longer exists"),
             Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
@@ -128,7 +129,8 @@ impl UiController {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        match self.tracker.borrow_mut().delete_task(id.to_string()) {
+        let result = { self.tracker.borrow_mut().delete_task(id.to_string()) };
+        match result {
             Ok(true) => self.refresh(&ui),
             Ok(false) => self.set_error(&ui, "The session no longer exists"),
             Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
