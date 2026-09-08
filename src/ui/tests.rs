@@ -80,7 +80,7 @@ mod tests {
             tracker.data().tasks()[0].id().as_str().to_owned()
         };
 
-        ui.invoke_open_evaluation_tasks("project-1".into());
+        ui.invoke_open_drilldown("project-1".into());
         ui.invoke_update_evaluation_task(task_id.clone().into(), "Updated note".into());
         assert_eq!(tracker.borrow().data().tasks()[0].note(), "Updated note");
 

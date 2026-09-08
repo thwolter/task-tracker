@@ -44,7 +44,12 @@ impl UiController {
         if let Err(error) = result {
             self.set_error(&ui, format!("Could not save data: {error}"));
         }
-        self.refresh(&ui);
+        // Only the tracking view displays data that changes on every timer tick.
+        // Refreshing every projection recreates inactive views and steals focus
+        // from their text inputs.
+        if ui.get_page() == Page::Tracking {
+            self.refresh(&ui);
+        }
     }
 
     pub(super) fn start_tracking(&self, project_id: SharedString) {

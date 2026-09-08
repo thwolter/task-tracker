@@ -12,7 +12,7 @@ import { DurationLabel } from "../components/duration-label.slint";
 import { EvaluationSummary } from "../components/evaluation-summary.slint";
 import { RangeList } from "../components/range-list.slint";
 import { IconButton } from "../components/icon-button.slint";
-import { ScrollView } from "std-widgets.slint";
+import { ScrollView, Button } from "std-widgets.slint";
 
 component TaskTimelineMarker inherits Rectangle {
     Rectangle {
@@ -94,6 +94,7 @@ export component TaskCard inherits Rectangle {
                             wrap: word-wrap;
                             font-size: Theme.typography.body.size;
                             font-weight: Theme.typography.body.weight;
+                            color: Theme.palette.text;
                             text <=> root.description-draft;
                             accepted => {
                                 root.save-requested(root.entry.id, root.description-draft);
@@ -114,7 +115,7 @@ export component TaskCard inherits Rectangle {
                         horizontal-alignment: right;
                     }
 
-                    HorizontalLayout {
+                    if (!root.editing): HorizontalLayout {
                         spacing: 8px;
                         alignment: end;
 
@@ -128,6 +129,18 @@ export component TaskCard inherits Rectangle {
                             icon: @image-url("../assets/icons/delete.svg");
                             icon-color: Theme.palette.danger;
                             clicked => { root.delete-task(root.entry.id); }
+                        }
+                    }
+
+                    if (root.editing): HorizontalLayout {
+                        Button {
+                            text: @tr("Save");
+                            icon: @image-url("../assets/icons/check.svg");
+                            height: 25px;
+                            primary: true;
+                            clicked => {
+                                root.save-requested(root.entry.id, root.description-draft);
+                            }
                         }
                     }
                 }
