@@ -12,29 +12,7 @@ import { DurationLabel } from "../components/duration-label.slint";
 import { EvaluationSummary } from "../components/evaluation-summary.slint";
 import { RangeList } from "../components/range-list.slint";
 import { IconButton } from "../components/icon-button.slint";
-
-component TaskEditButton inherits IconButton {
-    in property <bool> editing;
-
-    callback edit();
-    callback save();
-
-    icon: root.editing
-        ? @image-url("../assets/icons/check.svg")
-        : @image-url("../assets/icons/edit.svg");
-
-    icon-color: root.editing
-        ? Theme.palette.accent
-        : Theme.palette.secondary-text;
-
-    clicked => {
-        if (root.editing) {
-            root.save();
-        } else {
-            root.edit();
-        }
-    }
-}
+import { ScrollView } from "std-widgets.slint";
 
 component TaskTimelineMarker inherits Rectangle {
     Rectangle {
@@ -50,110 +28,6 @@ component TaskTimelineMarker inherits Rectangle {
         height: 10px;
         border-radius: 5px;
         background: Theme.palette.accent;
-    }
-}
-
-component TaskDetails inherits Rectangle {
-    editing: true;
-    in property <EvaluationTaskItem> entry;
-    in property <bool> editing;
-    in-out property <string> description-draft: root.entry.note;
-
-    callback edit-requested();
-    callback save-requested();
-    callback delete-requested();
-
-    HorizontalLayout {
-        padding-top: 5px;
-        padding-bottom: 10px;
-        min-height: 40px;
-
-        VerticalLayout {
-            spacing: 5px;
-            Text {
-	            text: root.entry.completed-label;
-	            color: Theme.palette.secondary-text;
-	            font-size: Theme.typography.caption.size;
-	            font-weight: Theme.typography.caption.weight;
-	        }
-
-		    if (!root.editing): Rectangle {
-		        height: description.preferred-height;
-
-			    description := Text {
-			        x: 0px;
-			        width: 120px;
-			        text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
-			        color: Theme.palette.text;
-			        font-size: Theme.typography.body.size;
-			        font-weight: Theme.typography.body.weight;
-			        wrap: word-wrap;
-			        horizontal-alignment: left;
-			        vertical-alignment: top;
-			    }
-		    }
-
-		    if (root.editing): Rectangle {
-		        height: 34px;
-		        background: Theme.palette.surface;
-
-		        description-input := TextInput {
-			        x: 10px;
-			        y: 0px;
-			        width: 100%;
-			        height: 34px;
-			        single-line: false;
-			        wrap: word-wrap;
-			        font-size: Theme.typography.body.size;
-			        font-weight: Theme.typography.body.weight;
-			        text <=> root.description-draft;
-			        accepted => { root.save-requested(); }
-			    }
-		    }
-        }
-
-        VerticalLayout {
-            min-width: 70px;
-
-            Text {
-	            text: duration.text;
-	            color: Theme.palette.accent;
-	            font-size: Theme.typography.supporting.size;
-	            font-weight: Theme.typography.body-strong.weight;
-	            horizontal-alignment: right;
-	        }
-
-			HorizontalLayout {
-		        spacing: 8px;
-				alignment: end;
-
-		        TaskEditButton {
-		            editing: root.editing;
-		            icon-color: Theme.palette.accent;
-		            edit => { root.edit-requested(); }
-		            save => { root.save-requested(); }
-		        }
-
-		        IconButton {
-		            icon: @image-url("../assets/icons/delete.svg");
-		            icon-color: Theme.palette.danger;
-		            clicked => { root.delete-requested(); }
-		        }
-		    }
-        }
-    }
-
-
-
-    Rectangle {
-        y: parent.height - 1px;
-        width: parent.width;
-        height: 1px;
-        background: Theme.palette.section-divider;
-    }
-
-    duration := DurationLabel {
-        seconds: root.entry.duration-seconds;
     }
 }
 
@@ -175,17 +49,100 @@ export component TaskCard inherits Rectangle {
             width: 10px;
         }
 
-        TaskDetails {
-            entry: root.entry;
-            editing: root.editing;
-            description-draft <=> root.description-draft;
-            edit-requested => {
-                root.edit-requested(root.entry.id, root.entry.note);
+        Rectangle {
+            HorizontalLayout {
+                padding-top: 5px;
+                padding-bottom: 10px;
+                min-height: 40px;
+
+                VerticalLayout {
+                    spacing: 5px;
+
+                    Text {
+                        text: root.entry.completed-label;
+                        color: Theme.palette.secondary-text;
+                        font-size: Theme.typography.caption.size;
+                        font-weight: Theme.typography.caption.weight;
+                    }
+
+                    if (!root.editing): Rectangle {
+                        height: description.preferred-height;
+
+                        description := Text {
+                            x: 0px;
+                            width: 120px;
+                            text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
+                            color: Theme.palette.text;
+                            font-size: Theme.typography.body.size;
+                            font-weight: Theme.typography.body.weight;
+                            wrap: word-wrap;
+                            horizontal-alignment: left;
+                            vertical-alignment: top;
+                        }
+                    }
+
+                    if (root.editing): Rectangle {
+                        height: 34px;
+                        background: Theme.palette.surface;
+
+                        description-input := TextInput {
+                            x: 10px;
+                            y: 0px;
+                            width: 100%;
+                            height: 34px;
+                            single-line: false;
+                            wrap: word-wrap;
+                            font-size: Theme.typography.body.size;
+                            font-weight: Theme.typography.body.weight;
+                            text <=> root.description-draft;
+                            accepted => {
+                                root.save-requested(root.entry.id, root.description-draft);
+                            }
+                        }
+                    }
+                }
+
+
+				// Duration label and edit/delte buttons
+                VerticalLayout {
+                    Text {
+                        width: 70px;
+                        text: duration.text;
+                        color: Theme.palette.accent;
+                        font-size: Theme.typography.supporting.size;
+                        font-weight: Theme.typography.body-strong.weight;
+                        horizontal-alignment: right;
+                    }
+
+                    HorizontalLayout {
+                        spacing: 8px;
+                        alignment: end;
+
+                        IconButton {
+                            icon: @image-url("../assets/icons/edit.svg");
+                            icon-color: Theme.palette.accent;
+                            clicked => { root.edit-requested(root.entry.id, root.entry.note); }
+                        }
+
+                        IconButton {
+                            icon: @image-url("../assets/icons/delete.svg");
+                            icon-color: Theme.palette.danger;
+                            clicked => { root.delete-task(root.entry.id); }
+                        }
+                    }
+                }
             }
-            save-requested => {
-                root.save-requested(root.entry.id, root.description-draft);
+
+            Rectangle {
+                y: parent.height - 1px;
+                width: 100%;
+                height: 1px;
+                background: Theme.palette.section-divider;
             }
-            delete-requested => { root.delete-task(root.entry.id); }
+
+            duration := DurationLabel {
+                seconds: root.entry.duration-seconds;
+            }
         }
     }
 }
@@ -234,24 +191,27 @@ export component EvaluationTasksView inherits Rectangle {
             font-weight: Theme.typography.body-strong.weight;
         }
 
-        ScrollableColumn {
-            spacing: 0px;
+        ScrollView {
+			VerticalLayout {
+				width: 100%;
 
-            for task in root.state.tasks: TaskCard {
-                entry: task;
-                editing: root.editing-task-id == task.id;
-                description-draft <=> root.description-draft;
-                edit-requested(id, note) => {
-                    root.editing-task-id = id;
-                    root.description-draft = note;
-                }
-                save-requested(id, note) => {
-                    root.update-task(id, note);
-                    root.editing-task-id = "";
-                }
-                delete-task(id) => { root.delete-task(id); }
-            }
+				for task in root.state.tasks: TaskCard {
+	                entry: task;
+	                editing: root.editing-task-id == task.id;
+	                description-draft <=> root.description-draft;
+	                edit-requested(id, note) => {
+	                    root.editing-task-id = id;
+	                    root.description-draft = note;
+	                }
+	                save-requested(id, note) => {
+	                    root.update-task(id, note);
+	                    root.editing-task-id = "";
+	                }
+	                delete-task(id) => { root.delete-task(id); }
+	            }
+			}
         }
+        Rectangle { min-height: 0; vertical-stretch: 1;}
 
 
         AppButton {
