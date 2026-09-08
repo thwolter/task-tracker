@@ -80,7 +80,7 @@ export component EvaluationView inherits Rectangle {
     in property <EvaluationState> state;
 
     callback open-home-view();
-    callback open-evaluation-tasks(string);
+    callback open-drilldown(string);
     callback choose-range(Range);
     callback export-markdown();
 
@@ -111,7 +111,7 @@ export component EvaluationView inherits Rectangle {
         ScrollableColumn {
             for totals in root.state.project_totals: ProjectCard {
                 entry: totals;
-                clicked(project) => { open-evaluation-tasks(project)}
+                clicked(project) => { open-drilldown(project)}
             }
         }
 

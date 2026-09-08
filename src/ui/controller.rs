@@ -321,6 +321,6 @@ impl UiController {
             .borrow_mut()
             .select_evaluation_project(id.to_string());
         self.refresh(&ui);
-        ui.set_page(Page::EvaluationTasks);
+        ui.set_page(Page::Drilldown);
     }
 }

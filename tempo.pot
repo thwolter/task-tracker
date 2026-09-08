@@ -124,28 +124,28 @@ msgctxt "HomeView"
 msgid "A quiet place to keep your day moving."
 msgstr ""
 
-#: ui/views/evaluation-tasks.slint:85
+#: ui/views/drilldown.slint:85
 msgctxt "TaskDetails"
 msgid "No details added"
 msgstr ""
 
-#: ui/views/evaluation-tasks.slint:204
-msgctxt "EvaluationTasksView"
+#: ui/views/drilldown.slint:204
+msgctxt "DrilldownView"
 msgid "Projects"
 msgstr ""
 
-#: ui/views/evaluation-tasks.slint:225
-msgctxt "EvaluationTasksView"
+#: ui/views/drilldown.slint:225
+msgctxt "DrilldownView"
 msgid "1 completed task"
 msgstr ""
 
-#: ui/views/evaluation-tasks.slint:226
-msgctxt "EvaluationTasksView"
+#: ui/views/drilldown.slint:226
+msgctxt "DrilldownView"
 msgid "completed tasks"
 msgstr ""
 
-#: ui/views/evaluation-tasks.slint:244
-msgctxt "EvaluationTasksView"
+#: ui/views/drilldown.slint:244
+msgctxt "DrilldownView"
 msgid "Export Markdown"
 msgstr ""
 

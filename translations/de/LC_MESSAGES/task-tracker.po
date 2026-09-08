@@ -246,27 +246,27 @@ msgctxt "EvaluationView"
 msgid "Export Markdown"
 msgstr "Markdown exportieren"
 
-#: ui/views/evaluation-tasks.slint:85
+#: ui/views/drilldown.slint:85
 msgctxt "TaskDetails"
 msgid "No details added"
 msgstr "Keine Details hinzugefügt"
 
-#: ui/views/evaluation-tasks.slint:204
-msgctxt "EvaluationTasksView"
+#: ui/views/drilldown.slint:204
+msgctxt "DrilldownView"
 msgid "Projects"
 msgstr "Projekte"
 
-#: ui/views/evaluation-tasks.slint:225
-msgctxt "EvaluationTasksView"
+#: ui/views/drilldown.slint:225
+msgctxt "DrilldownView"
 msgid "1 completed task"
 msgstr "1 erledigte Aufgabe"
 
-#: ui/views/evaluation-tasks.slint:226
-msgctxt "EvaluationTasksView"
+#: ui/views/drilldown.slint:226
+msgctxt "DrilldownView"
 msgid "completed tasks"
 msgstr "erledigte Aufgaben"
 
-#: ui/views/evaluation-tasks.slint:244
-msgctxt "EvaluationTasksView"
+#: ui/views/drilldown.slint:244
+msgctxt "DrilldownView"
 msgid "Export Markdown"
 msgstr "Markdown exportieren"
