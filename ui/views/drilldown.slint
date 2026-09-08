@@ -12,7 +12,7 @@ import { DurationLabel } from "../components/duration-label.slint";
 import { EvaluationSummary } from "../components/evaluation-summary.slint";
 import { RangeList } from "../components/range-list.slint";
 import { IconButton } from "../components/icon-button.slint";
-import { ScrollView, Button } from "std-widgets.slint";
+import { ScrollView, Button, StandardButton } from "std-widgets.slint";
 
 component TaskTimelineMarker inherits Rectangle {
     Rectangle {
@@ -28,6 +28,98 @@ component TaskTimelineMarker inherits Rectangle {
         height: 10px;
         border-radius: 5px;
         background: Theme.palette.accent;
+    }
+}
+
+component TaksCardButtons inherits Rectangle {
+    in property <bool> editing;
+
+    callback edit();
+    callback save();
+    callback delete();
+
+    if (!root.editing): HorizontalLayout {
+        spacing: 8px;
+        alignment: end;
+
+        IconButton {
+            icon: @image-url("../assets/icons/edit.svg");
+            icon-color: Theme.palette.accent;
+            clicked => { root.edit(); }
+        }
+
+        IconButton {
+            icon: @image-url("../assets/icons/delete.svg");
+            icon-color: Theme.palette.danger;
+            clicked => { root.delete(); }
+        }
+    }
+
+    if (root.editing): HorizontalLayout {
+        alignment: start;
+        padding-left: 5px;
+        IconButton {
+            icon: @image-url("../assets/icons/check.svg");
+            icon-color: Theme.palette.accent;
+            clicked => {
+                root.save();
+            }
+        }
+    }
+}
+
+component TaskNoteContent inherits VerticalLayout {
+    in property <bool> editing;
+    in property <string> note;
+
+    in-out property <string> draft;
+
+    callback save(string);
+
+    vertical-stretch: 0;
+    alignment: start;
+
+    if (!root.editing): Rectangle {
+
+        height: description.preferred-height;
+
+        description := Text {
+            x: 0px;
+            width: 120px;
+            height: 100%;
+            text: note == "" ? @tr("No details added") : root.note;
+            color: Theme.palette.text;
+            font-size: Theme.typography.body.size;
+            font-weight: Theme.typography.body.weight;
+            wrap: word-wrap;
+            horizontal-alignment: left;
+            vertical-alignment: top;
+            horizontal-stretch: 0;
+        }
+    }
+
+    if (root.editing): Rectangle {
+        height: max(34px, description-input.preferred-height + 10px);
+        background: Theme.palette.surface;
+        border-color: Theme.palette.accent;
+        border-width: 1px;
+
+        description-input := HorizontalLayout {
+            padding: 5px;
+            TextInput {
+                width: 100%;
+                height: self.preferred-height;
+                single-line: false;
+                wrap: word-wrap;
+                font-size: Theme.typography.body.size;
+                font-weight: Theme.typography.body.weight;
+                color: Theme.palette.text;
+                text <=> root.draft;
+                accepted => {
+                    root.save(root.draft);
+                }
+            }
+        }
     }
 }
 
@@ -53,9 +145,9 @@ export component TaskCard inherits Rectangle {
             HorizontalLayout {
                 padding-top: 5px;
                 padding-bottom: 10px;
-                min-height: 40px;
 
                 VerticalLayout {
+                    alignment: start;
                     spacing: 5px;
 
                     Text {
@@ -65,46 +157,16 @@ export component TaskCard inherits Rectangle {
                         font-weight: Theme.typography.caption.weight;
                     }
 
-                    if (!root.editing): Rectangle {
-                        height: description.preferred-height;
+                    TaskNoteContent {
+                        note: root.entry.note;
+                        editing: root.editing;
 
-                        description := Text {
-                            x: 0px;
-                            width: 120px;
-                            text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
-                            color: Theme.palette.text;
-                            font-size: Theme.typography.body.size;
-                            font-weight: Theme.typography.body.weight;
-                            wrap: word-wrap;
-                            horizontal-alignment: left;
-                            vertical-alignment: top;
-                        }
-                    }
-
-                    if (root.editing): Rectangle {
-                        height: 34px;
-                        background: Theme.palette.surface;
-
-                        description-input := TextInput {
-                            x: 10px;
-                            y: 0px;
-                            width: 100%;
-                            height: 34px;
-                            single-line: false;
-                            wrap: word-wrap;
-                            font-size: Theme.typography.body.size;
-                            font-weight: Theme.typography.body.weight;
-                            color: Theme.palette.text;
-                            text <=> root.description-draft;
-                            accepted => {
-                                root.save-requested(root.entry.id, root.description-draft);
-                            }
-                        }
+                        draft <=> root.description-draft;
+                        save(draft) => { root.save-requested(root.entry.id, root.description-draft); }
                     }
                 }
 
-
-				// Duration label and edit/delte buttons
+                // Duration label and edit/delte buttons
                 VerticalLayout {
                     Text {
                         width: 70px;
@@ -115,33 +177,11 @@ export component TaskCard inherits Rectangle {
                         horizontal-alignment: right;
                     }
 
-                    if (!root.editing): HorizontalLayout {
-                        spacing: 8px;
-                        alignment: end;
-
-                        IconButton {
-                            icon: @image-url("../assets/icons/edit.svg");
-                            icon-color: Theme.palette.accent;
-                            clicked => { root.edit-requested(root.entry.id, root.entry.note); }
-                        }
-
-                        IconButton {
-                            icon: @image-url("../assets/icons/delete.svg");
-                            icon-color: Theme.palette.danger;
-                            clicked => { root.delete-task(root.entry.id); }
-                        }
-                    }
-
-                    if (root.editing): HorizontalLayout {
-                        Button {
-                            text: @tr("Save");
-                            icon: @image-url("../assets/icons/check.svg");
-                            height: 25px;
-                            primary: true;
-                            clicked => {
-                                root.save-requested(root.entry.id, root.description-draft);
-                            }
-                        }
+                    TaksCardButtons {
+                        editing: root.editing;
+                        edit => { root.edit-requested(root.entry.id, root.entry.note); }
+                        save => { root.save-requested(root.entry.id, root.description-draft); }
+                        delete => { root.delete-task(root.entry.id); }
                     }
                 }
             }
@@ -205,33 +245,47 @@ export component DrilldownView inherits Rectangle {
         }
 
         ScrollView {
-			VerticalLayout {
-				width: 100%;
+            min-height: 0px;
+            preferred-height: task-list.preferred-height;
+            vertical-stretch: 1;
+            max-height: task-list.preferred-height;
+            task-list := VerticalLayout {
+                width: 100%;
+                vertical-stretch: 0;
 
-				for task in root.state.tasks: TaskCard {
-	                entry: task;
-	                editing: root.editing-task-id == task.id;
-	                description-draft <=> root.description-draft;
-	                edit-requested(id, note) => {
-	                    root.editing-task-id = id;
-	                    root.description-draft = note;
-	                }
-	                save-requested(id, note) => {
-	                    root.update-task(id, note);
-	                    root.editing-task-id = "";
-	                }
-	                delete-task(id) => { root.delete-task(id); }
-	            }
-			}
+                for task in root.state.tasks: TaskCard {
+                    entry: task;
+                    editing: root.editing-task-id == task.id;
+                    description-draft <=> root.description-draft;
+                    edit-requested(id, note) => {
+                        root.editing-task-id = id;
+                        root.description-draft = note;
+                    }
+                    save-requested(id, note) => {
+                        root.update-task(id, note);
+                        root.editing-task-id = "";
+                    }
+                    delete-task(id) => { root.delete-task(id); }
+                }
+            }
         }
-        Rectangle { min-height: 0; vertical-stretch: 1;}
 
+        VerticalLayout {
+            spacing: 0px;
+            vertical-stretch: 1;
 
-        AppButton {
-            label: @tr("Export Markdown");
-            prefix-icon: @image-url("../assets/icons/download.svg");
-            primary: true;
-            clicked => { root.export-markdown(); }
+            Rectangle {
+                min-height: 0px;
+                preferred-height: 0px;
+                vertical-stretch: 1;
+            }
+
+            AppButton {
+                label: @tr("Export Markdown");
+                prefix-icon: @image-url("../assets/icons/download.svg");
+                primary: true;
+                clicked => { root.export-markdown(); }
+            }
         }
     }
 }
