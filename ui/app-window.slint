@@ -1,5 +1,4 @@
 import {
-    AppActions,
     EvaluationState,
     EvaluationTasksState,
     HomeState,
@@ -11,7 +10,8 @@ import {
     StatusKind,
     TrackingState,
 } from "models.slint";
-export { AppActions } from "models.slint";
+import { AppActions } from "actions.slint";
+export { AppActions, UiCommand, UiCommandKind } from "actions.slint";
 import { ProjectDialog } from "views/project-dialog.slint";
 import { HomeView } from "views/home.slint";
 import { TrackingView } from "views/tracking.slint";
