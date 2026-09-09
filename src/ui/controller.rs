@@ -1,3 +1,10 @@
+//! UI controller connecting Slint user interface events to application logic.
+//!
+//! This module defines [`bind`], which attaches a [`UiController`] to the Slint [`AppWindow`].
+//! The controller handles user interactions through a unified command dispatch mechanism,
+//! updates the underlying [`Tracker`] state, triggers view refreshes via [`presentation::refresh`],
+//! and manages transient UI state such as dialogs and expiring status messages.
+
 use crate::application::{ProjectDialog, Tracker};
 use crate::language::Language;
 use crate::{
@@ -8,8 +15,33 @@ use rfd::FileDialog;
 use slint::{ComponentHandle, SharedString, Timer, TimerMode, Weak};
 use std::time::Duration;
 
+/// The duration for which temporary status messages (success/error alerts) remain visible
+/// in the user interface before being automatically cleared.
 const STATUS_DURATION: Duration = Duration::from_secs(3);
 
+/// Connects the Slint UI to the application tracker and begins dispatching commands.
+///
+/// This initializes a [`UiController`], performs an initial projection refresh and persistence
+/// check, and registers a callback on the global [`AppActions`] to handle UI commands.
+///
+/// # Arguments
+///
+/// * `ui` - Reference to the instantiated Slint [`AppWindow`].
+/// * `tracker` - The [`Tracker`] holding application state and persistence logic.
+/// * `language` - The active [`Language`] used for localization and date formatting.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use crate::application::Tracker;
+/// use crate::language::Language;
+/// use crate::ui::bind;
+/// use crate::AppWindow;
+///
+/// let ui = AppWindow::new().unwrap();
+/// let tracker = Tracker::load_default();
+/// bind(&ui, tracker, Language::English);
+/// ```
 pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
     let mut controller = UiController::new(ui, tracker, language);
     controller.refresh(ui);
@@ -19,6 +51,11 @@ pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
         .on_dispatch(move |command| controller.handle(command));
 }
 
+/// State holder and coordinator for Slint UI events and presentation projections.
+///
+/// `UiController` maintains a weak reference to the Slint [`AppWindow`] to safely update
+/// views without reference cycles, holds the domain [`Tracker`], tracks the active UI [`Language`],
+/// and manages a [`Timer`] for expiring transient status banners.
 struct UiController {
     ui: Weak<AppWindow>,
     tracker: Tracker,
@@ -27,6 +64,7 @@ struct UiController {
 }
 
 impl UiController {
+    /// Creates a new `UiController` instance for the given window, tracker, and language.
     fn new(ui: &AppWindow, tracker: Tracker, language: Language) -> Self {
         Self {
             ui: ui.as_weak(),
@@ -36,6 +74,21 @@ impl UiController {
         }
     }
 
+    /// Dispatches an incoming [`UiCommand`] from the Slint UI to the appropriate handler method.
+    ///
+    /// If the window handle cannot be upgraded (e.g. the window has closed), the command is ignored.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use crate::{AppActions, AppWindow};
+    /// use slint::ComponentHandle;
+    ///
+    /// let ui = AppWindow::new().unwrap();
+    /// let actions = ui.global::<AppActions>();
+    /// // Dispatches a tick command to the controller's handle method
+    /// actions.invoke_tick();
+    /// ```
     fn handle(&mut self, command: UiCommand) {
         let Some(ui) = self.ui.upgrade() else {
             return;
@@ -65,6 +118,11 @@ impl UiController {
         }
     }
 
+    /// Handles a periodic timer tick.
+    ///
+    /// Checkpoints active time tracking state and saves data if changed. Only refreshes UI
+    /// projections when on [`Page::Tracking`] to prevent stealing focus from text inputs
+    /// on other pages.
     fn tick(&mut self, ui: &AppWindow) {
         if let Err(error) = self.tracker.tick(domain::now()) {
             self.set_error(ui, format!("Could not save data: {error}"));
@@ -77,6 +135,9 @@ impl UiController {
         }
     }
 
+    /// Starts tracking time for the project identified by `project_id`.
+    ///
+    /// Transitions the active view to [`Page::Tracking`] and refreshes presentation state.
     fn start_tracking(&mut self, ui: &AppWindow, project_id: SharedString) {
         if let Err(error) = self
             .tracker
@@ -88,12 +149,15 @@ impl UiController {
         self.refresh(ui);
     }
 
+    /// Navigates to the note entry page ([`Page::Note`]) for the most recently completed task,
+    /// if at least one task exists.
     fn open_last_task(&mut self, ui: &AppWindow) {
         if self.tracker.data().has_tasks() {
             ui.set_page(Page::Note);
         }
     }
 
+    /// Ends active time tracking and navigates to [`Page::Note`] to allow entering a task note.
     fn end_tracking(&mut self, ui: &AppWindow) {
         match self.tracker.end_tracking(domain::now()) {
             Ok(true) => ui.set_page(Page::Note),
@@ -103,6 +167,7 @@ impl UiController {
         self.refresh(ui);
     }
 
+    /// Toggles pause state on the currently active tracking session.
     fn toggle_tracking_pause(&mut self, ui: &AppWindow) {
         if let Err(error) = self.tracker.toggle_tracking_pause(domain::now()) {
             self.set_error(ui, format!("Could not save data: {error}"));
@@ -110,6 +175,7 @@ impl UiController {
         self.refresh(ui);
     }
 
+    /// Saves the given `note` to the most recently completed task and returns to [`Page::Home`].
     fn save_task_note(&mut self, ui: &AppWindow, note: SharedString) {
         if let Err(error) = self.tracker.save_task_note(note.to_string()) {
             self.set_error(ui, format!("Could not save data: {error}"));
@@ -118,6 +184,7 @@ impl UiController {
         self.refresh(ui);
     }
 
+    /// Updates the note of an existing historical task in evaluation drilldown.
     fn update_evaluation_task(&mut self, ui: &AppWindow, id: SharedString, note: SharedString) {
         match self
             .tracker
@@ -129,6 +196,7 @@ impl UiController {
         }
     }
 
+    /// Deletes a historical task by its identifier.
     fn delete_evaluation_task(&mut self, ui: &AppWindow, id: SharedString) {
         match self.tracker.delete_task(id.to_string()) {
             Ok(true) => self.refresh(ui),
@@ -137,21 +205,28 @@ impl UiController {
         }
     }
 
+    /// Changes the active calendar range filter for evaluation and report projections.
     fn choose_range(&mut self, ui: &AppWindow, range: crate::Range) {
         self.tracker.choose_range(presentation::domain_range(range));
         self.refresh(ui);
     }
 
+    /// Opens the project creation dialog with clean default input fields.
     fn open_add_project(&mut self, ui: &AppWindow) {
         let dialog = self.tracker.begin_add_project();
         self.show_project_dialog(ui, dialog);
     }
 
+    /// Opens the project rename dialog initialized with the existing project's name and details.
     fn open_rename_project(&mut self, ui: &AppWindow, id: SharedString) {
         let dialog = self.tracker.begin_rename_project(id.to_string());
         self.show_project_dialog(ui, dialog);
     }
 
+    /// Saves a newly created or renamed project name.
+    ///
+    /// On success, closes the dialog and refreshes projections; on validation error, displays
+    /// an error message.
     fn save_project(&mut self, ui: &AppWindow, name: SharedString) {
         match self.tracker.save_project(name.as_str(), domain::now()) {
             Ok(()) => {
@@ -162,11 +237,13 @@ impl UiController {
         }
     }
 
+    /// Cancels the current project dialog and returns to [`Page::Settings`].
     fn close_project_dialog(&mut self, ui: &AppWindow) {
         self.tracker.cancel_project_dialog();
         self.dismiss_project_dialog(ui);
     }
 
+    /// Archives a project by its identifier, hiding it from tracking selection while retaining history.
     fn archive_project(&mut self, ui: &AppWindow, id: SharedString) {
         match self.tracker.archive_project(id.to_string()) {
             Ok(()) => {
@@ -177,6 +254,7 @@ impl UiController {
         }
     }
 
+    /// Unarchives a previously archived project, restoring it to the active tracking list.
     fn unarchive_project(&mut self, ui: &AppWindow, id: SharedString) {
         match self.tracker.unarchive_project(id.to_string()) {
             Ok(()) => {
@@ -187,6 +265,7 @@ impl UiController {
         }
     }
 
+    /// Permanently deletes a project and its associated task history.
     fn delete_project(&mut self, ui: &AppWindow, id: SharedString) {
         match self.tracker.delete_project(id.to_string()) {
             Ok(()) => {
@@ -197,6 +276,7 @@ impl UiController {
         }
     }
 
+    /// Prompts the user with a file dialog to choose an export location and writes a Markdown report.
     fn export_markdown(&mut self, ui: &AppWindow) {
         let Some(path) = FileDialog::new()
             .add_filter("Markdown", &["md"])
@@ -212,30 +292,36 @@ impl UiController {
         }
     }
 
+    /// Selects a project for evaluation breakdown and navigates to [`Page::Drilldown`].
     fn open_drilldown(&mut self, ui: &AppWindow, id: SharedString) {
         self.tracker.select_evaluation_project(id.to_string());
         self.refresh(ui);
         ui.set_page(Page::Drilldown);
     }
 
+    /// Re-evaluates presentation projections from the current tracker state and pushes them to the UI.
     fn refresh(&self, ui: &AppWindow) {
         presentation::refresh(ui, &self.tracker, domain::now(), self.language);
     }
 
+    /// Saves the initial database state on startup, displaying an error status if persistence fails.
     fn persist_initial(&self, ui: &AppWindow) {
         if let Err(error) = self.tracker.save() {
             self.set_error(ui, format!("Could not save data: {error}"));
         }
     }
 
+    /// Displays a temporary green success banner in the UI status bar.
     fn set_success(&self, ui: &AppWindow, message: impl Into<SharedString>) {
         self.set_status(ui, message, StatusKind::Success);
     }
 
+    /// Displays a temporary red error banner in the UI status bar.
     fn set_error(&self, ui: &AppWindow, message: impl Into<SharedString>) {
         self.set_status(ui, message, StatusKind::Error);
     }
 
+    /// Sets the UI status message and schedules a timer to clear it after [`STATUS_DURATION`].
     fn set_status(&self, ui: &AppWindow, message: impl Into<SharedString>, kind: StatusKind) {
         ui.set_status(Status {
             message: message.into(),
@@ -255,6 +341,7 @@ impl UiController {
             });
     }
 
+    /// Populates the Slint UI project editor state and transitions to [`Page::ProjectEditor`].
     fn show_project_dialog(&self, ui: &AppWindow, dialog: ProjectDialog) {
         ui.set_project_dialog(ProjectDialogState {
             rename_mode: dialog.rename_mode,
@@ -265,6 +352,7 @@ impl UiController {
         ui.set_page(Page::ProjectEditor);
     }
 
+    /// Resets the Slint UI project editor state and returns to [`Page::Settings`].
     fn dismiss_project_dialog(&self, ui: &AppWindow) {
         ui.set_project_dialog(ProjectDialogState {
             rename_mode: false,
