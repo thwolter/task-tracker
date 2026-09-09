@@ -50,22 +50,22 @@ export global AppActions {
     callback export-markdown();
     callback open-drilldown(string);
 
-    tick => { dispatch({ kind: UiCommandKind.tick, id: "", text: "", range: Range.day }); }
-    start-tracking(id) => { dispatch({ kind: UiCommandKind.start-tracking, id: id, text: "", range: Range.day }); }
-    open-last-task => { dispatch({ kind: UiCommandKind.open-last-task, id: "", text: "", range: Range.day }); }
-    end-tracking => { dispatch({ kind: UiCommandKind.end-tracking, id: "", text: "", range: Range.day }); }
-    toggle-tracking-pause => { dispatch({ kind: UiCommandKind.toggle-tracking-pause, id: "", text: "", range: Range.day }); }
-    save-task-note(note) => { dispatch({ kind: UiCommandKind.save-task-note, id: "", text: note, range: Range.day }); }
-    update-evaluation-task(id, note) => { dispatch({ kind: UiCommandKind.update-evaluation-task, id: id, text: note, range: Range.day }); }
-    delete-evaluation-task(id) => { dispatch({ kind: UiCommandKind.delete-evaluation-task, id: id, text: "", range: Range.day }); }
-    choose-range(range) => { dispatch({ kind: UiCommandKind.choose-range, id: "", text: "", range: range }); }
-    open-add-project => { dispatch({ kind: UiCommandKind.open-add-project, id: "", text: "", range: Range.day }); }
-    open-rename-project(id) => { dispatch({ kind: UiCommandKind.open-rename-project, id: id, text: "", range: Range.day }); }
-    save-project(name) => { dispatch({ kind: UiCommandKind.save-project, id: "", text: name, range: Range.day }); }
-    close-project-dialog => { dispatch({ kind: UiCommandKind.close-project-dialog, id: "", text: "", range: Range.day }); }
-    archive-project(id) => { dispatch({ kind: UiCommandKind.archive-project, id: id, text: "", range: Range.day }); }
-    unarchive-project(id) => { dispatch({ kind: UiCommandKind.unarchive-project, id: id, text: "", range: Range.day }); }
-    delete-project(id) => { dispatch({ kind: UiCommandKind.delete-project, id: id, text: "", range: Range.day }); }
-    export-markdown => { dispatch({ kind: UiCommandKind.export-markdown, id: "", text: "", range: Range.day }); }
-    open-drilldown(id) => { dispatch({ kind: UiCommandKind.open-drilldown, id: id, text: "", range: Range.day }); }
+    tick => { dispatch({ kind: UiCommandKind.tick }); }
+    start-tracking(id) => { dispatch({ kind: UiCommandKind.start-tracking, id: id }); }
+    open-last-task => { dispatch({ kind: UiCommandKind.open-last-task }); }
+    end-tracking => { dispatch({ kind: UiCommandKind.end-tracking }); }
+    toggle-tracking-pause => { dispatch({ kind: UiCommandKind.toggle-tracking-pause }); }
+    save-task-note(note) => { dispatch({ kind: UiCommandKind.save-task-note, text: note }); }
+    update-evaluation-task(id, note) => { dispatch({ kind: UiCommandKind.update-evaluation-task, id: id, text: note }); }
+    delete-evaluation-task(id) => { dispatch({ kind: UiCommandKind.delete-evaluation-task, id: id }); }
+    choose-range(range) => { dispatch({ kind: UiCommandKind.choose-range, range: range }); }
+    open-add-project => { dispatch({ kind: UiCommandKind.open-add-project }); }
+    open-rename-project(id) => { dispatch({ kind: UiCommandKind.open-rename-project, id: id }); }
+    save-project(name) => { dispatch({ kind: UiCommandKind.save-project, text: name }); }
+    close-project-dialog => { dispatch({ kind: UiCommandKind.close-project-dialog }); }
+    archive-project(id) => { dispatch({ kind: UiCommandKind.archive-project, id: id }); }
+    unarchive-project(id) => { dispatch({ kind: UiCommandKind.unarchive-project, id: id }); }
+    delete-project(id) => { dispatch({ kind: UiCommandKind.delete-project, id: id }); }
+    export-markdown => { dispatch({ kind: UiCommandKind.export-markdown }); }
+    open-drilldown(id) => { dispatch({ kind: UiCommandKind.open-drilldown, id: id }); }
 }
