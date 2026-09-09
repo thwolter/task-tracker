@@ -1,12 +1,9 @@
 import { AppButton } from "../components/app-button.slint";
 import { TimerDisplay } from "../components/timer-display.slint";
-import { TrackingState } from "../models.slint";
+import { AppActions, TrackingState } from "../models.slint";
 
 export component TrackingView inherits Rectangle {
     in property <TrackingState> state;
-
-    callback end-tracking();
-    callback pause();
 
     VerticalLayout {
         padding: 20px;
@@ -19,7 +16,7 @@ export component TrackingView inherits Rectangle {
 	        elapsed: root.state.elapsed;
 	        paused: root.state.paused;
 
-            pause => { root.pause(); }
+            pause => { AppActions.toggle-tracking-pause(); }
 	    }
 
 	    AppButton {
@@ -28,7 +25,7 @@ export component TrackingView inherits Rectangle {
             label: @tr("End task");
 	        primary: root.state.paused ? false : true;
 
-            clicked => { root.end-tracking(); }
+            clicked => { AppActions.end-tracking(); }
 	    }
 	}
 }

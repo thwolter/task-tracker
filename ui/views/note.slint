@@ -3,7 +3,7 @@ import { TitleText, BodyText, LabelText, ViewHeader, TextLink } from "../compone
 import { Theme } from "../theme.slint";
 import { VerticalBox } from "std-widgets.slint";
 import { BackLink } from "../components/back-link.slint";
-import { TaskItem } from "../models.slint";
+import { AppActions, TaskItem } from "../models.slint";
 import { DurationLabel } from "../components/duration-label.slint";
 
 component NoteEditor inherits Rectangle {
@@ -43,7 +43,6 @@ export component NoteView inherits Rectangle {
     in property <TaskItem> last-task;
     property <string> note-draft: last-task.note;
 
-    callback save-note(string);
     callback skip();
 
     VerticalLayout {
@@ -99,7 +98,7 @@ export component NoteView inherits Rectangle {
 
 	        AppButton {
 	            label: @tr("Save note");
-	            clicked => { root.save-note(root.note-draft); }
+            clicked => { AppActions.save-task-note(root.note-draft); }
 	        }
 
 			VerticalBox {

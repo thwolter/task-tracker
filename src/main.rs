@@ -29,7 +29,7 @@ fn main() -> Result<(), slint::PlatformError> {
         .expect("the selected bundled translation is available");
 
     let tracker = application::Tracker::load_default();
-    let _timer = ui::bind(&ui, tracker, language);
+    ui::bind(&ui, tracker, language);
 
     ui.run()
 }

@@ -3,7 +3,7 @@ import { ViewHeader } from "../components/typography.slint";
 import {
     EvaluationTasksState,
     EvaluationTaskItem,
-    Range,
+    AppActions,
 } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
@@ -12,7 +12,7 @@ import { DurationLabel } from "../components/duration-label.slint";
 import { EvaluationSummary } from "../components/evaluation-summary.slint";
 import { RangeList } from "../components/range-list.slint";
 import { IconButton } from "../components/icon-button.slint";
-import { ScrollView, Button, StandardButton } from "std-widgets.slint";
+import { ScrollView } from "std-widgets.slint";
 
 component TaskTimelineMarker inherits Rectangle {
     Rectangle {
@@ -206,10 +206,6 @@ export component DrilldownView inherits Rectangle {
     private property <string> description-draft: "";
 
     callback open-evaluation-view();
-    callback choose-range(Range);
-    callback export-markdown();
-    callback update-task(string, string);
-    callback delete-task(string);
 
     VerticalLayout {
         padding: 20px;
@@ -226,7 +222,7 @@ export component DrilldownView inherits Rectangle {
 
         RangeList {
             range: root.state.range;
-            clicked(range) => root.choose-range(range);
+            clicked(range) => { AppActions.choose-range(range); }
         }
 
         EvaluationSummary {
@@ -262,10 +258,10 @@ export component DrilldownView inherits Rectangle {
                         root.description-draft = note;
                     }
                     save-requested(id, note) => {
-                        root.update-task(id, note);
+                        AppActions.update-evaluation-task(id, note);
                         root.editing-task-id = "";
                     }
-                    delete-task(id) => { root.delete-task(id); }
+                    delete-task(id) => { AppActions.delete-evaluation-task(id); }
                 }
             }
         }
@@ -284,7 +280,7 @@ export component DrilldownView inherits Rectangle {
                 label: @tr("Export Markdown");
                 prefix-icon: @image-url("../assets/icons/download.svg");
                 primary: true;
-                clicked => { root.export-markdown(); }
+                clicked => { AppActions.export-markdown(); }
             }
         }
     }

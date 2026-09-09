@@ -1,92 +1,134 @@
-#[cfg(test)]
-mod tests {
-    use crate::ui::bindings::bind;
-    use crate::{AppWindow, Page, application::Tracker, language::Language};
-    use std::{cell::RefCell, rc::Rc};
+use crate::ui::bind;
+use crate::{AppActions, AppWindow, Page, Range, application::Tracker, domain, language::Language};
+use slint::{ComponentHandle, Model};
+use std::{path::PathBuf, time::Duration};
 
-    #[test]
-    fn settings_home_callback_returns_to_home() {
-        i_slint_backend_testing::init_no_event_loop();
-        let ui = AppWindow::new().unwrap();
-        assert!(slint::select_bundled_translation("de").is_ok());
-        ui.set_page(Page::Settings);
-        ui.invoke_open_home_view();
-        assert_eq!(ui.get_page(), Page::Home);
-    }
+fn test_path(name: &str) -> PathBuf {
+    std::env::temp_dir().join(format!(
+        "tempo-ui-{name}-{}-{}.sqlite",
+        std::process::id(),
+        domain::now()
+    ))
+}
 
-    #[test]
-    fn project_editor_is_an_exclusive_page_and_returns_to_settings() {
-        i_slint_backend_testing::init_no_event_loop();
-        let path = std::env::temp_dir().join(format!(
-            "tempo-ui-test-{}-{}.sqlite",
-            std::process::id(),
-            crate::domain::now()
-        ));
-        let ui = AppWindow::new().unwrap();
-        let tracker = Rc::new(RefCell::new(Tracker::at(path.clone())));
-        let _timer = bind(&ui, tracker, Language::English);
+#[test]
+fn settings_home_callback_returns_to_home() {
+    i_slint_backend_testing::init_no_event_loop();
+    let ui = AppWindow::new().unwrap();
+    assert!(slint::select_bundled_translation("de").is_ok());
+    ui.set_page(Page::Settings);
+    ui.invoke_open_home_view();
+    assert_eq!(ui.get_page(), Page::Home);
+}
 
-        ui.invoke_open_add_project();
-        assert_eq!(ui.get_page(), Page::ProjectEditor);
+#[test]
+fn project_editor_is_an_exclusive_page_and_returns_to_settings() {
+    i_slint_backend_testing::init_no_event_loop();
+    let path = test_path("project-editor");
+    let ui = AppWindow::new().unwrap();
+    bind(&ui, Tracker::at(path.clone()), Language::English);
+    let actions = ui.global::<AppActions>();
 
-        ui.invoke_close_project_dialog();
-        assert_eq!(ui.get_page(), Page::Settings);
+    actions.invoke_open_add_project();
+    assert_eq!(ui.get_page(), Page::ProjectEditor);
 
-        std::fs::remove_file(path).unwrap();
-    }
+    actions.invoke_close_project_dialog();
+    assert_eq!(ui.get_page(), Page::Settings);
 
-    #[test]
-    fn unarchive_project_callback_restores_project_to_home() {
-        i_slint_backend_testing::init_no_event_loop();
-        let path = std::env::temp_dir().join(format!(
-            "tempo-ui-unarchive-test-{}-{}.sqlite",
-            std::process::id(),
-            crate::domain::now()
-        ));
-        let ui = AppWindow::new().unwrap();
-        let tracker = Rc::new(RefCell::new(Tracker::at(path.clone())));
-        let _timer = bind(&ui, tracker.clone(), Language::English);
+    std::fs::remove_file(path).unwrap();
+}
 
-        ui.invoke_open_rename_project("project-1".into());
-        ui.invoke_archive_project("project-1".into());
-        assert!(tracker.borrow().data().projects()[0].archived());
+#[test]
+fn project_commands_archive_and_restore_the_home_projection() {
+    i_slint_backend_testing::init_no_event_loop();
+    let path = test_path("unarchive");
+    let ui = AppWindow::new().unwrap();
+    bind(&ui, Tracker::at(path.clone()), Language::English);
+    let actions = ui.global::<AppActions>();
 
-        ui.invoke_open_rename_project("project-1".into());
-        assert!(ui.get_project_dialog().archived);
+    assert_eq!(ui.get_home().projects.row_count(), 4);
+    actions.invoke_open_rename_project("project-1".into());
+    actions.invoke_archive_project("project-1".into());
+    assert_eq!(ui.get_home().projects.row_count(), 3);
 
-        ui.invoke_unarchive_project("project-1".into());
+    actions.invoke_open_rename_project("project-1".into());
+    assert!(ui.get_project_dialog().archived);
 
-        assert_eq!(ui.get_page(), Page::Settings);
-        assert!(!tracker.borrow().data().projects()[0].archived());
+    actions.invoke_unarchive_project("project-1".into());
+    assert_eq!(ui.get_page(), Page::Settings);
+    assert_eq!(ui.get_home().projects.row_count(), 4);
 
-        std::fs::remove_file(path).unwrap();
-    }
+    std::fs::remove_file(path).unwrap();
+}
 
-    #[test]
-    fn evaluation_task_callbacks_refresh_after_releasing_tracker_mutation_borrow() {
-        i_slint_backend_testing::init_no_event_loop();
-        let path = std::env::temp_dir().join(format!(
-            "tempo-ui-evaluation-task-test-{}-{}.sqlite",
-            std::process::id(),
-            crate::domain::now()
-        ));
-        let ui = AppWindow::new().unwrap();
-        let tracker = Rc::new(RefCell::new(Tracker::at(path.clone())));
-        let _timer = bind(&ui, tracker.clone(), Language::English);
-        let task_id = {
-            let mut tracker = tracker.borrow_mut();
-            tracker.start_tracking("project-1".into(), 1).unwrap();
-            tracker.end_tracking(2).unwrap();
-            tracker.data().tasks()[0].id().as_str().to_owned()
-        };
+#[test]
+fn evaluation_commands_change_range_update_and_delete_tasks() {
+    i_slint_backend_testing::init_no_event_loop();
+    let path = test_path("evaluation-task");
+    let ui = AppWindow::new().unwrap();
+    let mut tracker = Tracker::at(path.clone());
+    let now = domain::now();
+    tracker.start_tracking("project-1".into(), now - 2).unwrap();
+    tracker.end_tracking(now - 1).unwrap();
+    let task_id = tracker.data().tasks()[0].id().as_str().to_owned();
+    bind(&ui, tracker, Language::English);
+    let actions = ui.global::<AppActions>();
 
-        ui.invoke_open_drilldown("project-1".into());
-        ui.invoke_update_evaluation_task(task_id.clone().into(), "Updated note".into());
-        assert_eq!(tracker.borrow().data().tasks()[0].note(), "Updated note");
+    actions.invoke_choose_range(Range::Year);
+    assert_eq!(ui.get_evaluation().range, Range::Year);
 
-        ui.invoke_delete_evaluation_task(task_id.into());
-        assert!(tracker.borrow().data().tasks().is_empty());
+    actions.invoke_open_drilldown("project-1".into());
+    actions.invoke_update_evaluation_task(task_id.clone().into(), "Updated note".into());
+    assert_eq!(
+        ui.get_drilldown().tasks.row_data(0).unwrap().note,
+        "Updated note"
+    );
 
-        std::fs::remove_file(path).unwrap();
-    }
+    actions.invoke_delete_evaluation_task(task_id.into());
+    assert_eq!(ui.get_drilldown().tasks.row_count(), 0);
+
+    std::fs::remove_file(path).unwrap();
+}
+
+#[test]
+fn tracking_commands_refresh_the_ui_through_the_single_dispatcher() {
+    i_slint_backend_testing::init_no_event_loop();
+    let path = test_path("tracking");
+    let ui = AppWindow::new().unwrap();
+    bind(&ui, Tracker::at(path.clone()), Language::English);
+    let actions = ui.global::<AppActions>();
+
+    actions.invoke_start_tracking("project-1".into());
+    assert_eq!(ui.get_page(), Page::Tracking);
+    assert_eq!(ui.get_tracking().active_task, "PROJECT ATLAS");
+
+    actions.invoke_toggle_tracking_pause();
+    assert!(ui.get_tracking().paused);
+    actions.invoke_tick();
+
+    actions.invoke_end_tracking();
+    assert_eq!(ui.get_page(), Page::Note);
+    assert!(ui.get_home().has_last_task);
+
+    actions.invoke_save_task_note("Finished the review".into());
+    assert_eq!(ui.get_page(), Page::Home);
+    assert_eq!(ui.get_home().last_task.note, "Finished the review");
+
+    std::fs::remove_file(path).unwrap();
+}
+
+#[test]
+fn persistence_errors_are_shown_and_status_expires() {
+    i_slint_backend_testing::init_no_event_loop();
+    let blocked_parent = test_path("blocked-parent");
+    std::fs::write(&blocked_parent, "not a directory").unwrap();
+    let path = blocked_parent.join("tempo.sqlite");
+    let ui = AppWindow::new().unwrap();
+    bind(&ui, Tracker::at(path), Language::English);
+
+    assert!(!ui.get_status().message.is_empty());
+    i_slint_backend_testing::mock_elapsed_time(Duration::from_secs(3));
+    assert!(ui.get_status().message.is_empty());
+
+    std::fs::remove_file(blocked_parent).unwrap();
 }

@@ -3,9 +3,9 @@
 //! This module connects the application tracker to generated Slint components;
 //! controller details remain private to the UI boundary.
 
-mod bindings;
 mod controller;
+#[cfg(test)]
 mod tests;
 
-/// Wires callbacks, initializes projections, and starts the one-second UI timer.
-pub(crate) use bindings::bind;
+/// Initializes projections and gives the UI command handler ownership of the tracker.
+pub(crate) use controller::bind;

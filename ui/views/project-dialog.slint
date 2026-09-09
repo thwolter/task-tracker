@@ -3,6 +3,7 @@ import { AppButton } from "../components/app-button.slint";
 import { BackLink } from "../components/back-link.slint";
 import { Theme } from "../theme.slint";
 import { BodyText, TitleText, TextLink } from "../components/typography.slint";
+import { AppActions } from "../models.slint";
 
 component ProjectSettingBox inherits VerticalLayout {
     in-out property <string> project;
@@ -145,12 +146,6 @@ export component ProjectDialog inherits Rectangle {
     property <string> project: root.initial-draft;
     private property <bool> is-project: root.project-id != "";
 
-    callback close();
-    callback save(string);
-    callback archive(string);
-    callback unarchive(string);
-    callback delete(string);
-
     background: Theme.palette.soft-surface;
 
     VerticalLayout {
@@ -159,7 +154,7 @@ export component ProjectDialog inherits Rectangle {
 
 		BackLink {
             text: @tr("Project settings");
-            clicked => { root.close(); }
+            clicked => { AppActions.close-project-dialog(); }
 
         }
 
@@ -167,19 +162,19 @@ export component ProjectDialog inherits Rectangle {
 			spacing: 20px;
 
 			if (!root.archived): ProjectSettingBox {
-				accepted => { root.save(root.project); }
+				accepted => { AppActions.save-project(root.project); }
 				project <=> root.project;
 				is-project: root.is-project;
 			}
 
 			if (root.is-project && !root.archived): ArchiveBox {
-				clicked => { root.archive(root.project-id); }
+				clicked => { AppActions.archive-project(root.project-id); }
 			}
 
 			if (root.is-project && root.archived): UnarchiveBox {
 				project: root.project;
-				unarchive => { root.unarchive(root.project-id); }
-				delete => { root.delete(root.project-id); }
+				unarchive => { AppActions.unarchive-project(root.project-id); }
+				delete => { AppActions.delete-project(root.project-id); }
 			}
 		}
     }

@@ -1,6 +1,6 @@
 import { ScrollView, VerticalBox } from "std-widgets.slint";
 import { ProjectCard } from "../components/project-card.slint";
-import { HomeState, TaskItem } from "../models.slint";
+import { AppActions, HomeState, TaskItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { ViewHeader } from "../components/typography.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
@@ -131,9 +131,7 @@ export component HomeView inherits Rectangle {
 
     private property <length> footer-clearance: 20px;
 
-    callback start-tracking(string);
     callback open-settings();
-    callback open-last-task();
     callback open-evaluation();
 
     content := Rectangle {
@@ -152,7 +150,7 @@ export component HomeView inherits Rectangle {
 
             if (root.state.has-last-task): LastTaskCard {
                 task: root.state.last-task;
-                clicked => { root.open-last-task(); }
+                clicked => { AppActions.open-last-task(); }
             }
 
             VerticalLayout {
@@ -168,7 +166,7 @@ export component HomeView inherits Rectangle {
                 project-list := ScrollableColumn {
                     for project in root.state.projects: ProjectCard {
                         project: project;
-                        clicked(id) => { root.start-tracking(id); }
+                        clicked(id) => { AppActions.start-tracking(id); }
                     }
                     // Always present: it is part of the scrollable viewport.
 	                Rectangle {

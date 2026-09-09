@@ -1,10 +1,8 @@
-import { HorizontalBox, VerticalBox, ScrollView } from "std-widgets.slint";
 import { AppButton } from "../components/app-button.slint";
 import { TitleText, ViewHeader } from "../components/typography.slint";
 import {
     EvaluationState,
-    EvaluationTaskItem,
-    Range,
+    AppActions,
     ProjectTotalItem,
 } from "../models.slint";
 import { Theme } from "../theme.slint";
@@ -80,9 +78,6 @@ export component EvaluationView inherits Rectangle {
     in property <EvaluationState> state;
 
     callback open-home-view();
-    callback open-drilldown(string);
-    callback choose-range(Range);
-    callback export-markdown();
 
     VerticalLayout {
         padding: 20px;
@@ -99,7 +94,7 @@ export component EvaluationView inherits Rectangle {
 
         RangeList {
             range: root.state.range;
-            clicked(range) => root.choose-range(range);
+            clicked(range) => { AppActions.choose-range(range); }
         }
 
         EvaluationSummary {
@@ -111,7 +106,7 @@ export component EvaluationView inherits Rectangle {
         ScrollableColumn {
             for totals in root.state.project_totals: ProjectCard {
                 entry: totals;
-                clicked(project) => { open-drilldown(project)}
+                clicked(project) => { AppActions.open-drilldown(project); }
             }
         }
 
@@ -119,7 +114,7 @@ export component EvaluationView inherits Rectangle {
             label: @tr("Export Markdown");
             prefix-icon: @image-url("../assets/icons/download.svg");
             primary: true;
-            clicked => { root.export-markdown(); }
+            clicked => { AppActions.export-markdown(); }
         }
     }
 }

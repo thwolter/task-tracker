@@ -1,6 +1,6 @@
 import { ScrollView, HorizontalBox } from "std-widgets.slint";
 import { AppButton } from "../components/app-button.slint";
-import { ProjectItem } from "../models.slint";
+import { AppActions, ProjectItem } from "../models.slint";
 import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
 import { TitleText } from "../components/typography.slint";
@@ -42,8 +42,6 @@ export component ProjectListItem inherits Rectangle {
 export component SettingsView inherits Rectangle {
     in property <[ProjectItem]> projects;
 
-    callback open-add-project();
-    callback open-rename-project(string);
     callback open-home-view();
 
     VerticalLayout {
@@ -62,7 +60,7 @@ export component SettingsView inherits Rectangle {
         ScrollableColumn {
             for project in root.projects: ProjectListItem {
                 project: project;
-	            clicked(id) => { open-rename-project(id)}
+	            clicked(id) => { AppActions.open-rename-project(id); }
 	        }
 	    }
 
@@ -70,7 +68,7 @@ export component SettingsView inherits Rectangle {
 	        width: 100%;
 	        label: @tr("Add");
 	        prefix-icon: @image-url("../assets/icons/add.svg");
-            clicked => { root.open-add-project(); }
+            clicked => { AppActions.open-add-project(); }
 	    }
     }
 }

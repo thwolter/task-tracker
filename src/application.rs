@@ -11,13 +11,8 @@ use crate::{
     persistence::SqliteStore,
     report,
 };
-use std::{cell::RefCell, rc::Rc};
-
 #[cfg(test)]
 use std::path::PathBuf;
-
-/// Shared mutable access to the single tracker instance used by the UI.
-pub(crate) type SharedTracker = Rc<RefCell<Tracker>>;
 
 /// Coordinates domain state, persistence, and application-only interaction state.
 pub(crate) struct Tracker {
@@ -29,20 +24,18 @@ pub(crate) struct Tracker {
 }
 
 impl Tracker {
-    /// Loads the default database, closes any restored active task, and saves that recovery.
-    pub(crate) fn load_default() -> SharedTracker {
+    /// Loads the default database and closes any restored active task in memory.
+    pub(crate) fn load_default() -> Self {
         let store = SqliteStore::at(SqliteStore::default_path());
         let mut data = store.load_or_default();
         data.recover_active();
-        let tracker = Rc::new(RefCell::new(Self {
+        Self {
             data,
             store,
             range: Range::Day,
             editing_project_id: None,
             evaluating_project: None,
-        }));
-        let _ = tracker.borrow().save();
-        tracker
+        }
     }
     #[cfg(test)]
     pub(crate) fn at(path: PathBuf) -> Self {

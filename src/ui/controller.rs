@@ -1,247 +1,203 @@
-use crate::application::{ProjectDialog, SharedTracker};
+use crate::application::{ProjectDialog, Tracker};
+use crate::language::Language;
 use crate::{
-    AppWindow, Page, ProjectDialogState, Status, StatusKind, domain, language::Language,
-    persistence, presentation,
+    AppActions, AppWindow, Page, ProjectDialogState, Status, StatusKind, UiCommand, UiCommandKind,
+    domain, persistence, presentation,
 };
 use rfd::FileDialog;
 use slint::{ComponentHandle, SharedString, Timer, TimerMode, Weak};
-use std::{rc::Rc, time::Duration};
+use std::time::Duration;
 
 const STATUS_DURATION: Duration = Duration::from_secs(3);
 
-#[derive(Clone)]
-pub(super) struct UiController {
+pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
+    let mut controller = UiController::new(ui, tracker, language);
+    controller.refresh(ui);
+    controller.persist_initial(ui);
+
+    ui.global::<AppActions>()
+        .on_dispatch(move |command| controller.handle(command));
+}
+
+struct UiController {
     ui: Weak<AppWindow>,
-    tracker: SharedTracker,
+    tracker: Tracker,
     language: Language,
-    status_timer: Rc<Timer>,
+    status_timer: Timer,
 }
 
 impl UiController {
-    pub(super) fn new(ui: &AppWindow, tracker: SharedTracker, language: Language) -> Self {
+    fn new(ui: &AppWindow, tracker: Tracker, language: Language) -> Self {
         Self {
             ui: ui.as_weak(),
             tracker,
             language,
-            status_timer: Rc::new(Timer::default()),
+            status_timer: Timer::default(),
         }
     }
 
-    pub(super) fn start_timer(&self) -> Timer {
-        let timer = Timer::default();
-        let controller = self.clone();
-        timer.start(TimerMode::Repeated, Duration::from_secs(1), move || {
-            controller.tick();
-        });
-        timer
-    }
-
-    pub(super) fn tick(&self) {
+    fn handle(&mut self, command: UiCommand) {
         let Some(ui) = self.ui.upgrade() else {
             return;
         };
-        let result = self.tracker.borrow_mut().tick(domain::now());
-        if let Err(error) = result {
-            self.set_error(&ui, format!("Could not save data: {error}"));
+
+        match command.kind {
+            UiCommandKind::Tick => self.tick(&ui),
+            UiCommandKind::StartTracking => self.start_tracking(&ui, command.id),
+            UiCommandKind::OpenLastTask => self.open_last_task(&ui),
+            UiCommandKind::EndTracking => self.end_tracking(&ui),
+            UiCommandKind::ToggleTrackingPause => self.toggle_tracking_pause(&ui),
+            UiCommandKind::SaveTaskNote => self.save_task_note(&ui, command.text),
+            UiCommandKind::UpdateEvaluationTask => {
+                self.update_evaluation_task(&ui, command.id, command.text)
+            }
+            UiCommandKind::DeleteEvaluationTask => self.delete_evaluation_task(&ui, command.id),
+            UiCommandKind::ChooseRange => self.choose_range(&ui, command.range),
+            UiCommandKind::OpenAddProject => self.open_add_project(&ui),
+            UiCommandKind::OpenRenameProject => self.open_rename_project(&ui, command.id),
+            UiCommandKind::SaveProject => self.save_project(&ui, command.text),
+            UiCommandKind::CloseProjectDialog => self.close_project_dialog(&ui),
+            UiCommandKind::ArchiveProject => self.archive_project(&ui, command.id),
+            UiCommandKind::UnarchiveProject => self.unarchive_project(&ui, command.id),
+            UiCommandKind::DeleteProject => self.delete_project(&ui, command.id),
+            UiCommandKind::ExportMarkdown => self.export_markdown(&ui),
+            UiCommandKind::OpenDrilldown => self.open_drilldown(&ui, command.id),
+        }
+    }
+
+    fn tick(&mut self, ui: &AppWindow) {
+        if let Err(error) = self.tracker.tick(domain::now()) {
+            self.set_error(ui, format!("Could not save data: {error}"));
         }
         // Only the tracking view displays data that changes on every timer tick.
         // Refreshing every projection recreates inactive views and steals focus
         // from their text inputs.
         if ui.get_page() == Page::Tracking {
-            self.refresh(&ui);
+            self.refresh(ui);
         }
     }
 
-    pub(super) fn start_tracking(&self, project_id: SharedString) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        let result = self
+    fn start_tracking(&mut self, ui: &AppWindow, project_id: SharedString) {
+        if let Err(error) = self
             .tracker
-            .borrow_mut()
-            .start_tracking(project_id.to_string(), domain::now());
-        if let Err(error) = result {
-            self.set_error(&ui, format!("Could not save data: {error}"));
+            .start_tracking(project_id.to_string(), domain::now())
+        {
+            self.set_error(ui, format!("Could not save data: {error}"));
         }
         ui.set_page(Page::Tracking);
-        self.refresh(&ui);
+        self.refresh(ui);
     }
 
-    pub(super) fn open_last_task(&self) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        if self.tracker.borrow().data().has_tasks() {
+    fn open_last_task(&mut self, ui: &AppWindow) {
+        if self.tracker.data().has_tasks() {
             ui.set_page(Page::Note);
         }
     }
 
-    pub(super) fn end_tracking(&self) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        match self.tracker.borrow_mut().end_tracking(domain::now()) {
+    fn end_tracking(&mut self, ui: &AppWindow) {
+        match self.tracker.end_tracking(domain::now()) {
             Ok(true) => ui.set_page(Page::Note),
             Ok(false) => {}
-            Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
+            Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
         }
-        self.refresh(&ui);
+        self.refresh(ui);
     }
 
-    pub(super) fn toggle_tracking_pause(&self) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        if let Err(error) = self
-            .tracker
-            .borrow_mut()
-            .toggle_tracking_pause(domain::now())
-        {
-            self.set_error(&ui, format!("Could not save data: {error}"));
+    fn toggle_tracking_pause(&mut self, ui: &AppWindow) {
+        if let Err(error) = self.tracker.toggle_tracking_pause(domain::now()) {
+            self.set_error(ui, format!("Could not save data: {error}"));
         }
-        self.refresh(&ui);
+        self.refresh(ui);
     }
 
-    pub(super) fn save_task_note(&self, note: SharedString) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        let result = self.tracker.borrow_mut().save_task_note(note.to_string());
-        if let Err(error) = result {
-            self.set_error(&ui, format!("Could not save data: {error}"));
+    fn save_task_note(&mut self, ui: &AppWindow, note: SharedString) {
+        if let Err(error) = self.tracker.save_task_note(note.to_string()) {
+            self.set_error(ui, format!("Could not save data: {error}"));
         }
         ui.set_page(Page::Home);
-        self.refresh(&ui);
+        self.refresh(ui);
     }
 
-    pub(super) fn update_evaluation_task(&self, id: SharedString, note: SharedString) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        let result = {
-            self.tracker
-                .borrow_mut()
-                .update_task_note(id.to_string(), note.to_string())
-        };
-        match result {
-            Ok(true) => self.refresh(&ui),
-            Ok(false) => self.set_error(&ui, "The session no longer exists"),
-            Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
-        }
-    }
-
-    pub(super) fn delete_evaluation_task(&self, id: SharedString) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        let result = { self.tracker.borrow_mut().delete_task(id.to_string()) };
-        match result {
-            Ok(true) => self.refresh(&ui),
-            Ok(false) => self.set_error(&ui, "The session no longer exists"),
-            Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
-        }
-    }
-
-    pub(super) fn choose_range(&self, range: crate::Range) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        self.tracker
-            .borrow_mut()
-            .choose_range(presentation::domain_range(range));
-        self.refresh(&ui);
-    }
-
-    pub(super) fn open_add_project(&self) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        let dialog = self.tracker.borrow_mut().begin_add_project();
-        self.show_project_dialog(&ui, dialog);
-    }
-
-    pub(super) fn open_rename_project(&self, id: SharedString) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        let dialog = self
+    fn update_evaluation_task(&mut self, ui: &AppWindow, id: SharedString, note: SharedString) {
+        match self
             .tracker
-            .borrow_mut()
-            .begin_rename_project(id.to_string());
-        self.show_project_dialog(&ui, dialog);
-    }
-
-    pub(super) fn save_project(&self, name: SharedString) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        let result = self
-            .tracker
-            .borrow_mut()
-            .save_project(name.as_str(), domain::now());
-        match result {
-            Ok(()) => {
-                self.dismiss_project_dialog(&ui);
-                self.refresh(&ui);
-            }
-            Err(error) => self.set_error(&ui, error.to_string()),
+            .update_task_note(id.to_string(), note.to_string())
+        {
+            Ok(true) => self.refresh(ui),
+            Ok(false) => self.set_error(ui, "The session no longer exists"),
+            Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
         }
     }
 
-    pub(super) fn close_project_dialog(&self) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        self.tracker.borrow_mut().cancel_project_dialog();
-        self.dismiss_project_dialog(&ui);
-    }
-
-    pub(super) fn archive_project(&self, id: SharedString) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        let result = self.tracker.borrow_mut().archive_project(id.to_string());
-        match result {
-            Ok(()) => {
-                self.dismiss_project_dialog(&ui);
-                self.refresh(&ui);
-            }
-            Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
+    fn delete_evaluation_task(&mut self, ui: &AppWindow, id: SharedString) {
+        match self.tracker.delete_task(id.to_string()) {
+            Ok(true) => self.refresh(ui),
+            Ok(false) => self.set_error(ui, "The session no longer exists"),
+            Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
         }
     }
 
-    pub(super) fn unarchive_project(&self, id: SharedString) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        let result = self.tracker.borrow_mut().unarchive_project(id.to_string());
-        match result {
+    fn choose_range(&mut self, ui: &AppWindow, range: crate::Range) {
+        self.tracker.choose_range(presentation::domain_range(range));
+        self.refresh(ui);
+    }
+
+    fn open_add_project(&mut self, ui: &AppWindow) {
+        let dialog = self.tracker.begin_add_project();
+        self.show_project_dialog(ui, dialog);
+    }
+
+    fn open_rename_project(&mut self, ui: &AppWindow, id: SharedString) {
+        let dialog = self.tracker.begin_rename_project(id.to_string());
+        self.show_project_dialog(ui, dialog);
+    }
+
+    fn save_project(&mut self, ui: &AppWindow, name: SharedString) {
+        match self.tracker.save_project(name.as_str(), domain::now()) {
             Ok(()) => {
-                self.dismiss_project_dialog(&ui);
-                self.refresh(&ui);
+                self.dismiss_project_dialog(ui);
+                self.refresh(ui);
             }
-            Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
+            Err(error) => self.set_error(ui, error.to_string()),
         }
     }
 
-    pub(super) fn delete_project(&self, id: SharedString) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        let result = self.tracker.borrow_mut().delete_project(id.to_string());
-        match result {
+    fn close_project_dialog(&mut self, ui: &AppWindow) {
+        self.tracker.cancel_project_dialog();
+        self.dismiss_project_dialog(ui);
+    }
+
+    fn archive_project(&mut self, ui: &AppWindow, id: SharedString) {
+        match self.tracker.archive_project(id.to_string()) {
             Ok(()) => {
-                self.dismiss_project_dialog(&ui);
-                self.refresh(&ui);
+                self.dismiss_project_dialog(ui);
+                self.refresh(ui);
             }
-            Err(error) => self.set_error(&ui, format!("Could not save data: {error}")),
+            Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
         }
     }
 
-    pub(super) fn export_markdown(&self) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
+    fn unarchive_project(&mut self, ui: &AppWindow, id: SharedString) {
+        match self.tracker.unarchive_project(id.to_string()) {
+            Ok(()) => {
+                self.dismiss_project_dialog(ui);
+                self.refresh(ui);
+            }
+            Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
+        }
+    }
+
+    fn delete_project(&mut self, ui: &AppWindow, id: SharedString) {
+        match self.tracker.delete_project(id.to_string()) {
+            Ok(()) => {
+                self.dismiss_project_dialog(ui);
+                self.refresh(ui);
+            }
+            Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
+        }
+    }
+
+    fn export_markdown(&mut self, ui: &AppWindow) {
         let Some(path) = FileDialog::new()
             .add_filter("Markdown", &["md"])
             .set_file_name("tempo-report.md")
@@ -249,37 +205,38 @@ impl UiController {
         else {
             return;
         };
-        let report = self.tracker.borrow().report(domain::now(), self.language);
+        let report = self.tracker.report(domain::now(), self.language);
         match persistence::export_markdown(&path, &report) {
-            Ok(()) => self.set_success(&ui, "Markdown exported"),
-            Err(error) => self.set_error(&ui, format!("Export failed: {error}")),
+            Ok(()) => self.set_success(ui, "Markdown exported"),
+            Err(error) => self.set_error(ui, format!("Export failed: {error}")),
         }
     }
 
-    pub(super) fn refresh(&self, ui: &AppWindow) {
-        presentation::refresh(ui, &self.tracker.borrow(), domain::now(), self.language);
+    fn open_drilldown(&mut self, ui: &AppWindow, id: SharedString) {
+        self.tracker.select_evaluation_project(id.to_string());
+        self.refresh(ui);
+        ui.set_page(Page::Drilldown);
     }
 
-    pub(super) fn persist_initial(&self, ui: &AppWindow) {
-        if let Err(error) = self.tracker.borrow().save() {
+    fn refresh(&self, ui: &AppWindow) {
+        presentation::refresh(ui, &self.tracker, domain::now(), self.language);
+    }
+
+    fn persist_initial(&self, ui: &AppWindow) {
+        if let Err(error) = self.tracker.save() {
             self.set_error(ui, format!("Could not save data: {error}"));
         }
     }
 
-    pub(super) fn set_success(&self, ui: &AppWindow, message: impl Into<SharedString>) {
+    fn set_success(&self, ui: &AppWindow, message: impl Into<SharedString>) {
         self.set_status(ui, message, StatusKind::Success);
     }
 
-    pub(super) fn set_error(&self, ui: &AppWindow, message: impl Into<SharedString>) {
+    fn set_error(&self, ui: &AppWindow, message: impl Into<SharedString>) {
         self.set_status(ui, message, StatusKind::Error);
     }
 
-    pub(super) fn set_status(
-        &self,
-        ui: &AppWindow,
-        message: impl Into<SharedString>,
-        kind: StatusKind,
-    ) {
+    fn set_status(&self, ui: &AppWindow, message: impl Into<SharedString>, kind: StatusKind) {
         ui.set_status(Status {
             message: message.into(),
             kind,
@@ -298,7 +255,7 @@ impl UiController {
             });
     }
 
-    pub(super) fn show_project_dialog(&self, ui: &AppWindow, dialog: ProjectDialog) {
+    fn show_project_dialog(&self, ui: &AppWindow, dialog: ProjectDialog) {
         ui.set_project_dialog(ProjectDialogState {
             rename_mode: dialog.rename_mode,
             initial_draft: dialog.initial_draft.into(),
@@ -308,7 +265,7 @@ impl UiController {
         ui.set_page(Page::ProjectEditor);
     }
 
-    pub(super) fn dismiss_project_dialog(&self, ui: &AppWindow) {
+    fn dismiss_project_dialog(&self, ui: &AppWindow) {
         ui.set_project_dialog(ProjectDialogState {
             rename_mode: false,
             initial_draft: SharedString::new(),
@@ -316,16 +273,5 @@ impl UiController {
             archived: false,
         });
         ui.set_page(Page::Settings);
-    }
-
-    pub(super) fn open_evaluate_tasks(&self, id: SharedString) {
-        let Some(ui) = self.ui.upgrade() else {
-            return;
-        };
-        self.tracker
-            .borrow_mut()
-            .select_evaluation_project(id.to_string());
-        self.refresh(&ui);
-        ui.set_page(Page::Drilldown);
     }
 }
