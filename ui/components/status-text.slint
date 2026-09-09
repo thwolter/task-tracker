@@ -6,17 +6,17 @@ export component StatusText inherits Rectangle {
 
     height: 12px;
 
-	Text {
-	    width: 100%;
-	    height: 100%;
-	    y: -11px;
-	    text: root.status.message;
-	    color: root.status.kind == StatusKind.error
-	        ? Theme.palette.danger
-	        : Theme.palette.accent;
-	    font-size: Theme.typography.supporting.size;
-	    font-weight: Theme.typography.supporting.weight;
-	    horizontal-alignment: center;
-	    vertical-alignment: top;
-	}
+    Text {
+        width: 100%;
+        height: 100%;
+        y: -11px;
+        text: root.status.message;
+        color: root.status.kind == StatusKind.error
+            ? Theme.palette.danger
+            : Theme.palette.accent;
+        font-size: Theme.typography.supporting.size;
+        font-weight: Theme.typography.supporting.weight;
+        horizontal-alignment: center;
+        vertical-alignment: top;
+    }
 }

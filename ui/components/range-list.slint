@@ -27,20 +27,20 @@ export component RangeOption inherits Rectangle {
 }
 
 export component RangeList inherits HorizontalLayout {
-	in property <Range> range;
+    in property <Range> range;
 
-	callback clicked(Range);
+    callback clicked(Range);
 
-	spacing: 6px;
-	for option in [
-	    { label: @tr("Day"), value: Range.day },
-	    { label: @tr("Week"), value: Range.week },
-	    { label: @tr("Month"), value: Range.month },
-	    { label: @tr("Year"), value: Range.year }
-	]: RangeOption {
-	    label: option.label;
-	    value: option.value;
-	    selected: root.range == option.value;
-	    clicked(value) => { root.clicked(value); }
-	}
-	}
+    spacing: 6px;
+    for option in [
+        { label: @tr("Day"), value: Range.day },
+        { label: @tr("Week"), value: Range.week },
+        { label: @tr("Month"), value: Range.month },
+        { label: @tr("Year"), value: Range.year }
+    ]: RangeOption {
+        label: option.label;
+        value: option.value;
+        selected: root.range == option.value;
+        clicked(value) => { root.clicked(value); }
+    }
+}

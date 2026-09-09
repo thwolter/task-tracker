@@ -14,8 +14,8 @@ component ProjectSettingBox inherits VerticalLayout {
     spacing: 20px;
 
     TitleText {
-	    text: root.is-project ? root.project : @tr("New project");
-	    }
+        text: root.is-project ? root.project : @tr("New project");
+    }
 
     BodyText {
         text: @tr("Keep the name clear and easy to spot in your timer.");
@@ -26,10 +26,10 @@ component ProjectSettingBox inherits VerticalLayout {
         height: 42px;
         background: Theme.palette.surface;
 
-		HorizontalLayout {
-			padding: 10px;
+        HorizontalLayout {
+            padding: 10px;
 
-			task-input := TextInput {
+            task-input := TextInput {
                 vertical-alignment: center;
                 single-line: true;
                 width: 100%;
@@ -38,12 +38,12 @@ component ProjectSettingBox inherits VerticalLayout {
                 accepted => { root.accepted(root.project); }
                 text <=> root.project;
             }
-		}
+        }
     }
 
-	HorizontalLayout {
-		spacing: 20px;
-		alignment: end;
+    HorizontalLayout {
+        spacing: 20px;
+        alignment: end;
 
         AppButton {
             width: 140px;
@@ -53,10 +53,10 @@ component ProjectSettingBox inherits VerticalLayout {
             inactive: (root.project == "");
             clicked => { root.accepted(root.project); }
         }
-	}
+    }
 
-	VerticalLayout {
-		Rectangle {}
+    VerticalLayout {
+        Rectangle { }
 
         Rectangle {
             height: 1px;
@@ -67,12 +67,12 @@ component ProjectSettingBox inherits VerticalLayout {
 
 component ArchiveBox inherits VerticalLayout {
 
-	callback clicked();
+    callback clicked();
 
-	spacing: 10px;
-	padding-bottom: 20px;
+    spacing: 10px;
+    padding-bottom: 20px;
 
-	TitleText {
+    TitleText {
         text: @tr("Archive project");
     }
 
@@ -82,18 +82,18 @@ component ArchiveBox inherits VerticalLayout {
         vertical-alignment: center;
     }
 
-	HorizontalLayout {
-		alignment: start;
-		TouchArea {
-			mouse-cursor: pointer;
-			clicked => { root.clicked(); }
-			Text {
-				text: @tr("Archive project");
-				color: Theme.palette.danger;
-				font-size: Theme.typography.body.size;
-			}
-		}
-	}
+    HorizontalLayout {
+        alignment: start;
+        TouchArea {
+            mouse-cursor: pointer;
+            clicked => { root.clicked(); }
+            Text {
+                text: @tr("Archive project");
+                color: Theme.palette.danger;
+                font-size: Theme.typography.body.size;
+            }
+        }
+    }
 }
 
 component UnarchiveBox inherits VerticalLayout {
@@ -127,14 +127,14 @@ component UnarchiveBox inherits VerticalLayout {
     }
 
     TextLink {
-		text: @tr("Delete finally");
-		color: Theme.palette.danger;
-		horizontal-alignment: center;
+        text: @tr("Delete finally");
+        color: Theme.palette.danger;
+        horizontal-alignment: center;
 
-		clicked => { root.delete(); }
+        clicked => { root.delete(); }
     }
 
-    Rectangle {}
+    Rectangle { }
 }
 
 export component ProjectDialog inherits Rectangle {
@@ -152,30 +152,29 @@ export component ProjectDialog inherits Rectangle {
         padding: 20px;
         spacing: 20px;
 
-		BackLink {
+        BackLink {
             text: @tr("Project settings");
             clicked => { AppActions.close-project-dialog(); }
-
         }
 
-		VerticalLayout {
-			spacing: 20px;
+        VerticalLayout {
+            spacing: 20px;
 
-			if (!root.archived): ProjectSettingBox {
-				accepted => { AppActions.save-project(root.project); }
-				project <=> root.project;
-				is-project: root.is-project;
-			}
+            if (!root.archived): ProjectSettingBox {
+                accepted => { AppActions.save-project(root.project); }
+                project <=> root.project;
+                is-project: root.is-project;
+            }
 
-			if (root.is-project && !root.archived): ArchiveBox {
-				clicked => { AppActions.archive-project(root.project-id); }
-			}
+            if (root.is-project && !root.archived): ArchiveBox {
+                clicked => { AppActions.archive-project(root.project-id); }
+            }
 
-			if (root.is-project && root.archived): UnarchiveBox {
-				project: root.project;
-				unarchive => { AppActions.unarchive-project(root.project-id); }
-				delete => { AppActions.delete-project(root.project-id); }
-			}
-		}
+            if (root.is-project && root.archived): UnarchiveBox {
+                project: root.project;
+                unarchive => { AppActions.unarchive-project(root.project-id); }
+                delete => { AppActions.delete-project(root.project-id); }
+            }
+        }
     }
 }

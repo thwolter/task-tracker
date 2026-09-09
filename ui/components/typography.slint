@@ -1,6 +1,6 @@
 import { Theme } from "../theme.slint";
 
-export component TitleText inherits  Text {
+export component TitleText inherits Text {
     horizontal-stretch: 1;
     color: Theme.palette.text;
     font-size: Theme.typography.title.size;
@@ -27,7 +27,7 @@ export component LabelText inherits Text {
 }
 
 export component TextLink inherits Text {
-	callback clicked();
+    callback clicked();
 
     color: Theme.palette.accent;
     font-size: Theme.typography.body.size;

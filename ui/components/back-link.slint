@@ -2,37 +2,37 @@ import { Theme } from "../theme.slint";
 import { TextLink } from "typography.slint";
 
 export component BackLink inherits Rectangle {
-	in property <string> text: @tr("Back");
-	in property <image> prefix-icon: @image-url("../assets/icons/chevron-left.svg");
+    in property <string> text: @tr("Back");
+    in property <image> prefix-icon: @image-url("../assets/icons/chevron-left.svg");
 
-	private property <length> icon-width: Theme.typography.label.size + 4px;
-	
-	callback clicked();
+    private property <length> icon-width: Theme.typography.label.size + 4px;
 
-	HorizontalLayout {
-		cross-axis-alignment: center;
-		spacing: -5px;
+    callback clicked();
 
-		Rectangle {
-		    width: icon-width;
-		    height: icon-width;
-		    clip: true;
+    HorizontalLayout {
+        cross-axis-alignment: center;
+        spacing: -5px;
 
-		    Image {
-		        x: -4px; // adjust until the visible chevron is flush left
+        Rectangle {
+            width: icon-width;
+            height: icon-width;
+            clip: true;
+
+            Image {
+                x: -4px; // adjust until the visible chevron is flush left
 		        width: icon-width;
-		        height: icon-width;
-		        source: root.prefix-icon;
-		        colorize: Theme.palette.accent;
-		    }
-		}
+                height: icon-width;
+                source: root.prefix-icon;
+                colorize: Theme.palette.accent;
+            }
+        }
 
-	    Text {
-	        text: root.text;
-	        font-size: Theme.typography.supporting.size;
-	        font-weight: Theme.typography.supporting.weight;
-	        color: Theme.palette.secondary-text;
-	    }
+        Text {
+            text: root.text;
+            font-size: Theme.typography.supporting.size;
+            font-weight: Theme.typography.supporting.weight;
+            color: Theme.palette.secondary-text;
+        }
     }
 
     TouchArea {

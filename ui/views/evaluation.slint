@@ -45,8 +45,8 @@ export component ProjectCard inherits Rectangle {
 
             Text {
                 text: entry.num-tasks == 1
-				    ? @tr("1 task")
-				    : entry.num-tasks + " " + @tr("tasks");
+                    ? @tr("1 task")
+                    : entry.num-tasks + " " + @tr("tasks");
                 color: Theme.palette.muted-text;
                 font-size: Theme.typography.label.size;
             }
@@ -60,8 +60,6 @@ export component ProjectCard inherits Rectangle {
             font-weight: Theme.typography.body-strong.weight;
             horizontal-alignment: right;
         }
-
-
     }
 
     duration := DurationLabel {

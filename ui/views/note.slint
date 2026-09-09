@@ -1,5 +1,11 @@
 import { AppButton } from "../components/app-button.slint";
-import { TitleText, BodyText, LabelText, ViewHeader, TextLink } from "../components/typography.slint";
+import {
+    TitleText,
+    BodyText,
+    LabelText,
+    ViewHeader,
+    TextLink,
+} from "../components/typography.slint";
 import { Theme } from "../theme.slint";
 import { VerticalBox } from "std-widgets.slint";
 import { BackLink } from "../components/back-link.slint";
@@ -15,28 +21,28 @@ component NoteEditor inherits Rectangle {
     border-width: Theme.border.width;
     border-color: Theme.palette.soft-border;
 
-	HorizontalLayout {
-		padding: 10px;
-		input := TextInput {
-			height: 60px;
-			width: 100%;
-			single-line: false;
+    HorizontalLayout {
+        padding: 10px;
+        input := TextInput {
+            height: 60px;
+            width: 100%;
+            single-line: false;
             wrap: word-wrap;
-	        font-size: Theme.typography.body.size;
-	        font-weight: Theme.typography.body.weight;
-	        text <=> root.text;
-		}
+            font-size: Theme.typography.body.size;
+            font-weight: Theme.typography.body.weight;
+            text <=> root.text;
+        }
     }
 
-	if root.text == "" && !input.has-focus: HorizontalLayout {
-		padding: 10px;
-		Text {
-			width: 100%;
-	        text: @tr("e.g. prepared the Q4 project brief");
-	        wrap: word-wrap;
-	        color: Theme.palette.muted-text;
-	        font-size: Theme.typography.body.size;
-	    }
+    if root.text == "" && !input.has-focus: HorizontalLayout {
+        padding: 10px;
+        Text {
+            width: 100%;
+            text: @tr("e.g. prepared the Q4 project brief");
+            wrap: word-wrap;
+            color: Theme.palette.muted-text;
+            font-size: Theme.typography.body.size;
+        }
     }
 }
 
@@ -50,42 +56,43 @@ export component NoteView inherits Rectangle {
         padding: 20px;
         spacing: 30px;
 
-		VerticalLayout {
-			spacing: 20px;
+        VerticalLayout {
+            spacing: 20px;
 
-			BackLink {
-	            text: @tr("Home");
-	            clicked => { skip(); }
-	        }
-			VerticalLayout {
-				spacing: 10px;
+            BackLink {
+                text: @tr("Home");
+                clicked => { skip(); }
+            }
 
-				TitleText {
-		            text: @tr("What did you get done?");
-		        }
+            VerticalLayout {
+                spacing: 10px;
 
-		        BodyText {
-                    text: root.last-task.project  + " · " + duration.text;
-			    color: Theme.palette.accent;
-		        }
+                TitleText {
+                    text: @tr("What did you get done?");
+                }
+
+                BodyText {
+                    text: root.last-task.project + " · " + duration.text;
+                    color: Theme.palette.accent;
+                }
 
                 duration := DurationLabel {
                     seconds: root.last-task.duration-seconds;
                 }
-			}
+            }
         }
 
         VerticalLayout {
             spacing: 10px;
             vertical-stretch: 0;
 
-	        LabelText {
-	            text: @tr("Add a brief note for your activity log.");
-	        }
+            LabelText {
+                text: @tr("Add a brief note for your activity log.");
+            }
 
-	        NoteEditor {
-	            text <=> root.note-draft;
-	        }
+            NoteEditor {
+                text <=> root.note-draft;
+            }
         }
 
         Rectangle {
@@ -93,28 +100,26 @@ export component NoteView inherits Rectangle {
             horizontal-stretch: 1;
         }
 
-		VerticalLayout {
-			spacing: 10px;
-			vertical-stretch: 0;
+        VerticalLayout {
+            spacing: 10px;
+            vertical-stretch: 0;
 
-	        AppButton {
-	            label: @tr("Save note");
-            clicked => { AppActions.save-task-note(root.note-draft); }
-	        }
+            AppButton {
+                label: @tr("Save note");
+                clicked => { AppActions.save-task-note(root.note-draft); }
+            }
 
-			VerticalBox {
-				cross-axis-alignment: center;
+            VerticalBox {
+                cross-axis-alignment: center;
 
-		        TextLink {
-		            text: @tr("Skip for now");
-		            horizontal-alignment: center;
-		            vertical-alignment: top;
+                TextLink {
+                    text: @tr("Skip for now");
+                    horizontal-alignment: center;
+                    vertical-alignment: top;
 
-			        clicked => { root.skip(); }
-		        }
-	        }
+                    clicked => { root.skip(); }
+                }
+            }
         }
-
-
     }
 }

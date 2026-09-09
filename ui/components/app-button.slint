@@ -14,7 +14,7 @@ export component AppButton inherits Rectangle {
     in property <float> label-font-weight: Theme.typography.body-strong.weight;
     in property <bool> inactive: false;
 
-	private property <length> icon-width: Theme.typography.body-strong.size + 2px;
+    private property <length> icon-width: Theme.typography.body-strong.size + 2px;
 
     callback clicked();
 
@@ -24,42 +24,43 @@ export component AppButton inherits Rectangle {
     border-color: root.outline-color;
     background: root.inactive ? Theme.palette.disabled-surface : root.fill;
 
-	HorizontalBox {
-		alignment: center;
-		cross-axis-alignment: center;
-		spacing: 0px;
+    HorizontalBox {
+        alignment: center;
+        cross-axis-alignment: center;
+        spacing: 0px;
 
-		if (root.prefix-icon.width > 0): Rectangle {
-			width: icon-width;
-			Image {
-				x: -4px;
-		        source: prefix-icon;
-		        width: icon-width;
-		        height: icon-width;
-		        colorize: root.label-color;
-		    }
-	    }
+        if (root.prefix-icon.width > 0): Rectangle {
+            width: icon-width;
+            Image {
+                x: -4px;
+                source: prefix-icon;
+                width: icon-width;
+                height: icon-width;
+                colorize: root.label-color;
+            }
+        }
 
-	    Text {
-	        text: root.label;
-	        color: root.label-color;
-	        font-size: root.label-font-size;
-	        font-weight: root.label-font-weight;
-	        horizontal-alignment: center;
-	        vertical-alignment: center;
-	    }
+        Text {
+            text: root.label;
+            color: root.label-color;
+            font-size: root.label-font-size;
+            font-weight: root.label-font-weight;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
 
-		if (root.suffix-icon.width > 0): Rectangle {
-			width: icon-width;
-			Image {
-				x: 4px;
-		        source: suffix-icon;
-		        width: icon-width;
-		        height: icon-width;
-		        colorize: root.label-color;
-		    }
-	    }
+        if (root.suffix-icon.width > 0): Rectangle {
+            width: icon-width;
+            Image {
+                x: 4px;
+                source: suffix-icon;
+                width: icon-width;
+                height: icon-width;
+                colorize: root.label-color;
+            }
+        }
     }
+
     TouchArea {
         mouse-cursor: (root.inactive) ? not-allowed : pointer;
         clicked => { root.clicked(); }

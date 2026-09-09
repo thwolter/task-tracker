@@ -27,3 +27,8 @@ condition = { platforms = ["mac"] }
 script = '''
 docker run --rm -v "$(pwd)/target-linux:/out:ro" debian:bookworm-slim sh -c 'dpkg-deb --info /out/release/bundle/deb/*.deb && dpkg-deb --contents /out/release/bundle/deb/*.deb'
 '''
+
+[tasks.format-slint]
+script = '''
+find . -type f -name "*.slint" -exec slint-lsp format -i {} \;
+'''
