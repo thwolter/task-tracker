@@ -212,58 +212,44 @@ impl UiController {
     }
 
     fn add_project(&mut self, ui: &AppWindow, name: SharedString) {
-        match self.tracker.add_project(name.as_str(), domain::now()) {
-            Ok(()) => {
-                ui.set_page(Page::Settings);
-                self.refresh(ui);
-            }
-            Err(error) => self.set_error(ui, error.to_string()),
-        }
+        let result = self.tracker.add_project(name.as_str(), domain::now());
+        self.finish_project_action(ui, result);
     }
 
-    /// Saves a renamed project name.
-    ///
-    /// On success, closes the dialog and refreshes projections; on validation error, displays
-    /// an error message.
     fn save_project(&mut self, ui: &AppWindow, id: SharedString, name: SharedString) {
-        match self.tracker.save_project(id.to_string(), name.as_str()) {
-            Ok(()) => {
-                self.refresh(ui);
-            }
-            Err(error) => self.set_error(ui, error.to_string()),
-        }
+        let result = self.tracker.save_project(id.to_string(), name.as_str());
+        self.finish_project_action(ui, result);
     }
 
-    /// Archives a project by its identifier, hiding it from tracking selection while retaining history.
     fn archive_project(&mut self, ui: &AppWindow, id: SharedString) {
-        match self.tracker.archive_project(id.to_string()) {
-            Ok(()) => {
-                ui.set_page(Page::Settings);
-                self.refresh(ui);
-            }
-            Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
-        }
+        let result = self.tracker.archive_project(id.to_string());
+        self.finish_project_action(ui, result);
     }
 
-    /// Unarchives a previously archived project, restoring it to the active tracking list.
     fn unarchive_project(&mut self, ui: &AppWindow, id: SharedString) {
-        match self.tracker.unarchive_project(id.to_string()) {
-            Ok(()) => {
-                ui.set_page(Page::Settings);
-                self.refresh(ui);
-            }
-            Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
-        }
+        let result = self.tracker.unarchive_project(id.to_string());
+        self.finish_project_action(ui, result);
     }
 
-    /// Permanently deletes a project and its associated task history.
     fn delete_project(&mut self, ui: &AppWindow, id: SharedString) {
-        match self.tracker.delete_project(id.to_string()) {
+        let result = self.tracker.delete_project(id.to_string());
+        self.finish_project_action(ui, result);
+    }
+
+    /// Close only after persistence succeeds; keep the draft and a persistent inline
+    /// error on failure instead of losing the user's input to a transient banner.
+    fn finish_project_action(&self, ui: &AppWindow, result: crate::error::Result<()>) {
+        match result {
             Ok(()) => {
-                ui.set_page(Page::Settings);
                 self.refresh(ui);
+                ui.set_project_editor(Default::default());
+                ui.set_page(Page::Settings);
             }
-            Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
+            Err(error) => {
+                let mut editor = ui.get_project_editor();
+                editor.error = error.to_string().into();
+                ui.set_project_editor(editor);
+            }
         }
     }
 

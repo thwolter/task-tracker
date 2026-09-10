@@ -136,34 +136,39 @@ impl Tracker {
     /// Validates, renames, and saves an existing project.
     pub(crate) fn save_project(&mut self, id: String, name: &str) -> Result<()> {
         let name = domain::validate_project_name(name)?;
-        self.data.rename_project(&ProjectId::from(id), name);
-        self.save()
+        self.update_projects(|data| data.rename_project(&ProjectId::from(id), name))
     }
 
     pub(crate) fn add_project(&mut self, name: &str, timestamp: i64) -> Result<()> {
         let name = domain::validate_project_name(name)?;
-        self.data
-            .add_project(ProjectId::from(format!("project-{timestamp}")), name);
-        self.save()
+        self.update_projects(|data| {
+            data.add_project(ProjectId::from(format!("project-{timestamp}")), name);
+        })
     }
 
     /// Archives a project while retaining its recorded work, then saves.
     pub(crate) fn archive_project(&mut self, id: String) -> Result<()> {
-        self.data.archive_project(&ProjectId::from(id));
-        self.save()
+        self.update_projects(|data| data.archive_project(&ProjectId::from(id)))
     }
 
     /// Restores an archived project to the active lifecycle state, then saves.
     pub(crate) fn unarchive_project(&mut self, id: String) -> Result<()> {
-        self.data.unarchive_project(&ProjectId::from(id));
-        self.save()
+        self.update_projects(|data| data.unarchive_project(&ProjectId::from(id)))
     }
 
     /// Deletes a project and its work, then saves.
     pub(crate) fn delete_project(&mut self, id: String) -> Result<()> {
-        let id = ProjectId::from(id);
-        self.data.delete_project(&id);
-        self.save()
+        self.update_projects(|data| data.delete_project(&ProjectId::from(id)))
+    }
+
+    /// Stage project changes so a failed save cannot leak into a later timer tick
+    /// or make retrying creation insert the same project twice.
+    fn update_projects(&mut self, update: impl FnOnce(&mut Data)) -> Result<()> {
+        let mut next = self.data.clone();
+        update(&mut next);
+        self.store.save(&next)?;
+        self.data = next;
+        Ok(())
     }
 
     /// Renders the selected range as a localized Markdown report without saving.

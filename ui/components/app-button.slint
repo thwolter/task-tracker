@@ -20,6 +20,8 @@ export component AppButton inherits Rectangle {
     in property <image> suffix-icon;
     in property <image> prefix-icon;
     in property <color> fill;
+    in property <color> hover-fill: root.style.hover-fill;
+    in property <color> pressed-fill: root.style.pressed-fill;
     in property <color> label-color;
     in property <color> outline-color: Theme.border-default;
     in property <Font> label-font: Theme.typography.label;
@@ -49,16 +51,32 @@ export component AppButton inherits Rectangle {
     };
     private property <AppButtonStyle> style: root.primary ? root.primary-style : root.secondary-style;
     private property <length> icon-width: Theme.typography.label.size + 2px;
-	private property <color> current-label-color: set_current_label_color();
+    private property <color> current-label-color: set_current_label_color();
 
     callback clicked();
 
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { if root.enabled { root.clicked(); } }
+    forward-focus: keyboard-focus;
+    keyboard-focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == " ") {
+                root.clicked();
+                return accept;
+            }
+            reject
+        }
+    }
+
     function default-background() -> brush {
-	    if (!root.enabled) { return root.style.disabled-fill; }
-	    if (touch.pressed) { return root.style.pressed-fill; }
-	    if (touch.has-hover) { return root.style.hover-fill; }
-	    return root.fill;
-	}
+        if (!root.enabled) { return root.style.disabled-fill; }
+        if (touch.pressed) { return root.pressed-fill; }
+        if (touch.has-hover) { return root.hover-fill; }
+        return root.fill;
+    }
 
     function outlined-background() -> brush {
         if (!root.enabled) { return root.style.disabled-fill; }
@@ -68,22 +86,22 @@ export component AppButton inherits Rectangle {
     }
 
     function set-current-label-color() -> color {
-	    if (!root.enabled) { return root.style.disabled-label-color; }
-	    if (root.style.changes-label-on-interaction && touch.pressed) { return root.style.pressed-label-color; }
-	    if (root.style.changes-label-on-interaction && touch.has-hover) { return root.style.hover-label-color; }
-	    return root.label-color;
-	}
+        if (!root.enabled) { return root.style.disabled-label-color; }
+        if (root.style.changes-label-on-interaction && touch.pressed) { return root.style.pressed-label-color; }
+        if (root.style.changes-label-on-interaction && touch.has-hover) { return root.style.hover-label-color; }
+        return root.label-color;
+    }
 
-	height: root.label-font.size + 15px;
+    height: root.label-font.size + 15px;
     width: content.preferred-width + 10px;
 
-	fill: root.style.fill;
+    fill: root.style.fill;
     label-color: root.style.label-color;
     background: root.outlined ? root.outlined-background() : root.default-background();
 
     border-radius: Theme.border.radius;
-    border-width: root.outlined ? Theme.border.width : 0px;
-    border-color: root.outline-color;
+    border-width: keyboard-focus.has-focus ? 2px : root.outlined ? Theme.border.width : 0px;
+    border-color: keyboard-focus.has-focus ? Theme.content-primary : root.outline-color;
 
     touch := TouchArea {
         enabled: root.enabled;
@@ -127,5 +145,4 @@ export component AppButton inherits Rectangle {
             }
         }
     }
-
 }

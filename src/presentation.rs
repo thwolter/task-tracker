@@ -5,7 +5,7 @@
 
 use crate::{
     EvaluationState, EvaluationTaskItem, EvaluationTasksState, HomeState, ProjectItem,
-    ProjectTotalItem, Range, TaskItem, TrackingState,
+    ProjectSettingsState, ProjectTotalItem, Range, TaskItem, TrackingState,
     application::Tracker,
     domain::{self, Data, ProjectId, Range as DomainRange, Task},
     language::Language,
@@ -62,21 +62,23 @@ fn task_item(data: &Data, task: &Task) -> TaskItem {
     }
 }
 
-/// Builds the Settings project list, including archived projects and their state.
-pub(crate) fn project_settings(tracker: &Tracker) -> ModelRc<ProjectItem> {
-    ModelRc::new(VecModel::from(
-        tracker
-            .data()
-            .projects()
-            .iter()
-            .map(|project| ProjectItem {
-                id: project.id().as_str().into(),
-                name: project.name().into(),
-                completed: false,
-                archived: project.archived(),
-            })
-            .collect::<Vec<_>>(),
-    ))
+/// Groups settings rows by lifecycle while preserving order within each group.
+pub(crate) fn project_settings(tracker: &Tracker) -> ProjectSettingsState {
+    let (archived, active): (Vec<_>, Vec<_>) = tracker
+        .data()
+        .projects()
+        .iter()
+        .map(|project| ProjectItem {
+            id: project.id().as_str().into(),
+            name: project.name().into(),
+            completed: false,
+            archived: project.archived(),
+        })
+        .partition(|project| project.archived);
+    ProjectSettingsState {
+        active: ModelRc::new(VecModel::from(active)),
+        archived: ModelRc::new(VecModel::from(archived)),
+    }
 }
 
 /// Builds the selected calendar range's totals and up to three newest tasks.
@@ -397,8 +399,9 @@ mod tests {
 
         assert_eq!(home(&tracker).projects.row_count(), 3);
         let settings = project_settings(&tracker);
-        assert_eq!(settings.row_count(), 4);
-        assert!(settings.row_data(0).unwrap().archived);
+        assert_eq!(settings.active.row_count(), 3);
+        assert_eq!(settings.archived.row_count(), 1);
+        assert!(settings.archived.row_data(0).unwrap().archived);
 
         std::fs::remove_file(path).unwrap();
     }

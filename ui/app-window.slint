@@ -3,7 +3,8 @@ import {
     EvaluationTasksState,
     HomeState,
     Page,
-    ProjectItem,
+    ProjectSettingsState,
+    ProjectEditorState,
     Range,
     Status,
     StatusKind,
@@ -29,7 +30,8 @@ export component AppWindow inherits Window {
 
     in-out property <Page> page: Page.home;
     in property <HomeState> home;
-    in property <[ProjectItem]> project-settings;
+    in property <ProjectSettingsState> project-settings;
+    in-out property <ProjectEditorState> project-editor;
     in property <TrackingState> tracking;
     in property <EvaluationState> evaluation;
     in property <EvaluationTasksState> drilldown;
@@ -79,6 +81,7 @@ export component AppWindow inherits Window {
                 width: 100%;
                 height: 100%;
                 projects: root.project-settings;
+                editor <=> root.project-editor;
                 open-home-view => { root.open-home-view(); }
             }
             if root.page == Page.evaluation: EvaluationView {

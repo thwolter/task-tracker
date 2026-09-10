@@ -53,42 +53,6 @@ msgctxt "ProjectSettingBox"
 msgid "Save name"
 msgstr "Speichern"
 
-#: ui/views/project-dialog.slint:75 ui/views/project-dialog.slint:90
-msgctxt "ArchiveBox"
-msgid "Archive project"
-msgstr "Projekt archivieren"
-
-#: ui/views/project-dialog.slint:79
-msgctxt "ArchiveBox"
-msgid ""
-"Removes it from your task list. Your past time entries stay in Evaluation."
-msgstr ""
-"Es wird aus deiner Aufgabenliste entfernt. Vergangene Zeiteinträge bleiben "
-"in der Auswertung erhalten."
-
-#: ui/views/project-dialog.slint:113
-msgctxt "UnarchiveBox"
-msgid ""
-"This project is hidden from Home. Its past time entries remain in Evaluation."
-msgstr ""
-"Dieses Projekt wird auf der Startseite nicht angezeigt. Vergangene "
-"Zeiteinträge bleiben in der Auswertung erhalten."
-
-#: ui/views/project-dialog.slint:120
-msgctxt "UnarchiveBox"
-msgid "Unarchive"
-msgstr "Wiederherstellen"
-
-#: ui/views/project-dialog.slint:129
-msgctxt "UnarchiveBox"
-msgid "Delete finally"
-msgstr "Endgültig löschen"
-
-#: ui/views/project-dialog.slint:161
-msgctxt "ProjectDialog"
-msgid "Project settings"
-msgstr "Projekteinstellungen"
-
 #: ui/views/tracking.slint:28
 msgctxt "TrackingView"
 msgid "End task"
@@ -163,16 +127,6 @@ msgstr "Vorerst überspringen"
 msgctxt "SettingsView"
 msgid "Home"
 msgstr "Startseite"
-
-#: ui/views/settings.slint:66
-msgctxt "SettingsView"
-msgid "Project settings"
-msgstr "Projekteinstellungen"
-
-#: ui/views/settings.slint:78
-msgctxt "SettingsView"
-msgid "Add"
-msgstr "Hinzufügen"
 
 #: ui/views/evaluation.slint:21
 msgctxt "EvaluationSummary"
@@ -270,3 +224,87 @@ msgstr "erledigte Aufgaben"
 msgctxt "DrilldownView"
 msgid "Export Markdown"
 msgstr "Markdown exportieren"
+
+msgctxt "ProjectRow"
+msgid "Archived"
+msgstr "Archiviert"
+
+msgctxt "SettingsView"
+msgid "Manage projects"
+msgstr "Projekte verwalten"
+
+msgctxt "SettingsView"
+msgid "Active"
+msgstr "Aktiv"
+
+msgctxt "SettingsView"
+msgid "No active projects. Add a project or restore one from the archive."
+msgstr "Keine aktiven Projekte. Füge ein Projekt hinzu oder stelle eines aus dem Archiv wieder her."
+
+msgctxt "SettingsView"
+msgid "Archived ({})"
+msgstr "Archiviert ({})"
+
+msgctxt "SettingsView"
+msgid "Add project"
+msgstr "Projekt hinzufügen"
+
+msgctxt "ProjectEditor"
+msgid "Back to project"
+msgstr "Zurück zum Projekt"
+
+msgctxt "ProjectEditor"
+msgid "Back to projects"
+msgstr "Zurück zu Projekten"
+
+msgctxt "ProjectEditor"
+msgid "Delete project?"
+msgstr "Projekt löschen?"
+
+msgctxt "ProjectEditor"
+msgid "Add project"
+msgstr "Projekt hinzufügen"
+
+msgctxt "ProjectEditor"
+msgid "Archived project"
+msgstr "Archiviertes Projekt"
+
+msgctxt "ProjectEditor"
+msgid "Edit project"
+msgstr "Projekt bearbeiten"
+
+msgctxt "ProjectEditor"
+msgid "This permanently deletes the project and all its recorded work. This cannot be undone."
+msgstr "Das Projekt und alle erfassten Zeiten werden unwiderruflich gelöscht."
+
+msgctxt "ProjectEditor"
+msgid "Project name"
+msgstr "Projektname"
+
+msgctxt "ProjectEditor"
+msgid "Hidden from Home. Past time entries remain in Evaluation."
+msgstr "Auf der Startseite ausgeblendet. Bisherige Zeiten bleiben in der Auswertung."
+
+msgctxt "ProjectEditor"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "ProjectEditor"
+msgid "Save"
+msgstr "Speichern"
+
+msgctxt "ProjectEditor"
+msgid "Archiving hides this project from Home and keeps its recorded work."
+msgstr "Archivieren blendet das Projekt auf der Startseite aus. Erfasste Zeiten bleiben erhalten."
+
+msgctxt "ProjectEditor"
+msgid "Archive project"
+msgstr "Projekt archivieren"
+
+msgctxt "ProjectEditor"
+msgid "Restore project"
+msgstr "Projekt wiederherstellen"
+
+msgctxt "ProjectEditor"
+msgid "Delete permanently"
+msgstr "Endgültig löschen"
