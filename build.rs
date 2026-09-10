@@ -1,8 +1,11 @@
 fn main() {
     println!("cargo:rerun-if-changed=translations");
 
-    let config =
-        slint_build::CompilerConfiguration::new().with_bundled_translations("translations");
+    let config = slint_build::CompilerConfiguration::new()
+        .with_bundled_translations("translations")
+        // Element metadata lets the Slint testing backend target a real control.
+        // Keep it out of optimized release builds.
+        .with_debug_info(cfg!(debug_assertions));
 
     slint_build::compile_with_config("ui/app-window.slint", config)
         .expect("Failed to compile SLint UI");

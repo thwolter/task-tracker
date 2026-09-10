@@ -12,8 +12,8 @@ export component StatusText inherits Rectangle {
         y: -11px;
         text: root.status.message;
         color: root.status.kind == StatusKind.error
-            ? Theme.palette.danger
-            : Theme.palette.accent;
+            ? Theme.action-danger
+            : Theme.action-primary;
         font-size: Theme.typography.supporting.size;
         font-weight: Theme.typography.supporting.weight;
         horizontal-alignment: center;

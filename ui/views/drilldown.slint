@@ -19,7 +19,7 @@ component TaskTimelineMarker inherits Rectangle {
         x: 4px;
         width: 2px;
         height: parent.height;
-        background: Theme.palette.soft-border;
+        background: Theme.border-subtle;
     }
 
     Rectangle {
@@ -27,7 +27,7 @@ component TaskTimelineMarker inherits Rectangle {
         width: 10px;
         height: 10px;
         border-radius: 5px;
-        background: Theme.palette.accent;
+        background: Theme.action-primary;
     }
 }
 
@@ -44,13 +44,13 @@ component TaksCardButtons inherits Rectangle {
 
         IconButton {
             icon: @image-url("../assets/icons/edit.svg");
-            icon-color: Theme.palette.accent;
+            icon-color: Theme.action-primary;
             clicked => { root.edit(); }
         }
 
         IconButton {
             icon: @image-url("../assets/icons/delete.svg");
-            icon-color: Theme.palette.danger;
+            icon-color: Theme.action-danger;
             clicked => { root.delete(); }
         }
     }
@@ -60,7 +60,7 @@ component TaksCardButtons inherits Rectangle {
         padding-left: 5px;
         IconButton {
             icon: @image-url("../assets/icons/check.svg");
-            icon-color: Theme.palette.accent;
+            icon-color: Theme.action-primary;
             clicked => {
                 root.save();
             }
@@ -88,7 +88,7 @@ component TaskNoteContent inherits VerticalLayout {
             width: 120px;
             height: 100%;
             text: note == "" ? @tr("No details added") : root.note;
-            color: Theme.palette.text;
+            color: Theme.content-primary;
             font-size: Theme.typography.body.size;
             font-weight: Theme.typography.body.weight;
             wrap: word-wrap;
@@ -100,8 +100,8 @@ component TaskNoteContent inherits VerticalLayout {
 
     if (root.editing): Rectangle {
         height: max(34px, description-input.preferred-height + 10px);
-        background: Theme.palette.surface;
-        border-color: Theme.palette.accent;
+        background: Theme.surface-card;
+        border-color: Theme.border-focus;
         border-width: 1px;
 
         description-input := HorizontalLayout {
@@ -113,7 +113,7 @@ component TaskNoteContent inherits VerticalLayout {
                 wrap: word-wrap;
                 font-size: Theme.typography.body.size;
                 font-weight: Theme.typography.body.weight;
-                color: Theme.palette.text;
+                color: Theme.content-primary;
                 text <=> root.draft;
                 accepted => {
                     root.save(root.draft);
@@ -152,7 +152,7 @@ export component TaskCard inherits Rectangle {
 
                     Text {
                         text: root.entry.completed-label;
-                        color: Theme.palette.secondary-text;
+                        color: Theme.content-secondary;
                         font-size: Theme.typography.caption.size;
                         font-weight: Theme.typography.caption.weight;
                     }
@@ -171,7 +171,7 @@ export component TaskCard inherits Rectangle {
                     Text {
                         width: 70px;
                         text: duration.text;
-                        color: Theme.palette.accent;
+                        color: Theme.action-primary;
                         font-size: Theme.typography.supporting.size;
                         font-weight: Theme.typography.body-strong.weight;
                         horizontal-alignment: right;
@@ -190,7 +190,7 @@ export component TaskCard inherits Rectangle {
                 y: parent.height - 1px;
                 width: 100%;
                 height: 1px;
-                background: Theme.palette.section-divider;
+                background: Theme.border-divider;
             }
 
             duration := DurationLabel {
@@ -235,7 +235,7 @@ export component DrilldownView inherits Rectangle {
             text: state.tasks.length == 1
                 ? @tr("1 completed task")
                 : state.tasks.length + " " + @tr("completed tasks");
-            color: Theme.palette.muted-text;
+            color: Theme.content-muted;
             font-size: Theme.typography.caption.size;
             font-weight: Theme.typography.body-strong.weight;
         }

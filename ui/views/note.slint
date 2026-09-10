@@ -17,9 +17,9 @@ component NoteEditor inherits Rectangle {
     in-out property <string> text;
 
     border-radius: Theme.border.radius;
-    background: Theme.palette.soft-surface;
+    background: Theme.surface-soft;
     border-width: Theme.border.width;
-    border-color: Theme.palette.soft-border;
+    border-color: Theme.border-subtle;
 
     HorizontalLayout {
         padding: 10px;
@@ -40,7 +40,7 @@ component NoteEditor inherits Rectangle {
             width: 100%;
             text: @tr("e.g. prepared the Q4 project brief");
             wrap: word-wrap;
-            color: Theme.palette.muted-text;
+            color: Theme.content-muted;
             font-size: Theme.typography.body.size;
         }
     }
@@ -73,7 +73,7 @@ export component NoteView inherits Rectangle {
 
                 BodyText {
                     text: root.last-task.project + " · " + duration.text;
-                    color: Theme.palette.accent;
+                    color: Theme.action-primary;
                 }
 
                 duration := DurationLabel {

@@ -25,19 +25,21 @@ component HomeHeader inherits HorizontalLayout {
         spacing: 10px;
 
         Rectangle {
-            background: Theme.palette.soft-surface;
+            evaluation-touch := TouchArea {
+                mouse-cursor: pointer;
+                clicked => { open-evaluation(); }
+            }
+
+            background: evaluation-touch.pressed ? Theme.action-icon-pressed
+                : evaluation-touch.has-hover ? Theme.action-icon-hover
+                : Theme.action-icon;
             width: 20px;
             height: 20px;
 
             Image {
                 source: @image-url("../assets/icons/bar-chart.svg");
-                colorize: Theme.palette.secondary-text;
+                colorize: Theme.content-secondary;
                 width: 18px;
-            }
-
-            TouchArea {
-                mouse-cursor: pointer;
-                clicked => { open-evaluation(); }
             }
 
             Tooltip {
@@ -46,19 +48,21 @@ component HomeHeader inherits HorizontalLayout {
         }
 
         Rectangle {
-            background: Theme.palette.soft-surface;
+            settings-touch := TouchArea {
+                mouse-cursor: pointer;
+                clicked => { open-settings(); }
+            }
+
+            background: settings-touch.pressed ? Theme.action-icon-pressed
+                : settings-touch.has-hover ? Theme.action-icon-hover
+                : Theme.action-icon;
             width: 20px;
             height: 20px;
 
             Image {
                 source: @image-url("../assets/icons/settings.svg");
-                colorize: Theme.palette.secondary-text;
+                colorize: Theme.content-secondary;
                 width: 18px;
-            }
-
-            TouchArea {
-                mouse-cursor: pointer;
-                clicked => { open-settings(); }
             }
 
             Tooltip {
@@ -77,9 +81,7 @@ component LastTaskCard inherits Rectangle {
 
     min-height: 60px;
     border-radius: 10px;
-    background: Theme.palette.accent-surface;
-
-    TouchArea {
+    touch := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
 
@@ -92,21 +94,21 @@ component LastTaskCard inherits Rectangle {
 
             Text {
                 text: @tr("LAST SESSION · TAP TO ADD A NOTE");
-                color: Theme.palette.accent;
+                color: Theme.action-primary;
                 font-size: Theme.typography.caption.size;
                 font-weight: Theme.typography.caption.weight;
             }
 
             Text {
                 text: task.project + " · " + duration.text;
-                color: Theme.palette.text;
+                color: Theme.content-primary;
                 font-size: Theme.typography.body-strong.size;
                 font-weight: Theme.typography.body-strong.weight;
             }
 
             Text {
                 text: task.note != "" ? task.note : @tr("[No task description]");
-                color: Theme.palette.muted-text;
+                color: Theme.content-muted;
                 wrap: word-wrap;
                 font-size: Theme.typography.label.size;
                 font-weight: Theme.typography.label.weight;
@@ -117,11 +119,15 @@ component LastTaskCard inherits Rectangle {
             text: @markdown("\{root.add-task-tooltip}");
         }
     }
+
+    background: touch.pressed ? Theme.action-card-pressed
+        : touch.has-hover ? Theme.action-card-hover
+        : Theme.surface-subtle;
 }
 
 component Footer inherits Text {
     height: 16px;
-    color: Theme.palette.muted-text;
+    color: Theme.content-muted;
     font-size: Theme.typography.label.size;
     vertical-alignment: center;
     horizontal-alignment: center;
@@ -159,7 +165,7 @@ export component HomeView inherits Rectangle {
 
                 Text {
                     text: @tr("Start a timer");
-                    color: Theme.palette.accent;
+                    color: Theme.action-primary;
                     font-size: Theme.typography.label.size;
                     font-weight: Theme.typography.label.weight;
                 }

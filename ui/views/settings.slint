@@ -14,9 +14,9 @@ export component ProjectListItem inherits Rectangle {
 
     height: 38px;
     border-radius: Theme.border.radius;
-    background: project.archived ? Theme.palette.archived-surface : Theme.palette.surface;
+    background: project.archived ? Theme.surface-archived : Theme.surface-card;
     border-width: Theme.border.width;
-    border-color: Theme.palette.border;
+    border-color: Theme.border-default;
 
     callback clicked(string);
 
@@ -25,7 +25,7 @@ export component ProjectListItem inherits Rectangle {
 
         Text {
             text: root.project.name;
-            color: Theme.palette.text;
+            color: Theme.content-primary;
             font-size: Theme.typography.body.size;
             font-weight: Theme.typography.body.weight;
             font-italic: project.archived ? true : false;

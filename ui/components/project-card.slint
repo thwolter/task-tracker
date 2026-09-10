@@ -6,22 +6,25 @@ export component ProjectCard inherits Rectangle {
 
     callback clicked(string);
 
+    touch := TouchArea {
+        clicked => { root.clicked(root.project.id); }
+    }
+
     height: 38px;
-    background: Theme.palette.surface;
+    background: touch.pressed ? Theme.action-card-pressed
+        : touch.has-hover ? Theme.action-card-hover
+        : Theme.surface-card;
     border-radius: Theme.border.radius;
     border-width: Theme.border.width;
-    border-color: Theme.palette.border;
+    border-color: Theme.border-default;
 
     Text {
         text: root.project.name;
-        color: Theme.palette.accent;
+        color: Theme.action-primary;
         font-size: Theme.typography.body-strong.size;
         font-weight: Theme.typography.body-strong.weight;
         horizontal-alignment: center;
         vertical-alignment: center;
     }
 
-    TouchArea {
-        clicked => { root.clicked(root.project.id); }
-    }
 }

@@ -16,12 +16,12 @@ export component EvaluationSummary inherits Rectangle {
 
     height: 40px;
     border-radius: Theme.border.radius;
-    background: Theme.palette.accent-surface;
+    background: Theme.surface-subtle;
 
     Text {
         x: 10px;
         text: @tr("{} · {}", root.range-label, duration.text);
-        color: Theme.palette.text;
+        color: Theme.content-primary;
         font-size: Theme.typography.supporting.size;
         font-weight: Theme.typography.supporting.weight;
         vertical-alignment: center;

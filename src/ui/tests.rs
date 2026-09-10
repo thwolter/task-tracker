@@ -1,5 +1,7 @@
 use crate::ui::bind;
 use crate::{AppActions, AppWindow, Page, Range, application::Tracker, domain, language::Language};
+use i_slint_backend_testing::ElementHandle;
+use slint::platform::PointerEventButton;
 use slint::{ComponentHandle, Model};
 use std::{path::PathBuf, time::Duration};
 
@@ -33,6 +35,39 @@ fn project_editor_is_an_exclusive_page_and_returns_to_settings() {
     assert_eq!(ui.get_page(), Page::ProjectEditor);
 
     actions.invoke_close_project_dialog();
+    assert_eq!(ui.get_page(), Page::Settings);
+
+    std::fs::remove_file(path).unwrap();
+}
+
+#[test]
+fn project_editor_save_button_ignores_clicks_until_a_name_is_entered() {
+    i_slint_backend_testing::init_no_event_loop();
+    let path = test_path("disabled-project-save");
+    let ui = AppWindow::new().unwrap();
+    bind(&ui, Tracker::at(path.clone()), Language::English);
+    let actions = ui.global::<AppActions>();
+
+    actions.invoke_open_add_project();
+    assert_eq!(ui.get_page(), Page::ProjectEditor);
+
+    let save_button = ElementHandle::find_by_element_id(&ui, "ProjectSettingBox::save-name-button")
+        .next()
+        .unwrap();
+
+    // The save button is visually present but its disabled TouchArea must not
+    // dispatch the callback while the editor's project name is empty.
+    save_button.mock_single_click(PointerEventButton::Left);
+    assert_eq!(ui.get_page(), Page::ProjectEditor);
+
+    let mut dialog = ui.get_project_dialog();
+    dialog.initial_draft = "Focus work".into();
+    ui.set_project_dialog(dialog);
+
+    ElementHandle::find_by_element_id(&ui, "ProjectSettingBox::save-name-button")
+        .next()
+        .unwrap()
+        .mock_single_click(PointerEventButton::Left);
     assert_eq!(ui.get_page(), Page::Settings);
 
     std::fs::remove_file(path).unwrap();

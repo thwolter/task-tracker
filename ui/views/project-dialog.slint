@@ -24,7 +24,7 @@ component ProjectSettingBox inherits VerticalLayout {
 
     Rectangle {
         height: 42px;
-        background: Theme.palette.surface;
+        background: Theme.surface-card;
 
         HorizontalLayout {
             padding: 10px;
@@ -45,12 +45,12 @@ component ProjectSettingBox inherits VerticalLayout {
         spacing: 20px;
         alignment: end;
 
-        AppButton {
+        save-name-button := AppButton {
             width: 140px;
             height: 40px;
             label: @tr("Save name");
             prefix-icon: @image-url("../assets/icons/check.svg");
-            inactive: (root.project == "");
+            enabled: root.project != "";
             clicked => { root.accepted(root.project); }
         }
     }
@@ -60,7 +60,7 @@ component ProjectSettingBox inherits VerticalLayout {
 
         Rectangle {
             height: 1px;
-            background: Theme.palette.section-divider;
+            background: Theme.border-divider;
         }
     }
 }
@@ -84,12 +84,14 @@ component ArchiveBox inherits VerticalLayout {
 
     HorizontalLayout {
         alignment: start;
-        TouchArea {
+        archive-touch := TouchArea {
             mouse-cursor: pointer;
             clicked => { root.clicked(); }
             Text {
                 text: @tr("Archive project");
-                color: Theme.palette.danger;
+                color: archive-touch.pressed ? Theme.action-danger-pressed
+                    : archive-touch.has-hover ? Theme.action-danger-hover
+                    : Theme.action-danger;
                 font-size: Theme.typography.body.size;
             }
         }
@@ -119,16 +121,18 @@ component UnarchiveBox inherits VerticalLayout {
     AppButton {
         width: 180%;
         label: @tr("Unarchive");
-        background: Theme.palette.accent-surface;
-        border-color: Theme.palette.accent;
-        border-width: 1px;
-        label-color: Theme.palette.accent;
+        primary: false;
+        outlined: true;
+        outline-color: Theme.action-primary;
+        label-color: Theme.action-primary;
         clicked => { root.unarchive(); }
     }
 
     TextLink {
         text: @tr("Delete finally");
-        color: Theme.palette.danger;
+        default-color: Theme.action-danger;
+        hover-color: Theme.action-danger-hover;
+        pressed-color: Theme.action-danger-pressed;
         horizontal-alignment: center;
 
         clicked => { root.delete(); }
@@ -146,7 +150,7 @@ export component ProjectDialog inherits Rectangle {
     property <string> project: root.initial-draft;
     private property <bool> is-project: root.project-id != "";
 
-    background: Theme.palette.soft-surface;
+    background: Theme.surface-soft;
 
     VerticalLayout {
         padding: 20px;

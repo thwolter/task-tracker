@@ -7,22 +7,42 @@ export component AppButton inherits Rectangle {
     in property <bool> outlined: false;
     in property <image> suffix-icon;
     in property <image> prefix-icon;
-    in property <color> fill: root.primary ? Theme.palette.accent : Theme.palette.accent-surface;
-    in property <color> label-color: root.primary && !root.inactive ? Theme.palette.on-accent : Theme.palette.text;
-    in property <color> outline-color: Theme.palette.border;
+    in property <color> fill: root.primary ? Theme.action-primary : Theme.action-secondary;
+    in property <color> label-color: root.primary ? Theme.content-on-accent : Theme.content-primary;
+    in property <color> outline-color: Theme.border-default;
     in property <length> label-font-size: Theme.typography.body-strong.size;
     in property <float> label-font-weight: Theme.typography.body-strong.weight;
-    in property <bool> inactive: false;
+    in property <bool> enabled: true;
 
     private property <length> icon-width: Theme.typography.body-strong.size + 2px;
 
     callback clicked();
 
+    touch := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: root.enabled ? pointer : not-allowed;
+        clicked => { root.clicked(); }
+    }
+
+    private property <color> current-label-color: !root.enabled
+        ? Theme.content-disabled
+        : root.primary && touch.pressed
+            ? Theme.content-on-primary-pressed
+            : root.primary && touch.has-hover
+                ? Theme.content-on-primary-hover
+                : root.label-color;
+
     height: 40px;
     border-radius: Theme.border.radius;
     border-width: root.outlined ? Theme.border.width : 0px;
     border-color: root.outline-color;
-    background: root.inactive ? Theme.palette.disabled-surface : root.fill;
+    background: !root.enabled
+        ? Theme.surface-disabled
+        : touch.pressed
+            ? (root.primary ? Theme.action-primary-pressed : Theme.action-secondary-pressed)
+            : touch.has-hover
+                ? (root.primary ? Theme.action-primary-hover : Theme.action-secondary-hover)
+                : root.fill;
 
     HorizontalBox {
         alignment: center;
@@ -36,13 +56,13 @@ export component AppButton inherits Rectangle {
                 source: prefix-icon;
                 width: icon-width;
                 height: icon-width;
-                colorize: root.label-color;
+                colorize: root.current-label-color;
             }
         }
 
         Text {
             text: root.label;
-            color: root.label-color;
+            color: root.current-label-color;
             font-size: root.label-font-size;
             font-weight: root.label-font-weight;
             horizontal-alignment: center;
@@ -56,13 +76,9 @@ export component AppButton inherits Rectangle {
                 source: suffix-icon;
                 width: icon-width;
                 height: icon-width;
-                colorize: root.label-color;
+                colorize: root.current-label-color;
             }
         }
     }
 
-    TouchArea {
-        mouse-cursor: (root.inactive) ? not-allowed : pointer;
-        clicked => { root.clicked(); }
-    }
 }

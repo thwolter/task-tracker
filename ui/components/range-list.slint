@@ -6,24 +6,36 @@ export component RangeOption inherits Rectangle {
     in property <Range> value;
     in property <bool> selected;
     callback clicked(Range);
+
+    touch := TouchArea {
+        clicked => { root.clicked(root.value); }
+    }
+
     width: 52px;
     height: 30px;
     border-radius: 16px;
-    background: root.selected ? Theme.palette.accent : Theme.palette.surface;
+    background: root.selected
+        ? (touch.pressed ? Theme.action-primary-pressed
+            : touch.has-hover ? Theme.action-primary-hover
+            : Theme.action-primary)
+        : (touch.pressed ? Theme.action-secondary-pressed
+            : touch.has-hover ? Theme.action-secondary-hover
+            : Theme.surface-card);
     border-width: root.selected ? 0px : 1px;
-    border-color: Theme.palette.border;
+    border-color: Theme.border-default;
     Text {
         text: root.label;
-        color: root.selected ? Theme.palette.on-accent : Theme.palette.muted-text;
+        color: root.selected
+            ? (touch.pressed ? Theme.content-on-primary-pressed
+                : touch.has-hover ? Theme.content-on-primary-hover
+                : Theme.content-on-accent)
+            : Theme.content-muted;
         font-size: Theme.typography.caption.size;
         font-weight: Theme.typography.caption.weight;
         horizontal-alignment: center;
         vertical-alignment: center;
     }
 
-    TouchArea {
-        clicked => { root.clicked(root.value); }
-    }
 }
 
 export component RangeList inherits HorizontalLayout {

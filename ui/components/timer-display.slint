@@ -14,7 +14,7 @@ export component TimerDisplay inherits Rectangle {
     height: 162px;
 
     border-radius: 81px;
-    background: Theme.palette.timer-ring;
+    background: Theme.timer-ring;
 
     Rectangle {
         x: 9px;
@@ -22,12 +22,12 @@ export component TimerDisplay inherits Rectangle {
         width: 144px;
         height: 144px;
         border-radius: 72px;
-        background: Theme.palette.surface;
+        background: Theme.surface-card;
 
         Text {
             y: 40px;
             text: root.task;
-            color: Theme.palette.accent;
+            color: Theme.action-primary;
             font-size: Theme.typography.small-label.size;
             font-weight: Theme.typography.small-label.weight;
             letter-spacing: 1.2px;
@@ -37,7 +37,7 @@ export component TimerDisplay inherits Rectangle {
         Text {
             y: 60px;
             text: root.elapsed;
-            color: Theme.palette.text;
+            color: Theme.content-primary;
             opacity: root.paused ? 0.55 : 1;
             font-size: Theme.typography.timer.size;
             font-weight: Theme.typography.timer.weight;
@@ -55,7 +55,7 @@ export component TimerDisplay inherits Rectangle {
         Image {
             y: 100px;
             source: @image-url("../assets/icons/pause.svg");
-            colorize: Theme.palette.timer-ring;
+            colorize: Theme.timer-ring;
         }
     }
 

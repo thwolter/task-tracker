@@ -9,6 +9,11 @@ export component BackLink inherits Rectangle {
 
     callback clicked();
 
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
     HorizontalLayout {
         cross-axis-alignment: center;
         spacing: -5px;
@@ -23,7 +28,9 @@ export component BackLink inherits Rectangle {
 		        width: icon-width;
                 height: icon-width;
                 source: root.prefix-icon;
-                colorize: Theme.palette.accent;
+                colorize: touch.pressed ? Theme.content-link-pressed
+                    : touch.has-hover ? Theme.content-link-hover
+                    : Theme.content-link;
             }
         }
 
@@ -31,12 +38,10 @@ export component BackLink inherits Rectangle {
             text: root.text;
             font-size: Theme.typography.supporting.size;
             font-weight: Theme.typography.supporting.weight;
-            color: Theme.palette.secondary-text;
+            color: touch.pressed ? Theme.content-link-pressed
+                : touch.has-hover ? Theme.content-link-hover
+                : Theme.content-secondary;
         }
     }
 
-    TouchArea {
-        mouse-cursor: pointer;
-        clicked => { root.clicked(); }
-    }
 }

@@ -18,11 +18,18 @@ export component ProjectCard inherits Rectangle {
 
     callback clicked(string);
 
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(entry.id); }
+    }
+
     height: 46px;
     border-radius: 12px;
-    background: Theme.palette.surface;
+    background: touch.pressed ? Theme.action-card-pressed
+        : touch.has-hover ? Theme.action-card-hover
+        : Theme.surface-card;
     border-width: 1px;
-    border-color: Theme.palette.border;
+    border-color: Theme.border-default;
 
     HorizontalLayout {
         width: 100%;
@@ -38,7 +45,7 @@ export component ProjectCard inherits Rectangle {
 
             Text {
                 text: root.entry.project;
-                color: Theme.palette.text;
+                color: Theme.content-primary;
                 font-size: Theme.typography.body.size;
                 font-weight: Theme.typography.body-strong.weight;
             }
@@ -47,7 +54,7 @@ export component ProjectCard inherits Rectangle {
                 text: entry.num-tasks == 1
                     ? @tr("1 task")
                     : entry.num-tasks + " " + @tr("tasks");
-                color: Theme.palette.muted-text;
+                color: Theme.content-muted;
                 font-size: Theme.typography.label.size;
             }
         }
@@ -55,7 +62,7 @@ export component ProjectCard inherits Rectangle {
         Text {
             horizontal-stretch: 0;
             text: duration.text;
-            color: Theme.palette.accent;
+            color: Theme.action-primary;
             font-size: Theme.typography.supporting.size;
             font-weight: Theme.typography.body-strong.weight;
             horizontal-alignment: right;
@@ -66,10 +73,6 @@ export component ProjectCard inherits Rectangle {
         seconds: root.entry.duration-seconds;
     }
 
-    TouchArea {
-        mouse-cursor: pointer;
-        clicked => { root.clicked(entry.id); }
-    }
 }
 
 export component EvaluationView inherits Rectangle {

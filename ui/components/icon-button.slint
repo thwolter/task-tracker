@@ -2,11 +2,18 @@ import { Theme } from "../theme.slint";
 
 export component IconButton inherits Rectangle {
     in property <image> icon;
-    in property <color> icon-color: Theme.palette.secondary-text;
+    in property <color> icon-color: Theme.content-secondary;
 
     callback clicked();
 
-    background: Theme.palette.grey-surface;
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    background: touch.pressed ? Theme.action-icon-pressed
+        : touch.has-hover ? Theme.action-icon-hover
+        : Theme.action-icon;
     border-radius: 5px;
     width: 20px;
     height: 20px;
@@ -20,8 +27,4 @@ export component IconButton inherits Rectangle {
         vertical-alignment: center;
     }
 
-    TouchArea {
-        mouse-cursor: pointer;
-        clicked => { root.clicked(); }
-    }
 }
