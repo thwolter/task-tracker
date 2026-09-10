@@ -34,6 +34,7 @@ component ProjectSettingBox inherits VerticalLayout {
                 single-line: true;
                 width: 100%;
                 font-size: Theme.typography.body.size;
+                font-weight: Theme.typography.body.weight;
 
                 accepted => { root.accepted(root.project); }
                 text <=> root.project;
@@ -93,6 +94,7 @@ component ArchiveBox inherits VerticalLayout {
                     : archive-touch.has-hover ? Theme.action-danger-hover
                     : Theme.action-danger;
                 font-size: Theme.typography.body.size;
+                font-weight: Theme.typography.body.weight;
             }
         }
     }

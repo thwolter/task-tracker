@@ -1,17 +1,20 @@
 
-export struct Font { size: length, weight: float }
+export struct Font {
+    size: length,
+    weight: float,
+    letter-spacing: length,
+}
 
 export struct Typo {
-    display: Font,
     heading: Font,
     title: Font,
     body: Font,
     body-strong: Font,
+    body-link: Font,
     supporting: Font,
     label: Font,
     small-label: Font,
     caption: Font,
-    marker: Font,
     timer: Font,
 }
 
@@ -89,17 +92,16 @@ export global Theme {
     in-out property <color> content-link-pressed: #296e45b8;
 
     in property <Typo> typography: {
-        display: { size: 21px, weight: 700 },
-        heading: { size: 20px, weight: 700 },
-        title: { size: 18px, weight: 700 },
-        body: { size: 15px, weight: 400 },
-        body-strong: { size: 15px, weight: 700 },
-        supporting: { size: 13px, weight: 600 },
-        label: { size: 12px, weight: 500 },
-        small-label: { size: 11px, weight: 600 },
-        caption: { size: 10px, weight: 500 },
-        timer: { size: 32px, weight: 700 },
-        marker: { size: 22px, weight: 400 },
+        heading: { size: 20px, weight: 700, letter-spacing: 0px },
+        title: { size: 18px, weight: 700, letter-spacing: 0px },
+        body: { size: 15px, weight: 400, letter-spacing: 0px },
+        body-strong: { size: 15px, weight: 700, letter-spacing: 0px },
+        body-link: { size: 15px, weight: 500, letter-spacing: 0px },
+        supporting: { size: 13px, weight: 600, letter-spacing: 0px },
+        label: { size: 12px, weight: 500, letter-spacing: 0px },
+        small-label: { size: 11px, weight: 600, letter-spacing: 1.2px },
+        caption: { size: 10px, weight: 500, letter-spacing: 0px },
+        timer: { size: 32px, weight: 700, letter-spacing: 0px },
     };
     in property <Border> border: {
         radius: 10px,

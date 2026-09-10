@@ -6,22 +6,43 @@
     <title>Tempo Palette</title>
     <style>
       :root {
-        --window-background: #f6f8f6;
-        --surface: #fffffc;
-        --soft-surface: #edf5eb;
-        --accent-surface: #e0f0de;
-        --accent: #296e45;
-        --on-accent: #ffffff;
+        --surface-canvas: #f6f8f6;
+        --surface-chrome: #e8f0e5;
+        --surface-card: #fffffc;
+        --surface-subtle: #e0f0de;
+        --surface-soft: #edf5eb;
+        --surface-archived: #d6d9de;
+        --surface-disabled: #e0f0de;
+        --surface-danger: #fcebe7;
+        --content-primary: #14241a;
+        --content-secondary: #637d66;
+        --content-muted: #526654;
+        --content-disabled: #526654;
+        --content-on-accent: #fffffc;
+        --content-on-primary-hover: #fffffce0;
+        --content-on-primary-pressed: #fffffcb8;
+        --action-primary: #296e45;
+        --action-primary-hover: #296e45e0;
+        --action-primary-pressed: #296e45b8;
+        --action-secondary: #e0f0de;
+        --action-secondary-hover: #edf5eb;
+        --action-secondary-pressed: #e8f0e5;
+        --action-icon: #e7ece6;
+        --action-icon-hover: #e0f0de;
+        --action-icon-pressed: #e8f0e5;
+        --action-card-hover: #edf5eb;
+        --action-card-pressed: #e0f0de;
+        --action-danger: #9b3f33;
+        --action-danger-hover: #9b3f33e0;
+        --action-danger-pressed: #9b3f33b8;
+        --content-link: #296e45;
+        --content-link-hover: #296e45e0;
+        --content-link-pressed: #296e45b8;
+        --border-default: #d6e0d4;
+        --border-subtle: #c9d6c7;
+        --border-divider: #c7d6c4;
+        --border-focus: #3f7f5a;
         --timer-ring: #d6f0d6;
-        --text: #14241a;
-        --muted-text: #526654;
-        --secondary-text: #637d66;
-        --border: #d6e0d4;
-        --soft-border: #c9d6c7;
-        --section-divider: #c7d6c4;
-        --archived-surface: #d6d9de;
-        --disabled-surface: #e7ece6;
-        --danger: #ad3b2b;
       }
 
       * { box-sizing: border-box; }
@@ -29,21 +50,22 @@
         margin: 0;
         min-height: 100vh;
         padding: 40px 24px;
-        background: var(--window-background);
-        color: var(--text);
+        background: var(--surface-canvas);
+        color: var(--content-primary);
         font: 15px/1.4 system-ui, sans-serif;
       }
       main { max-width: 840px; margin: auto; }
       h1 { margin: 0 0 6px; font-size: 28px; }
-      p { margin: 0 0 28px; color: var(--muted-text); }
+      h2 { margin: 32px 0 12px; font-size: 18px; }
+      p { margin: 0 0 28px; color: var(--content-muted); }
       .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
       .swatch {
-        min-height: 116px;
+        min-height: 104px;
         padding: 14px;
-        border: 1px solid var(--border);
+        border: 1px solid var(--border-default);
         border-radius: 10px;
         background: var(--color);
-        color: var(--ink, var(--text));
+        color: var(--ink, var(--content-primary));
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
@@ -55,24 +77,61 @@
   <body>
     <main>
       <h1>Tempo palette</h1>
-      <p>A small visual reference for the application colors.</p>
-      <section class="grid" aria-label="Color swatches">
-        <div class="swatch" style="--color: var(--window-background)"><span class="name">window-background</span><span class="hex">#f6f8f6</span></div>
-        <div class="swatch" style="--color: var(--surface)"><span class="name">surface</span><span class="hex">#fffffc</span></div>
-        <div class="swatch" style="--color: var(--soft-surface)"><span class="name">soft-surface</span><span class="hex">#edf5eb</span></div>
-        <div class="swatch" style="--color: var(--accent-surface)"><span class="name">accent-surface</span><span class="hex">#e0f0de</span></div>
-        <div class="swatch" style="--color: var(--accent); --ink: var(--on-accent)"><span class="name">accent</span><span class="hex">#296e45</span></div>
-        <div class="swatch" style="--color: var(--on-accent)"><span class="name">on-accent</span><span class="hex">#ffffff</span></div>
-        <div class="swatch" style="--color: var(--timer-ring)"><span class="name">timer-ring</span><span class="hex">#d6f0d6</span></div>
-        <div class="swatch" style="--color: var(--text); --ink: var(--on-accent)"><span class="name">text</span><span class="hex">#14241a</span></div>
-        <div class="swatch" style="--color: var(--muted-text); --ink: var(--on-accent)"><span class="name">muted-text</span><span class="hex">#526654</span></div>
-        <div class="swatch" style="--color: var(--secondary-text); --ink: var(--on-accent)"><span class="name">secondary-text</span><span class="hex">#637d66</span></div>
-        <div class="swatch" style="--color: var(--border)"><span class="name">border</span><span class="hex">#d6e0d4</span></div>
-        <div class="swatch" style="--color: var(--soft-border)"><span class="name">soft-border</span><span class="hex">#c9d6c7</span></div>
-        <div class="swatch" style="--color: var(--section-divider)"><span class="name">section-divider</span><span class="hex">#c7d6c4</span></div>
-        <div class="swatch" style="--color: var(--archived-surface)"><span class="name">archived-surface</span><span class="hex">#d6d9de</span></div>
-        <div class="swatch" style="--color: var(--disabled-surface)"><span class="name">disabled-surface</span><span class="hex">#e7ece6</span></div>
-        <div class="swatch" style="--color: var(--danger); --ink: var(--on-accent)"><span class="name">danger</span><span class="hex">#ad3b2b</span></div>
+      <p>Semantic Theme roles. Transparent interaction colors are composited on the canvas.</p>
+
+      <section aria-labelledby="surfaces">
+        <h2 id="surfaces">Surfaces</h2>
+        <div class="grid">
+          <div class="swatch" style="--color: var(--surface-canvas)"><span class="name">surface-canvas</span><span class="hex">#f6f8f6</span></div>
+          <div class="swatch" style="--color: var(--surface-chrome)"><span class="name">surface-chrome</span><span class="hex">#e8f0e5</span></div>
+          <div class="swatch" style="--color: var(--surface-card)"><span class="name">surface-card</span><span class="hex">#fffffc</span></div>
+          <div class="swatch" style="--color: var(--surface-subtle)"><span class="name">surface-subtle</span><span class="hex">#e0f0de</span></div>
+          <div class="swatch" style="--color: var(--surface-soft)"><span class="name">surface-soft</span><span class="hex">#edf5eb</span></div>
+          <div class="swatch" style="--color: var(--surface-archived)"><span class="name">surface-archived</span><span class="hex">#d6d9de</span></div>
+          <div class="swatch" style="--color: var(--surface-disabled)"><span class="name">surface-disabled</span><span class="hex">#e0f0de</span></div>
+          <div class="swatch" style="--color: var(--surface-danger)"><span class="name">surface-danger</span><span class="hex">#fcebe7</span></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="content-and-structure">
+        <h2 id="content-and-structure">Content and structure</h2>
+        <div class="grid">
+          <div class="swatch" style="--color: var(--content-primary); --ink: var(--content-on-accent)"><span class="name">content-primary</span><span class="hex">#14241a</span></div>
+          <div class="swatch" style="--color: var(--content-secondary); --ink: var(--content-on-accent)"><span class="name">content-secondary</span><span class="hex">#637d66</span></div>
+          <div class="swatch" style="--color: var(--content-muted); --ink: var(--content-on-accent)"><span class="name">content-muted</span><span class="hex">#526654</span></div>
+          <div class="swatch" style="--color: var(--content-disabled); --ink: var(--content-on-accent)"><span class="name">content-disabled</span><span class="hex">#526654</span></div>
+          <div class="swatch" style="--color: var(--content-on-accent)"><span class="name">content-on-accent</span><span class="hex">#fffffc</span></div>
+          <div class="swatch" style="--color: var(--border-default)"><span class="name">border-default</span><span class="hex">#d6e0d4</span></div>
+          <div class="swatch" style="--color: var(--border-subtle)"><span class="name">border-subtle</span><span class="hex">#c9d6c7</span></div>
+          <div class="swatch" style="--color: var(--border-divider)"><span class="name">border-divider</span><span class="hex">#c7d6c4</span></div>
+          <div class="swatch" style="--color: var(--border-focus); --ink: var(--content-on-accent)"><span class="name">border-focus</span><span class="hex">#3f7f5a</span></div>
+          <div class="swatch" style="--color: var(--timer-ring)"><span class="name">timer-ring</span><span class="hex">#d6f0d6</span></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="actions">
+        <h2 id="actions">Actions and interaction states</h2>
+        <div class="grid">
+          <div class="swatch" style="--color: var(--action-primary); --ink: var(--content-on-accent)"><span class="name">action-primary</span><span class="hex">#296e45</span></div>
+          <div class="swatch" style="--color: var(--action-primary-hover); --ink: var(--content-on-primary-hover)"><span class="name">action-primary-hover</span><span class="hex">#296e45e0</span></div>
+          <div class="swatch" style="--color: var(--action-primary-pressed); --ink: var(--content-on-primary-pressed)"><span class="name">action-primary-pressed</span><span class="hex">#296e45b8</span></div>
+          <div class="swatch" style="--color: var(--action-secondary)"><span class="name">action-secondary</span><span class="hex">#e0f0de</span></div>
+          <div class="swatch" style="--color: var(--action-secondary-hover)"><span class="name">action-secondary-hover</span><span class="hex">#edf5eb</span></div>
+          <div class="swatch" style="--color: var(--action-secondary-pressed)"><span class="name">action-secondary-pressed</span><span class="hex">#e8f0e5</span></div>
+          <div class="swatch" style="--color: var(--action-icon)"><span class="name">action-icon</span><span class="hex">#e7ece6</span></div>
+          <div class="swatch" style="--color: var(--action-icon-hover)"><span class="name">action-icon-hover</span><span class="hex">#e0f0de</span></div>
+          <div class="swatch" style="--color: var(--action-icon-pressed)"><span class="name">action-icon-pressed</span><span class="hex">#e8f0e5</span></div>
+          <div class="swatch" style="--color: var(--action-card-hover)"><span class="name">action-card-hover</span><span class="hex">#edf5eb</span></div>
+          <div class="swatch" style="--color: var(--action-card-pressed)"><span class="name">action-card-pressed</span><span class="hex">#e0f0de</span></div>
+          <div class="swatch" style="--color: var(--action-danger); --ink: var(--content-on-accent)"><span class="name">action-danger</span><span class="hex">#9b3f33</span></div>
+          <div class="swatch" style="--color: var(--action-danger-hover); --ink: var(--content-on-accent)"><span class="name">action-danger-hover</span><span class="hex">#9b3f33e0</span></div>
+          <div class="swatch" style="--color: var(--action-danger-pressed); --ink: var(--content-on-accent)"><span class="name">action-danger-pressed</span><span class="hex">#9b3f33b8</span></div>
+          <div class="swatch" style="--color: var(--content-link); --ink: var(--content-on-accent)"><span class="name">content-link</span><span class="hex">#296e45</span></div>
+          <div class="swatch" style="--color: var(--content-link-hover); --ink: var(--content-on-primary-hover)"><span class="name">content-link-hover</span><span class="hex">#296e45e0</span></div>
+          <div class="swatch" style="--color: var(--content-link-pressed); --ink: var(--content-on-primary-pressed)"><span class="name">content-link-pressed</span><span class="hex">#296e45b8</span></div>
+          <div class="swatch" style="--color: var(--content-on-primary-hover)"><span class="name">content-on-primary-hover</span><span class="hex">#fffffce0</span></div>
+          <div class="swatch" style="--color: var(--content-on-primary-pressed)"><span class="name">content-on-primary-pressed</span><span class="hex">#fffffcb8</span></div>
+        </div>
       </section>
     </main>
   </body>

@@ -173,7 +173,7 @@ export component TaskCard inherits Rectangle {
                         text: duration.text;
                         color: Theme.action-primary;
                         font-size: Theme.typography.supporting.size;
-                        font-weight: Theme.typography.body-strong.weight;
+                        font-weight: Theme.typography.supporting.weight;
                         horizontal-alignment: right;
                     }
 
@@ -237,7 +237,7 @@ export component DrilldownView inherits Rectangle {
                 : state.tasks.length + " " + @tr("completed tasks");
             color: Theme.content-muted;
             font-size: Theme.typography.caption.size;
-            font-weight: Theme.typography.body-strong.weight;
+            font-weight: Theme.typography.caption.weight;
         }
 
         ScrollView {
