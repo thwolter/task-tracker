@@ -4,10 +4,10 @@ import { ProjectItem } from "../models.slint";
 import { AppActions } from "../actions.slint";
 import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
-import { TitleText } from "../components/typography.slint";
+import { TitleText, BodyText, TextLink, TextLinkVariant } from "../components/typography.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
 import { IconButton } from "../components/icon-button.slint";
-
+import { DialogCard } from "../components/dialog-card.slint";
 
 export component ProjectListItem inherits Rectangle {
     in property <ProjectItem> project;
@@ -18,7 +18,7 @@ export component ProjectListItem inherits Rectangle {
     border-width: Theme.border.width;
     border-color: Theme.border-default;
 
-    callback clicked(string);
+    callback clicked(ProjectItem);
 
     HorizontalBox {
         horizontal-stretch: 1;
@@ -35,17 +35,207 @@ export component ProjectListItem inherits Rectangle {
 
         IconButton {
             icon: @image-url("../assets/icons/edit.svg");
-            clicked => { root.clicked(root.project.id); }
+            background: Theme.surface-card;
+        }
+
+
+    }
+    TouchArea {
+            mouse-cursor: pointer;
+            clicked => { root.clicked(root.project); }
+        }
+}
+component ArchiveBox inherits VerticalLayout {
+
+    callback clicked();
+
+    spacing: 10px;
+    padding-bottom: 20px;
+
+    TitleText {
+        text: @tr("Archive project");
+    }
+
+    BodyText {
+        text: @tr("Removes it from your task list. Your past time entries stay in Evaluation.");
+        wrap: word-wrap;
+        vertical-alignment: center;
+    }
+
+    HorizontalLayout {
+        alignment: start;
+        archive-touch := TouchArea {
+            mouse-cursor: pointer;
+            clicked => { root.clicked(); }
+            Text {
+                text: @tr("Archive project");
+                color: archive-touch.pressed ? Theme.action-danger-pressed
+                    : archive-touch.has-hover ? Theme.action-danger-hover
+                    : Theme.action-danger;
+                font-size: Theme.typography.body.size;
+                font-weight: Theme.typography.body.weight;
+            }
         }
     }
+}
+
+component UnarchiveBox inherits VerticalLayout {
+
+    in property <string> project;
+
+    callback unarchive();
+    callback delete();
+
+    spacing: 20px;
+    padding-bottom: 20px;
+
+    TitleText {
+        text: project;
+    }
+
+    BodyText {
+        text: @tr("This project is hidden from Home. Its past time entries remain in Evaluation.");
+        wrap: word-wrap;
+        vertical-alignment: center;
+    }
+
+    AppButton {
+        width: 180%;
+        label: @tr("Unarchive");
+        primary: false;
+        outlined: true;
+        outline-color: Theme.action-primary;
+        label-color: Theme.action-primary;
+        clicked => { root.unarchive(); }
+    }
+
+    TextLink {
+        text: @tr("Delete finally");
+        variant: TextLinkVariant.danger;
+        horizontal-alignment: center;
+
+        clicked => { root.delete(); }
+    }
+
+    Rectangle { }
+}
+
+component ProjectDialog inherits Rectangle {
+	in property <ProjectItem> project;
+	in property <bool> is-create;
+	private property <string> draft-name: is-create ? "" : project.name;
+
+	callback close();
+	callback save(string, string);
+	callback archive(string);
+	callback unarchive(string);
+	callback delete(string);
+
+	width: content.preferred-width;
+
+	content := VerticalLayout {
+		padding-top: 20px;
+		spacing: 20px;
+
+		if (!root.project.archived): VerticalLayout {
+			spacing: 20px;
+
+			TitleText {
+				text: is-create ? @tr("New Project") : project.name;
+			}
+
+			BodyText {
+				vertical-stretch: 0;
+		        text: @tr("Keep the name clear and easy to spot in your timer.");
+		        wrap: word-wrap;
+			}
+
+			VerticalLayout {
+				spacing: 5px;
+				Text {
+					text: @tr("Project Name");
+					font-size: Theme.typography.caption.size;
+					font-weight: Theme.typography.caption.weight;
+					color: Theme.content-primary;
+				}
+				Rectangle {
+		        background: Theme.surface-card;
+
+		        VerticalLayout {
+			        padding: 5px;
+
+		            task-input := TextInput {
+		                vertical-alignment: center;
+		                single-line: false;
+		                wrap: word-wrap;
+		                width: 100%;
+		                font-size: Theme.typography.body.size;
+		                font-weight: Theme.typography.body.weight;
+		                color: Theme.content-primary;
+
+		                text <=> root.draft-name;
+		            }
+	            }
+		    }
+			}
+
+		    HorizontalLayout {
+			    spacing: 10px;
+			    alignment: end;
+
+				AppButton {
+					label: @tr("Cancel");
+					primary: false;
+					outlined: true;
+					clicked => { close(); }
+				}
+			    AppButton {
+			        label: @tr("Save");
+			        prefix-icon: @image-url("../assets/icons/check.svg");
+			        enabled: root.draft-name != "";
+			        clicked => { save(project.id, draft-name); }
+			    }
+			}
+
+			if (!root.is-create): VerticalLayout {
+				padding-top: 20px;
+				spacing: 20px;
+
+		        Rectangle {
+		            height: 1px;
+		            background: Theme.border-divider;
+		        }
+
+			    ArchiveBox {
+		        clicked => { root.archive(root.project.id); }
+			    }
+
+			    Rectangle {}
+		    }
+		}
+
+		if (root.project.archived): UnarchiveBox {
+		    project: root.project.name;
+		    unarchive => { root.unarchive(root.project.id); }
+		    delete => { root.delete(root.project.id); }
+		}
+	}
+
 }
 
 export component SettingsView inherits Rectangle {
     in property <[ProjectItem]> projects;
 
-    callback open-home-view();
+    private property <ProjectItem> active-project;
+    private property <bool> editing-project: false;
+    private property <bool> is-create: false;
 
-    VerticalLayout {
+    callback open-home-view();
+    callback edit-project(string);
+
+    background: root.editing-project ? Theme.surface-chrome : Theme.surface-canvas;
+
+	if (!root.editing-project): VerticalLayout {
         padding: 20px;
         spacing: 20px;
 
@@ -61,7 +251,10 @@ export component SettingsView inherits Rectangle {
         ScrollableColumn {
             for project in root.projects: ProjectListItem {
                 project: project;
-                clicked(id) => { AppActions.open-rename-project(id); }
+                clicked(project) => {
+                    root.editing-project = true;
+                    root.active-project = project;
+                }
             }
         }
 
@@ -69,7 +262,37 @@ export component SettingsView inherits Rectangle {
             width: 100%;
             label: @tr("Add");
             prefix-icon: @image-url("../assets/icons/add.svg");
-            clicked => { AppActions.open-add-project(); }
+            clicked => {
+                root.editing-project = true;
+                root.is-create = true;
+            }
         }
     }
+
+	if (root.editing-project): ProjectDialog {
+		project: root.active-project;
+	    width: parent.width - 40px;
+	    is-create <=> root.is-create;
+	    close => {
+	        root.editing-project = false;
+	        root.is-create = false;
+	    }
+	    save(id, draft-name) => {
+	        AppActions.save-project(id, draft-name);
+	        root.editing-project = false;
+	        root.is-create = false;
+	    }
+	    archive(id) => {
+	        AppActions.archive-project(id);
+	        root.editing-project = false;
+	    }
+	    unarchive(id) => {
+	        AppActions.unarchive-project(id);
+	        root.editing-project = false;
+	    }
+	    delete(id) => {
+	        AppActions.delete-project(id);
+	        root.editing-project = false;
+	    }
+	}
 }

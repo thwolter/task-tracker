@@ -23,6 +23,13 @@ export struct Border {
     width: length,
 }
 
+export struct Shadow {
+    offset-x: length,
+    offset-y: length,
+    blur: length,
+    color: color,
+}
+
 export global Theme {
     // Private foundation tokens establish the default light scheme. Components
     // consume only the semantic roles below, so a future resolver can replace
@@ -34,6 +41,8 @@ export global Theme {
     private property <color> sage-soft: #edf5eb;
     private property <color> neutral-control: #e7ece6;
     private property <color> neutral-archived: #d6d9de;
+    private property <color> grey-light: #f2f2f2;
+    private property <color> grey-dark: #dedede;
     private property <color> ink-primary: #14241a;
     private property <color> ink-secondary: #637d66;
     private property <color> ink-muted: #526654;
@@ -80,8 +89,8 @@ export global Theme {
     in-out property <color> action-primary-hover: #296e45e0;
     in-out property <color> action-primary-pressed: #296e45b8;
     in-out property <color> action-secondary: sage-subtle;
-    in-out property <color> action-secondary-hover: sage-soft;
-    in-out property <color> action-secondary-pressed: sage-chrome;
+    in-out property <color> action-secondary-hover: grey-light;
+    in-out property <color> action-secondary-pressed: grey-dark;
     in-out property <color> action-icon: neutral-control;
     in-out property <color> action-icon-hover: sage-subtle;
     in-out property <color> action-icon-pressed: sage-chrome;
@@ -98,13 +107,19 @@ export global Theme {
         body-strong: { size: 15px, weight: 700, letter-spacing: 0px },
         body-link: { size: 15px, weight: 500, letter-spacing: 0px },
         supporting: { size: 13px, weight: 600, letter-spacing: 0px },
-        label: { size: 12px, weight: 500, letter-spacing: 0px },
+        label: { size: 13px, weight: 600, letter-spacing: 0px },
         small-label: { size: 11px, weight: 600, letter-spacing: 1.2px },
         caption: { size: 10px, weight: 500, letter-spacing: 0px },
         timer: { size: 32px, weight: 700, letter-spacing: 0px },
     };
     in property <Border> border: {
-        radius: 10px,
+        radius: 8px,
         width: 1px,
+    };
+    in property <Shadow> dialog-shadow: {
+        offset-x: 0px,
+        offset-y: 4px,
+        blur: 6px,
+        color: #14241a1a,
     };
 }

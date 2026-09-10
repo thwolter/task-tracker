@@ -1,7 +1,7 @@
 //! Application-level orchestration for the tracker.
 //!
 //! [`Tracker`] coordinates domain mutations with SQLite persistence and holds
-//! UI-only state such as the selected reporting range and open project editor.
+//! UI-only state such as the selected reporting range and evaluation selection.
 //! It does not format data for Slint or handle widget callbacks.
 
 use crate::{
@@ -19,7 +19,6 @@ pub(crate) struct Tracker {
     data: Data,
     store: SqliteStore,
     range: Range,
-    editing_project_id: Option<ProjectId>,
     evaluating_project: Option<ProjectId>,
 }
 
@@ -33,7 +32,6 @@ impl Tracker {
             data,
             store,
             range: Range::Day,
-            editing_project_id: None,
             evaluating_project: None,
         }
     }
@@ -43,7 +41,6 @@ impl Tracker {
             data: Data::defaults(),
             store: SqliteStore::at(path),
             range: Range::Day,
-            editing_project_id: None,
             evaluating_project: None,
         }
     }
@@ -136,65 +133,18 @@ impl Tracker {
         self.evaluating_project.as_ref()
     }
 
-    /// Clears any pending rename and returns an empty project-editor state.
-    pub(crate) fn begin_add_project(&mut self) -> ProjectDialog {
-        self.editing_project_id = None;
-        ProjectDialog {
-            rename_mode: false,
-            initial_draft: String::new(),
-            project_id: String::new(),
-            archived: false,
-        }
-    }
-
-    /// Selects a project for editing and returns its current editor state.
-    ///
-    /// An unknown identifier produces an empty draft but is retained as the
-    /// pending identifier until the dialog is saved or cancelled.
-    pub(crate) fn begin_rename_project(&mut self, id: String) -> ProjectDialog {
-        let initial_draft = self
-            .data
-            .project_name_by_str(&id)
-            .unwrap_or_default()
-            .to_owned();
-        let archived = self
-            .data
-            .projects()
-            .iter()
-            .find(|project| project.id().as_str() == id)
-            .is_some_and(|project| project.archived());
-        self.editing_project_id = Some(ProjectId::from(id));
-        ProjectDialog {
-            rename_mode: true,
-            initial_draft,
-            project_id: self
-                .editing_project_id
-                .as_ref()
-                .map(|id| id.as_str().to_owned())
-                .unwrap_or_default(),
-            archived,
-        }
-    }
-
-    /// Validates and saves either the pending rename or a new timestamp-based project.
-    ///
-    /// A successful save clears the pending rename; validation errors leave it
-    /// available for further editing.
-    pub(crate) fn save_project(&mut self, name: &str, timestamp: i64) -> Result<()> {
+    /// Validates, renames, and saves an existing project.
+    pub(crate) fn save_project(&mut self, id: String, name: &str) -> Result<()> {
         let name = domain::validate_project_name(name)?;
-        if let Some(id) = self.editing_project_id.take() {
-            self.data.rename_project(&id, name);
-        } else {
-            self.data
-                .add_project(ProjectId::from(format!("project-{timestamp}")), name);
-        }
-        self.save()?;
-        Ok(())
+        self.data.rename_project(&ProjectId::from(id), name);
+        self.save()
     }
 
-    /// Discards any pending project rename.
-    pub(crate) fn cancel_project_dialog(&mut self) {
-        self.editing_project_id = None;
+    pub(crate) fn add_project(&mut self, name: &str, timestamp: i64) -> Result<()> {
+        let name = domain::validate_project_name(name)?;
+        self.data
+            .add_project(ProjectId::from(format!("project-{timestamp}")), name);
+        self.save()
     }
 
     /// Archives a project while retaining its recorded work, then saves.
@@ -209,11 +159,10 @@ impl Tracker {
         self.save()
     }
 
-    /// Deletes a project and its work, clears pending editor state, then saves.
+    /// Deletes a project and its work, then saves.
     pub(crate) fn delete_project(&mut self, id: String) -> Result<()> {
         let id = ProjectId::from(id);
         self.data.delete_project(&id);
-        self.editing_project_id = None;
         self.save()
     }
 
@@ -223,19 +172,11 @@ impl Tracker {
     }
 }
 
-/// The UI-facing state needed to render the project editor.
-pub(crate) struct ProjectDialog {
-    pub(crate) rename_mode: bool,
-    pub(crate) initial_draft: String,
-    pub(crate) project_id: String,
-    pub(crate) archived: bool,
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
-    fn application_actions_keep_range_and_project_editing_state() {
+    fn application_actions_keep_range_and_project_data() {
         let path = std::env::temp_dir().join(format!(
             "tempo-application-test-{}-{}.sqlite",
             std::process::id(),
@@ -244,17 +185,12 @@ mod tests {
         let mut tracker = Tracker::at(path.clone());
         tracker.choose_range(Range::Month);
         assert_eq!(tracker.range(), Range::Month);
-        assert!(!tracker.begin_add_project().rename_mode);
-        tracker.save_project("Review", 100).unwrap();
+        tracker.add_project("Review", 100).unwrap();
         assert_eq!(tracker.data().projects()[4].name(), "Review");
-        let dialog = tracker.begin_rename_project("project-1".into());
-        assert!(dialog.rename_mode);
-        assert_eq!(dialog.initial_draft, "Project Atlas");
-        tracker.save_project("Planning", 101).unwrap();
-        assert_eq!(
-            tracker.data().project_name_by_str("project-1"),
-            Some("Planning")
-        );
+        tracker
+            .save_project("project-1".into(), "Planning")
+            .unwrap();
+
         std::fs::remove_file(path).unwrap();
     }
 }

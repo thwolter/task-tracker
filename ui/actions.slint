@@ -10,13 +10,13 @@ export enum UiCommandKind {
     update-evaluation-task,
     delete-evaluation-task,
     choose-range,
-    open-add-project,
-    open-rename-project,
+
+    add-project,
     save-project,
-    close-project-dialog,
     archive-project,
     unarchive-project,
     delete-project,
+
     export-markdown,
     open-drilldown
 }
@@ -40,13 +40,13 @@ export global AppActions {
     callback update-evaluation-task(string, string);
     callback delete-evaluation-task(string);
     callback choose-range(Range);
-    callback open-add-project();
-    callback open-rename-project(string);
-    callback save-project(string);
-    callback close-project-dialog();
+
+    callback add-project(string);
+    callback save-project(string, string);
     callback archive-project(string);
     callback unarchive-project(string);
     callback delete-project(string);
+
     callback export-markdown();
     callback open-drilldown(string);
 
@@ -59,13 +59,13 @@ export global AppActions {
     update-evaluation-task(id, note) => { dispatch({ kind: UiCommandKind.update-evaluation-task, id: id, text: note }); }
     delete-evaluation-task(id) => { dispatch({ kind: UiCommandKind.delete-evaluation-task, id: id }); }
     choose-range(range) => { dispatch({ kind: UiCommandKind.choose-range, range: range }); }
-    open-add-project => { dispatch({ kind: UiCommandKind.open-add-project }); }
-    open-rename-project(id) => { dispatch({ kind: UiCommandKind.open-rename-project, id: id }); }
-    save-project(name) => { dispatch({ kind: UiCommandKind.save-project, text: name }); }
-    close-project-dialog => { dispatch({ kind: UiCommandKind.close-project-dialog }); }
+
+    add-project(name) => { dispatch({ kind: UiCommandKind.add-project, text: name }); }
+    save-project(id, name) => { dispatch({ kind: UiCommandKind.save-project, id: id, text: name }); }
     archive-project(id) => { dispatch({ kind: UiCommandKind.archive-project, id: id }); }
     unarchive-project(id) => { dispatch({ kind: UiCommandKind.unarchive-project, id: id }); }
     delete-project(id) => { dispatch({ kind: UiCommandKind.delete-project, id: id }); }
+
     export-markdown => { dispatch({ kind: UiCommandKind.export-markdown }); }
     open-drilldown(id) => { dispatch({ kind: UiCommandKind.open-drilldown, id: id }); }
 }

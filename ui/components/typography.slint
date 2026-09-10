@@ -1,5 +1,10 @@
 import { Theme } from "../theme.slint";
 
+export enum TextLinkVariant {
+    default,
+    danger,
+}
+
 export component TitleText inherits Text {
     horizontal-stretch: 1;
     color: Theme.content-primary;
@@ -28,9 +33,17 @@ export component LabelText inherits Text {
 
 export component TextLink inherits Text {
     callback clicked();
-    in property <color> default-color: Theme.content-link;
-    in property <color> hover-color: Theme.content-link-hover;
-    in property <color> pressed-color: Theme.content-link-pressed;
+    in property <TextLinkVariant> variant: TextLinkVariant.default;
+
+    private property <color> default-color: variant == TextLinkVariant.danger
+        ? Theme.action-danger
+        : Theme.content-link;
+    private property <color> hover-color: variant == TextLinkVariant.danger
+        ? Theme.action-danger-hover
+        : Theme.content-link-hover;
+    private property <color> pressed-color: variant == TextLinkVariant.danger
+        ? Theme.action-danger-pressed
+        : Theme.content-link-pressed;
 
     touch := TouchArea {
         mouse-cursor: pointer;

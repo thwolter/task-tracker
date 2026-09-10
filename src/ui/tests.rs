@@ -1,7 +1,5 @@
 use crate::ui::bind;
 use crate::{AppActions, AppWindow, Page, Range, application::Tracker, domain, language::Language};
-use i_slint_backend_testing::ElementHandle;
-use slint::platform::PointerEventButton;
 use slint::{ComponentHandle, Model};
 use std::{path::PathBuf, time::Duration};
 
@@ -24,51 +22,34 @@ fn settings_home_callback_returns_to_home() {
 }
 
 #[test]
-fn project_editor_is_an_exclusive_page_and_returns_to_settings() {
+fn add_project_command_refreshes_the_settings_projection() {
     i_slint_backend_testing::init_no_event_loop();
     let path = test_path("project-editor");
     let ui = AppWindow::new().unwrap();
     bind(&ui, Tracker::at(path.clone()), Language::English);
     let actions = ui.global::<AppActions>();
 
-    actions.invoke_open_add_project();
-    assert_eq!(ui.get_page(), Page::ProjectEditor);
-
-    actions.invoke_close_project_dialog();
+    ui.set_page(Page::Settings);
+    actions.invoke_add_project("Focus work".into());
     assert_eq!(ui.get_page(), Page::Settings);
+    assert_eq!(ui.get_project_settings().row_count(), 5);
 
     std::fs::remove_file(path).unwrap();
 }
 
 #[test]
-fn project_editor_save_button_ignores_clicks_until_a_name_is_entered() {
+fn save_project_command_renames_the_project_and_refreshes_settings() {
     i_slint_backend_testing::init_no_event_loop();
-    let path = test_path("disabled-project-save");
+    let path = test_path("save-project");
     let ui = AppWindow::new().unwrap();
     bind(&ui, Tracker::at(path.clone()), Language::English);
     let actions = ui.global::<AppActions>();
 
-    actions.invoke_open_add_project();
-    assert_eq!(ui.get_page(), Page::ProjectEditor);
-
-    let save_button = ElementHandle::find_by_element_id(&ui, "ProjectSettingBox::save-name-button")
-        .next()
-        .unwrap();
-
-    // The save button is visually present but its disabled TouchArea must not
-    // dispatch the callback while the editor's project name is empty.
-    save_button.mock_single_click(PointerEventButton::Left);
-    assert_eq!(ui.get_page(), Page::ProjectEditor);
-
-    let mut dialog = ui.get_project_dialog();
-    dialog.initial_draft = "Focus work".into();
-    ui.set_project_dialog(dialog);
-
-    ElementHandle::find_by_element_id(&ui, "ProjectSettingBox::save-name-button")
-        .next()
-        .unwrap()
-        .mock_single_click(PointerEventButton::Left);
-    assert_eq!(ui.get_page(), Page::Settings);
+    actions.invoke_save_project("project-1".into(), "Focus work".into());
+    assert_eq!(
+        ui.get_project_settings().row_data(0).unwrap().name,
+        "Focus work"
+    );
 
     std::fs::remove_file(path).unwrap();
 }
@@ -82,12 +63,9 @@ fn project_commands_archive_and_restore_the_home_projection() {
     let actions = ui.global::<AppActions>();
 
     assert_eq!(ui.get_home().projects.row_count(), 4);
-    actions.invoke_open_rename_project("project-1".into());
     actions.invoke_archive_project("project-1".into());
     assert_eq!(ui.get_home().projects.row_count(), 3);
-
-    actions.invoke_open_rename_project("project-1".into());
-    assert!(ui.get_project_dialog().archived);
+    assert!(ui.get_project_settings().row_data(0).unwrap().archived);
 
     actions.invoke_unarchive_project("project-1".into());
     assert_eq!(ui.get_page(), Page::Settings);

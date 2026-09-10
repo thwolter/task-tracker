@@ -1,0 +1,39 @@
+import { Theme } from "../theme.slint";
+
+export component DialogCard inherits Rectangle {
+    in property <string> title: "";
+
+    background: Theme.surface-canvas;
+
+    VerticalLayout {
+        alignment: center;
+        HorizontalLayout {
+            Rectangle {
+	            background: Theme.surface-card;
+
+	            border-width: 1px;
+	            border-radius: 20px;
+	            border-color: Theme.border-default;
+
+	            drop-shadow-color: Theme.dialog-shadow.color;
+				drop-shadow-blur: Theme.dialog-shadow.blur;
+				drop-shadow-offset-x: Theme.dialog-shadow.offset-x;
+				drop-shadow-offset-y: Theme.dialog-shadow.offset-y;
+
+				VerticalLayout {
+					padding: 20px;
+
+					if (root.title != ""): Text {
+						text: root.title;
+						color: Theme.content-primary;
+						font-size: Theme.typography.title.size;
+						font-weight: Theme.typography.title.weight;
+					}
+
+					@children
+				}
+	        }
+        }
+    }
+
+}

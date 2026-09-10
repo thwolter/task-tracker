@@ -5,11 +5,11 @@
 //! updates the underlying [`Tracker`] state, triggers view refreshes via [`presentation::refresh`],
 //! and manages transient UI state such as dialogs and expiring status messages.
 
-use crate::application::{ProjectDialog, Tracker};
+use crate::application::Tracker;
 use crate::language::Language;
 use crate::{
-    AppActions, AppWindow, Page, ProjectDialogState, Status, StatusKind, UiCommand, UiCommandKind,
-    domain, persistence, presentation,
+    AppActions, AppWindow, Page, Status, StatusKind, UiCommand, UiCommandKind, domain, persistence,
+    presentation,
 };
 use rfd::FileDialog;
 use slint::{ComponentHandle, SharedString, Timer, TimerMode, Weak};
@@ -106,13 +106,13 @@ impl UiController {
             }
             UiCommandKind::DeleteEvaluationTask => self.delete_evaluation_task(&ui, command.id),
             UiCommandKind::ChooseRange => self.choose_range(&ui, command.range),
-            UiCommandKind::OpenAddProject => self.open_add_project(&ui),
-            UiCommandKind::OpenRenameProject => self.open_rename_project(&ui, command.id),
-            UiCommandKind::SaveProject => self.save_project(&ui, command.text),
-            UiCommandKind::CloseProjectDialog => self.close_project_dialog(&ui),
+
+            UiCommandKind::AddProject => self.add_project(&ui, command.text),
+            UiCommandKind::SaveProject => self.save_project(&ui, command.id, command.text),
             UiCommandKind::ArchiveProject => self.archive_project(&ui, command.id),
             UiCommandKind::UnarchiveProject => self.unarchive_project(&ui, command.id),
             UiCommandKind::DeleteProject => self.delete_project(&ui, command.id),
+
             UiCommandKind::ExportMarkdown => self.export_markdown(&ui),
             UiCommandKind::OpenDrilldown => self.open_drilldown(&ui, command.id),
         }
@@ -211,43 +211,34 @@ impl UiController {
         self.refresh(ui);
     }
 
-    /// Opens the project creation dialog with clean default input fields.
-    fn open_add_project(&mut self, ui: &AppWindow) {
-        let dialog = self.tracker.begin_add_project();
-        self.show_project_dialog(ui, dialog);
-    }
-
-    /// Opens the project rename dialog initialized with the existing project's name and details.
-    fn open_rename_project(&mut self, ui: &AppWindow, id: SharedString) {
-        let dialog = self.tracker.begin_rename_project(id.to_string());
-        self.show_project_dialog(ui, dialog);
-    }
-
-    /// Saves a newly created or renamed project name.
-    ///
-    /// On success, closes the dialog and refreshes projections; on validation error, displays
-    /// an error message.
-    fn save_project(&mut self, ui: &AppWindow, name: SharedString) {
-        match self.tracker.save_project(name.as_str(), domain::now()) {
+    fn add_project(&mut self, ui: &AppWindow, name: SharedString) {
+        match self.tracker.add_project(name.as_str(), domain::now()) {
             Ok(()) => {
-                self.dismiss_project_dialog(ui);
+                ui.set_page(Page::Settings);
                 self.refresh(ui);
             }
             Err(error) => self.set_error(ui, error.to_string()),
         }
     }
 
-    /// Cancels the current project dialog and returns to [`Page::Settings`].
-    fn close_project_dialog(&mut self, ui: &AppWindow) {
-        self.tracker.cancel_project_dialog();
-        self.dismiss_project_dialog(ui);
+    /// Saves a renamed project name.
+    ///
+    /// On success, closes the dialog and refreshes projections; on validation error, displays
+    /// an error message.
+    fn save_project(&mut self, ui: &AppWindow, id: SharedString, name: SharedString) {
+        match self.tracker.save_project(id.to_string(), name.as_str()) {
+            Ok(()) => {
+                self.refresh(ui);
+            }
+            Err(error) => self.set_error(ui, error.to_string()),
+        }
     }
 
     /// Archives a project by its identifier, hiding it from tracking selection while retaining history.
     fn archive_project(&mut self, ui: &AppWindow, id: SharedString) {
         match self.tracker.archive_project(id.to_string()) {
             Ok(()) => {
-                self.dismiss_project_dialog(ui);
+                ui.set_page(Page::Settings);
                 self.refresh(ui);
             }
             Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
@@ -258,7 +249,7 @@ impl UiController {
     fn unarchive_project(&mut self, ui: &AppWindow, id: SharedString) {
         match self.tracker.unarchive_project(id.to_string()) {
             Ok(()) => {
-                self.dismiss_project_dialog(ui);
+                ui.set_page(Page::Settings);
                 self.refresh(ui);
             }
             Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
@@ -269,7 +260,7 @@ impl UiController {
     fn delete_project(&mut self, ui: &AppWindow, id: SharedString) {
         match self.tracker.delete_project(id.to_string()) {
             Ok(()) => {
-                self.dismiss_project_dialog(ui);
+                ui.set_page(Page::Settings);
                 self.refresh(ui);
             }
             Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
@@ -339,27 +330,5 @@ impl UiController {
                     kind: StatusKind::Success,
                 });
             });
-    }
-
-    /// Populates the Slint UI project editor state and transitions to [`Page::ProjectEditor`].
-    fn show_project_dialog(&self, ui: &AppWindow, dialog: ProjectDialog) {
-        ui.set_project_dialog(ProjectDialogState {
-            rename_mode: dialog.rename_mode,
-            initial_draft: dialog.initial_draft.into(),
-            project_id: dialog.project_id.into(),
-            archived: dialog.archived,
-        });
-        ui.set_page(Page::ProjectEditor);
-    }
-
-    /// Resets the Slint UI project editor state and returns to [`Page::Settings`].
-    fn dismiss_project_dialog(&self, ui: &AppWindow) {
-        ui.set_project_dialog(ProjectDialogState {
-            rename_mode: false,
-            initial_draft: SharedString::new(),
-            project_id: SharedString::new(),
-            archived: false,
-        });
-        ui.set_page(Page::Settings);
     }
 }

@@ -69,12 +69,6 @@ impl Data {
             .map(|project| project.name().to_owned())
             .unwrap_or_else(|| "Deleted project".into())
     }
-    pub(crate) fn project_name_by_str(&self, id: &str) -> Option<&str> {
-        self.projects
-            .iter()
-            .find(|project| project.id().as_str() == id)
-            .map(Project::name)
-    }
 
     /// Stops a restored active task at its most recently persisted checkpoint.
     ///
@@ -232,7 +226,6 @@ mod tests {
             ProjectId::new("project-5"),
             validate_project_name("Review").unwrap(),
         );
-        assert_eq!(data.project_name_by_str("project-1"), Some("Planning"));
         assert_eq!(data.projects()[4].name(), "Review");
     }
 

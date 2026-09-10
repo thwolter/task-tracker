@@ -5,14 +5,12 @@ import {
     Page,
     ProjectItem,
     Range,
-    ProjectDialogState,
     Status,
     StatusKind,
     TrackingState,
 } from "models.slint";
 import { AppActions } from "actions.slint";
 export { AppActions, UiCommand, UiCommandKind } from "actions.slint";
-import { ProjectDialog } from "views/project-dialog.slint";
 import { HomeView } from "views/home.slint";
 import { TrackingView } from "views/tracking.slint";
 import { NoteView } from "views/note.slint";
@@ -35,7 +33,6 @@ export component AppWindow inherits Window {
     in property <TrackingState> tracking;
     in property <EvaluationState> evaluation;
     in property <EvaluationTasksState> drilldown;
-    in property <ProjectDialogState> project-dialog;
     in property <Status> status: { message: "", kind: StatusKind.success };
 
     callback open-settings();
@@ -83,14 +80,6 @@ export component AppWindow inherits Window {
                 height: 100%;
                 projects: root.project-settings;
                 open-home-view => { root.open-home-view(); }
-            }
-             if root.page == Page.project-editor: ProjectDialog {
-                width: 100%;
-                height: 100%;
-                rename-mode: root.project-dialog.rename-mode;
-                initial-draft: root.project-dialog.initial-draft;
-                project-id: root.project-dialog.project-id;
-                archived: root.project-dialog.archived;
             }
             if root.page == Page.evaluation: EvaluationView {
                 width: 100%;
