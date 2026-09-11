@@ -28,6 +28,7 @@ export component ProjectEditor inherits Rectangle {
             root.state = { mode: ProjectEditorMode.list };
         }
     }
+
     function save() {
         if root.can-save {
             root.state.error = "";
@@ -48,6 +49,7 @@ export component ProjectEditor inherits Rectangle {
         VerticalLayout {
             padding: root.content-padding;
             spacing: 16px;
+
             back := BackLink {
                 text: root.confirming-delete ? @tr("Back to project") : @tr("Back to projects");
                 clicked => { root.cancel(); }
@@ -56,6 +58,7 @@ export component ProjectEditor inherits Rectangle {
 
             ScrollableColumn {
                 spacing: 16px;
+
                 ViewHeader {
                     text: root.confirming-delete ? @tr("Delete project?")
                         : root.creating ? @tr("Add project")
@@ -68,10 +71,12 @@ export component ProjectEditor inherits Rectangle {
                     color: Theme.content-primary;
                     wrap: word-wrap;
                 }
+
                 if root.confirming-delete: BodyText {
                     text: @tr("This permanently deletes the project and all its recorded work. This cannot be undone.");
                     wrap: word-wrap;
                 }
+
                 if !root.confirming-delete && !root.state.project.archived: VerticalLayout {
                     spacing: 8px;
                     LabelText {

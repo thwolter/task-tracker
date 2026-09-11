@@ -32,8 +32,6 @@ export component SettingsView inherits Rectangle {
     }
 
     if root.editor.mode != ProjectEditorMode.list: ProjectEditor {
-        width: parent.width;
-        height: parent.height;
         state <=> root.editor;
     }
 }
