@@ -59,18 +59,6 @@ export component AppButton inherits Rectangle {
     accessible-label: root.label;
     accessible-enabled: root.enabled;
     accessible-action-default => { if root.enabled { root.clicked(); } }
-    forward-focus: keyboard-focus;
-    keyboard-focus := FocusScope {
-        enabled: root.enabled;
-        key-pressed(event) => {
-            if (event.text == Key.Return || event.text == " ") {
-                root.clicked();
-                return accept;
-            }
-            reject
-        }
-    }
-
     function default-background() -> brush {
         if (!root.enabled) { return root.style.disabled-fill; }
         if (touch.pressed) { return root.pressed-fill; }
@@ -100,8 +88,8 @@ export component AppButton inherits Rectangle {
     background: root.outlined ? root.outlined-background() : root.default-background();
 
     border-radius: Theme.border.radius;
-    border-width: keyboard-focus.has-focus ? 2px : root.outlined ? Theme.border.width : 0px;
-    border-color: keyboard-focus.has-focus ? Theme.content-primary : root.outline-color;
+    border-width: root.outlined ? Theme.border.width : 0px;
+    border-color: root.outline-color;
 
     touch := TouchArea {
         enabled: root.enabled;

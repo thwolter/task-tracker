@@ -11,25 +11,10 @@ export component BackLink inherits Rectangle {
     accessible-role: button;
     accessible-label: root.text;
     accessible-action-default => { root.clicked(); }
-    forward-focus: keyboard-focus;
-    keyboard-focus := FocusScope {
-        key-pressed(event) => {
-            if (event.text == Key.Return || event.text == " ") {
-                root.clicked();
-                return accept;
-            }
-            reject
-        }
-    }
-
     touch := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
-
-    border-width: keyboard-focus.has-focus ? 1px : 0px;
-    border-color: Theme.action-primary;
-    border-radius: Theme.border.radius;
 
     HorizontalLayout {
         cross-axis-alignment: center;

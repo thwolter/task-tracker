@@ -10,8 +10,6 @@ import {
     LabelText,
 } from "../components/typography.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
-
-// Draft and errors survive failed commands. Only the controller closes on success.
 export component ProjectEditorView inherits Rectangle {
     private property <length> content-padding: 20px;
     in-out property <ProjectEditorState> state;
@@ -23,7 +21,6 @@ export component ProjectEditorView inherits Rectangle {
         if root.confirming-delete {
             root.state.mode = ProjectEditorMode.edit;
             root.state.error = "";
-            back.focus();
         } else {
             AppActions.navigate(Page.settings);
         }
@@ -39,20 +36,13 @@ export component ProjectEditorView inherits Rectangle {
         }
     }
 
-    forward-focus: keyboard;
-    keyboard := FocusScope {
-        key-pressed(event) => {
-            if event.text == Key.Escape { root.cancel(); return accept; }
-            reject
+    VerticalLayout {
+        padding: root.content-padding;
+        spacing: 16px;
+        back := BackLink {
+            text: root.confirming-delete ? @tr("Back to project") : @tr("Back to projects");
+            clicked => { root.cancel(); }
         }
-        VerticalLayout {
-            padding: root.content-padding;
-            spacing: 16px;
-            back := BackLink {
-                text: root.confirming-delete ? @tr("Back to project") : @tr("Back to projects");
-                clicked => { root.cancel(); }
-                init => { if root.state.project.archived { self.focus(); } }
-            }
 
             ScrollableColumn {
                 spacing: 16px;
@@ -160,7 +150,6 @@ export component ProjectEditorView inherits Rectangle {
                         label: @tr("Cancel");
                         primary: false;
                         outlined: true;
-                        init => { self.focus(); }
                         clicked => { root.cancel(); }
                     }
 
@@ -173,7 +162,6 @@ export component ProjectEditorView inherits Rectangle {
                         clicked => { AppActions.delete-project(root.state.project.id); }
                     }
                 }
-            }
         }
     }
 }

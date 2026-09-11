@@ -16,28 +16,21 @@ import { ScrollableColumn } from "../components/scrollable-column.slint";
 
 export component ProjectRow inherits Rectangle {
     in property <ProjectItem> project;
+
     callback clicked();
+
     min-height: project.archived ? 58px : 44px;
     vertical-stretch: 0;
+
     border-radius: Theme.border.radius;
-    border-width: focus.has-focus ? 2px : Theme.border.width;
-    border-color: focus.has-focus ? Theme.action-primary : Theme.border-default;
+    border-width: Theme.border.width;
+    border-color: Theme.border-default;
+
     background: touch.pressed ? Theme.action-card-pressed
         : touch.has-hover ? Theme.action-card-hover : Theme.surface-card;
     accessible-role: button;
     accessible-label: project.name + (project.archived ? " · " + @tr("Archived") : "");
     accessible-action-default => { root.clicked(); }
-    forward-focus: focus;
-    focus := FocusScope {
-        key-pressed(event) => {
-            if (event.text == Key.Return || event.text == " ") {
-                root.clicked();
-                return accept;
-            }
-            reject
-        }
-    }
-
     HorizontalLayout {
         padding: 10px;
         spacing: 10px;
@@ -69,7 +62,7 @@ export component ProjectRow inherits Rectangle {
 
     touch := TouchArea {
         mouse-cursor: pointer;
-        clicked => { focus.focus(); root.clicked(); }
+        clicked => { root.clicked(); }
     }
 
     Tooltip {
