@@ -55,10 +55,6 @@ export component AppButton inherits Rectangle {
 
     callback clicked();
 
-    accessible-role: button;
-    accessible-label: root.label;
-    accessible-enabled: root.enabled;
-    accessible-action-default => { if root.enabled { root.clicked(); } }
     function default-background() -> brush {
         if (!root.enabled) { return root.style.disabled-fill; }
         if (touch.pressed) { return root.pressed-fill; }

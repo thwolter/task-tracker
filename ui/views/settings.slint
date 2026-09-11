@@ -28,9 +28,7 @@ export component ProjectRow inherits Rectangle {
 
     background: touch.pressed ? Theme.action-card-pressed
         : touch.has-hover ? Theme.action-card-hover : Theme.surface-card;
-    accessible-role: button;
-    accessible-label: project.name + (project.archived ? " · " + @tr("Archived") : "");
-    accessible-action-default => { root.clicked(); }
+
     HorizontalLayout {
         padding: 10px;
         spacing: 10px;
@@ -115,7 +113,6 @@ export component SettingsView inherits Rectangle {
                     suffix-icon: root.archived-expanded ? @image-url("../assets/icons/chevron-down.svg")
                         : @image-url("../assets/icons/chevron-right.svg");
                     clicked => { root.archived-expanded = !root.archived-expanded; }
-                    accessible-expanded: root.archived-expanded;
                 }
 
                 if root.archived-expanded: VerticalLayout {

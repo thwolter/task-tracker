@@ -71,7 +71,6 @@ export component ProjectEditorView inherits Rectangle {
                     name-input := LineEdit {
                         text <=> root.state.draft-name;
                         font-size: Theme.typography.body.size;
-                        accessible-label: @tr("Project name");
                         init => { self.focus(); }
                         accepted => { root.save(); }
                         edited => { root.state.error = ""; }

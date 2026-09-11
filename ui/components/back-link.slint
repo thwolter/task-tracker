@@ -8,9 +8,6 @@ export component BackLink inherits Rectangle {
 
     callback clicked();
 
-    accessible-role: button;
-    accessible-label: root.text;
-    accessible-action-default => { root.clicked(); }
     touch := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
