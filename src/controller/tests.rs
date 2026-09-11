@@ -1,4 +1,4 @@
-use crate::ui::bind;
+use super::bind;
 use crate::{AppActions, AppWindow, Page, Range, application::Tracker, domain, language::Language};
 use slint::{ComponentHandle, Model};
 use std::{path::PathBuf, time::Duration};
@@ -12,13 +12,19 @@ fn test_path(name: &str) -> PathBuf {
 }
 
 #[test]
-fn settings_home_callback_returns_to_home() {
+fn navigation_command_changes_the_controller_owned_page() {
     i_slint_backend_testing::init_no_event_loop();
+    let path = test_path("navigate");
     let ui = AppWindow::new().unwrap();
     assert!(slint::select_bundled_translation("de").is_ok());
-    ui.set_page(Page::Settings);
-    ui.invoke_open_home_view();
+    bind(&ui, Tracker::at(path.clone()), Language::English);
+    let actions = ui.global::<AppActions>();
+    actions.invoke_navigate(Page::Settings);
+    assert_eq!(ui.get_page(), Page::Settings);
+    actions.invoke_navigate(Page::Home);
     assert_eq!(ui.get_page(), Page::Home);
+
+    std::fs::remove_file(path).unwrap();
 }
 
 #[test]
@@ -29,7 +35,7 @@ fn add_project_command_refreshes_the_settings_projection() {
     bind(&ui, Tracker::at(path.clone()), Language::English);
     let actions = ui.global::<AppActions>();
 
-    ui.set_page(Page::Settings);
+    actions.invoke_navigate(Page::Settings);
     actions.invoke_add_project("Focus work".into());
     assert_eq!(ui.get_page(), Page::Settings);
     assert_eq!(ui.get_project_settings().active.row_count(), 5);
@@ -164,14 +170,15 @@ fn project_editor_creates_after_archived_edit_and_confirms_deletion() {
     let ui = AppWindow::new().unwrap();
     slint::select_bundled_translation("en").unwrap();
     bind(&ui, Tracker::at(path.clone()), Language::English);
-    ui.set_page(Page::Settings);
-    ui.global::<AppActions>()
-        .invoke_archive_project("project-1".into());
+    let actions = ui.global::<AppActions>();
+    actions.invoke_navigate(Page::Settings);
+    actions.invoke_archive_project("project-1".into());
     activate(&ui, "Archived (1)");
     let archived = ui.get_project_settings().archived.row_data(0).unwrap();
     activate(&ui, &format!("{} · Archived", archived.name));
     activate(&ui, "Back to projects");
     activate(&ui, "Add project");
+    assert_eq!(ui.get_page(), Page::ProjectEditor);
     assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::Create);
     assert!(ui.get_project_editor().project.id.is_empty());
     assert!(ui.get_project_editor().draft_name.is_empty());
@@ -181,7 +188,7 @@ fn project_editor_creates_after_archived_edit_and_confirms_deletion() {
         &ui,
         &slint::SharedString::from(slint::platform::Key::Return),
     );
-    assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::List);
+    assert_eq!(ui.get_page(), Page::Settings);
     assert_eq!(ui.get_project_settings().active.row_count(), 4);
     assert_eq!(
         ui.get_project_settings().archived.row_data(0).unwrap().name,
@@ -193,15 +200,17 @@ fn project_editor_creates_after_archived_edit_and_confirms_deletion() {
     editor.draft_name = "Renamed focus work".into();
     ui.set_project_editor(editor);
     activate(&ui, "Save");
-    assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::List);
+    assert_eq!(ui.get_page(), Page::Settings);
     activate(&ui, "Renamed focus work");
     activate(&ui, "Archive project");
     assert_eq!(ui.get_project_settings().archived.row_count(), 2);
+    activate(&ui, "Archived (2)");
     activate(&ui, "Renamed focus work · Archived");
     activate(&ui, "Restore project");
     assert_eq!(ui.get_project_settings().archived.row_count(), 1);
     assert_eq!(ui.get_project_settings().active.row_count(), 4);
 
+    activate(&ui, "Archived (1)");
     activate(&ui, &format!("{} · Archived", archived.name));
     activate(&ui, "Delete permanently");
     assert_eq!(
@@ -216,7 +225,7 @@ fn project_editor_creates_after_archived_edit_and_confirms_deletion() {
     assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::Edit);
     activate(&ui, "Delete permanently");
     activate(&ui, "Delete permanently");
-    assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::List);
+    assert_eq!(ui.get_page(), Page::Settings);
     assert_eq!(ui.get_project_settings().archived.row_count(), 0);
     std::fs::remove_file(path).unwrap();
 }
@@ -230,7 +239,7 @@ fn invalid_project_name_keeps_editor_and_escape_cancels() {
     let ui = AppWindow::new().unwrap();
     slint::select_bundled_translation("en").unwrap();
     bind(&ui, Tracker::at(path.clone()), Language::English);
-    ui.set_page(Page::Settings);
+    ui.global::<AppActions>().invoke_navigate(Page::Settings);
     activate(&ui, "Add project");
     type_text(&ui, "   ");
     type_text(
@@ -245,27 +254,25 @@ fn invalid_project_name_keeps_editor_and_escape_cancels() {
         &ui,
         &slint::SharedString::from(slint::platform::Key::Escape),
     );
-    assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::List);
+    assert_eq!(ui.get_page(), Page::Settings);
     std::fs::remove_file(path).unwrap();
 }
 
 #[test]
 fn failed_project_save_preserves_draft_and_can_be_retried() {
-    use crate::{ProjectEditorMode, ProjectEditorState};
+    use crate::ProjectEditorMode;
     i_slint_backend_testing::init_no_event_loop();
     let blocked_parent = test_path("project-retry-parent");
     std::fs::write(&blocked_parent, "not a directory").unwrap();
     let path = blocked_parent.join("tempo.sqlite");
     let ui = AppWindow::new().unwrap();
     bind(&ui, Tracker::at(path.clone()), Language::English);
-    ui.set_page(Page::Settings);
-    ui.set_project_editor(ProjectEditorState {
-        mode: ProjectEditorMode::Create,
-        draft_name: "Retry me".into(),
-        ..Default::default()
-    });
-    ui.global::<AppActions>()
-        .invoke_add_project("Retry me".into());
+    let actions = ui.global::<AppActions>();
+    actions.invoke_open_project_create();
+    let mut editor = ui.get_project_editor();
+    editor.draft_name = "Retry me".into();
+    ui.set_project_editor(editor);
+    actions.invoke_add_project("Retry me".into());
     assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::Create);
     assert_eq!(ui.get_project_editor().draft_name, "Retry me");
     assert!(!ui.get_project_editor().error.is_empty());
@@ -273,9 +280,8 @@ fn failed_project_save_preserves_draft_and_can_be_retried() {
 
     std::fs::remove_file(&blocked_parent).unwrap();
     std::fs::create_dir(&blocked_parent).unwrap();
-    ui.global::<AppActions>()
-        .invoke_add_project("Retry me".into());
-    assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::List);
+    actions.invoke_add_project("Retry me".into());
+    assert_eq!(ui.get_page(), Page::Settings);
     assert_eq!(ui.get_project_settings().active.row_count(), 5);
     std::fs::remove_file(path).unwrap();
     std::fs::remove_dir(blocked_parent).unwrap();

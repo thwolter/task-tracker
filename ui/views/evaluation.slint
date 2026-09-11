@@ -2,6 +2,7 @@ import { AppButton } from "../components/app-button.slint";
 import { TitleText, ViewHeader } from "../components/typography.slint";
 import {
     EvaluationState,
+    Page,
     ProjectTotalItem,
 } from "../models.slint";
 import { AppActions } from "../actions.slint";
@@ -79,15 +80,13 @@ export component ProjectCard inherits Rectangle {
 export component EvaluationView inherits Rectangle {
     in property <EvaluationState> state;
 
-    callback open-home-view();
-
     VerticalLayout {
         padding: 20px;
         spacing: 20px;
 
         BackLink {
             text: @tr("Home");
-            clicked => { root.open-home-view(); }
+            clicked => { AppActions.navigate(Page.home); }
         }
 
         ViewHeader {

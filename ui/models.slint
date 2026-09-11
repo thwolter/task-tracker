@@ -1,4 +1,4 @@
-export enum Page { home, tracking, note, settings, evaluation, drilldown }
+export enum Page { home, tracking, note, settings, project-editor, evaluation, drilldown }
 export enum Range { day, week, month, year }
 export enum StatusKind { success, error }
 
@@ -62,8 +62,8 @@ export struct EvaluationTasksState {
     range: Range,
 }
 
-// A single mode prevents stale create/edit/delete flags from overlapping.
-export enum ProjectEditorMode { list, create, edit, confirm-delete }
+// A single mode prevents create/edit/delete states from overlapping.
+export enum ProjectEditorMode { create, edit, confirm-delete }
 export struct ProjectEditorState {
     mode: ProjectEditorMode,
     project: ProjectItem,

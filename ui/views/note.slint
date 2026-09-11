@@ -9,7 +9,7 @@ import {
 import { Theme } from "../theme.slint";
 import { VerticalBox } from "std-widgets.slint";
 import { BackLink } from "../components/back-link.slint";
-import { TaskItem } from "../models.slint";
+import { Page, TaskItem } from "../models.slint";
 import { AppActions } from "../actions.slint";
 import { DurationLabel } from "../components/duration-label.slint";
 
@@ -51,8 +51,6 @@ export component NoteView inherits Rectangle {
     in property <TaskItem> last-task;
     property <string> note-draft: last-task.note;
 
-    callback skip();
-
     VerticalLayout {
         padding: 20px;
         spacing: 30px;
@@ -62,7 +60,7 @@ export component NoteView inherits Rectangle {
 
             BackLink {
                 text: @tr("Home");
-                clicked => { skip(); }
+                clicked => { AppActions.navigate(Page.home); }
             }
 
             VerticalLayout {
@@ -118,7 +116,7 @@ export component NoteView inherits Rectangle {
                     horizontal-alignment: center;
                     vertical-alignment: top;
 
-                    clicked => { root.skip(); }
+                    clicked => { AppActions.navigate(Page.home); }
                 }
             }
         }

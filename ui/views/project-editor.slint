@@ -1,18 +1,18 @@
 import { LineEdit } from "std-widgets.slint";
-import { ProjectEditorState, ProjectEditorMode } from "../../models.slint";
-import { AppActions } from "../../actions.slint";
-import { Theme } from "../../theme.slint";
-import { AppButton } from "../../components/app-button.slint";
-import { BackLink } from "../../components/back-link.slint";
+import { Page, ProjectEditorState, ProjectEditorMode } from "../models.slint";
+import { AppActions } from "../actions.slint";
+import { Theme } from "../theme.slint";
+import { AppButton } from "../components/app-button.slint";
+import { BackLink } from "../components/back-link.slint";
 import {
     ViewHeader,
     BodyText,
     LabelText,
-} from "../../components/typography.slint";
-import { ScrollableColumn } from "../../components/scrollable-column.slint";
+} from "../components/typography.slint";
+import { ScrollableColumn } from "../components/scrollable-column.slint";
 
 // Draft and errors survive failed commands. Only the controller closes on success.
-export component ProjectEditor inherits Rectangle {
+export component ProjectEditorView inherits Rectangle {
     private property <length> content-padding: 20px;
     in-out property <ProjectEditorState> state;
     private property <bool> creating: state.mode == ProjectEditorMode.create;
@@ -25,7 +25,7 @@ export component ProjectEditor inherits Rectangle {
             root.state.error = "";
             back.focus();
         } else {
-            root.state = { mode: ProjectEditorMode.list };
+            AppActions.navigate(Page.settings);
         }
     }
     function save() {

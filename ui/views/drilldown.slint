@@ -2,6 +2,7 @@ import { AppButton } from "../components/app-button.slint";
 import { ViewHeader } from "../components/typography.slint";
 import {
     EvaluationTasksState,
+    Page,
     EvaluationTaskItem,
 } from "../models.slint";
 import { AppActions } from "../actions.slint";
@@ -205,15 +206,13 @@ export component DrilldownView inherits Rectangle {
     private property <string> editing-task-id: "";
     private property <string> description-draft: "";
 
-    callback open-evaluation-view();
-
     VerticalLayout {
         padding: 20px;
         spacing: 20px;
 
         BackLink {
             text: @tr("Projects");
-            clicked => { root.open-evaluation-view(); }
+            clicked => { AppActions.navigate(Page.evaluation); }
         }
 
         ViewHeader {

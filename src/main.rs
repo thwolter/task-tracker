@@ -1,13 +1,13 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
 mod application;
+mod controller;
 mod domain;
 mod error;
 mod language;
 mod persistence;
 mod presentation;
 mod report;
-mod ui;
 
 slint::include_modules!();
 
@@ -29,7 +29,7 @@ fn main() -> Result<(), slint::PlatformError> {
         .expect("the selected bundled translation is available");
 
     let tracker = application::Tracker::load_default();
-    ui::bind(&ui, tracker, language);
+    controller::bind(&ui, tracker, language);
 
     ui.run()
 }

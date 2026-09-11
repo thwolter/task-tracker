@@ -1,6 +1,6 @@
 import { ScrollView, VerticalBox } from "std-widgets.slint";
 import { ProjectCard } from "../components/project-card.slint";
-import { HomeState, TaskItem } from "../models.slint";
+import { HomeState, Page, TaskItem } from "../models.slint";
 import { AppActions } from "../actions.slint";
 import { Theme } from "../theme.slint";
 import { ViewHeader } from "../components/typography.slint";
@@ -14,9 +14,6 @@ component HomeHeader inherits HorizontalLayout {
     private property <string> evaluation-tooltip: @tr("Evaluation");
     private property <string> project-settings-tooltip: @tr("Manage projects");
 
-    callback open-settings();
-    callback open-evaluation();
-
     ViewHeader {
         text: @tr("What next?");
     }
@@ -27,7 +24,7 @@ component HomeHeader inherits HorizontalLayout {
         Rectangle {
             evaluation-touch := TouchArea {
                 mouse-cursor: pointer;
-                clicked => { open-evaluation(); }
+                clicked => { AppActions.navigate(Page.evaluation); }
             }
 
             background: evaluation-touch.pressed ? Theme.action-icon-pressed
@@ -50,7 +47,7 @@ component HomeHeader inherits HorizontalLayout {
         Rectangle {
             settings-touch := TouchArea {
                 mouse-cursor: pointer;
-                clicked => { open-settings(); }
+                clicked => { AppActions.navigate(Page.settings); }
             }
 
             background: settings-touch.pressed ? Theme.action-icon-pressed
@@ -139,9 +136,6 @@ export component HomeView inherits Rectangle {
 
     private property <length> footer-clearance: 20px;
 
-    callback open-settings();
-    callback open-evaluation();
-
     content := Rectangle {
         width: root.width;
         height: root.height;
@@ -152,8 +146,6 @@ export component HomeView inherits Rectangle {
             alignment: stretch;
 
             HomeHeader {
-                open-settings => { open-settings(); }
-                open-evaluation => { open-evaluation(); }
             }
 
             if (root.state.has-last-task): LastTaskCard {

@@ -1,9 +1,9 @@
 import {
     ProjectItem,
     ProjectSettingsState,
-    ProjectEditorState,
-    ProjectEditorMode,
+    Page,
 } from "../models.slint";
+import { AppActions } from "../actions.slint";
 import { Theme } from "../theme.slint";
 import { BackLink } from "../components/back-link.slint";
 import {
@@ -13,27 +13,82 @@ import {
 } from "../components/typography.slint";
 import { AppButton } from "../components/app-button.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
-import { ProjectRow } from "settings/project-row.slint";
-import { ProjectEditor } from "settings/project-editor.slint";
+
+export component ProjectRow inherits Rectangle {
+    in property <ProjectItem> project;
+    callback clicked();
+    min-height: project.archived ? 58px : 44px;
+    vertical-stretch: 0;
+    border-radius: Theme.border.radius;
+    border-width: focus.has-focus ? 2px : Theme.border.width;
+    border-color: focus.has-focus ? Theme.action-primary : Theme.border-default;
+    background: touch.pressed ? Theme.action-card-pressed
+        : touch.has-hover ? Theme.action-card-hover : Theme.surface-card;
+    accessible-role: button;
+    accessible-label: project.name + (project.archived ? " · " + @tr("Archived") : "");
+    accessible-action-default => { root.clicked(); }
+    forward-focus: focus;
+    focus := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == " ") {
+                root.clicked();
+                return accept;
+            }
+            reject
+        }
+    }
+
+    HorizontalLayout {
+        padding: 10px;
+        spacing: 10px;
+        VerticalLayout {
+            spacing: 3px;
+            Text {
+                text: root.project.name;
+                overflow: elide;
+                color: Theme.content-primary;
+                font-size: Theme.typography.body.size;
+                font-weight: Theme.typography.body.weight;
+            }
+
+            if root.project.archived: Text {
+                text: @tr("Archived");
+                color: Theme.content-secondary;
+                font-size: Theme.typography.label.size;
+                font-weight: Theme.typography.label.weight;
+            }
+        }
+
+        Image {
+            source: @image-url("../assets/icons/chevron-right.svg");
+            colorize: Theme.content-secondary;
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { focus.focus(); root.clicked(); }
+    }
+
+    Tooltip {
+        text: @markdown("\{root.project.name}");
+    }
+}
 
 export component SettingsView inherits Rectangle {
     in property <ProjectSettingsState> projects;
     private property <length> content-padding: 20px;
-    in-out property <ProjectEditorState> editor;
     private property <bool> archived-expanded: false;
-    callback open-home-view();
-
-    function open-project(project: ProjectItem) {
-        root.editor = { mode: ProjectEditorMode.edit, project: project, draft-name: project.name };
-    }
 
     background: Theme.surface-canvas;
-    if root.editor.mode == ProjectEditorMode.list: VerticalLayout {
+    VerticalLayout {
         padding: root.content-padding;
         spacing: 16px;
         BackLink {
             text: @tr("Home");
-            clicked => { root.open-home-view(); }
+            clicked => { AppActions.navigate(Page.home); }
         }
 
         ViewHeader {
@@ -55,7 +110,7 @@ export component SettingsView inherits Rectangle {
             for project in root.projects.active: ProjectRow {
                 width: project-list.row-width;
                 project: project;
-                clicked => { root.open-project(project); }
+                clicked => { AppActions.open-project-edit(project.id); }
             }
             if root.projects.archived.length > 0: VerticalLayout {
                 padding-top: 12px;
@@ -75,7 +130,7 @@ export component SettingsView inherits Rectangle {
                     for project in root.projects.archived: ProjectRow {
                         width: project-list.row-width;
                         project: project;
-                        clicked => { root.open-project(project); }
+                        clicked => { AppActions.open-project-edit(project.id); }
                     }
                 }
             }
@@ -85,12 +140,7 @@ export component SettingsView inherits Rectangle {
             width: root.width - 2 * root.content-padding;
             label: @tr("Add project");
             prefix-icon: @image-url("../assets/icons/add.svg");
-            clicked => { root.editor = { mode: ProjectEditorMode.create }; }
+            clicked => { AppActions.open-project-create(); }
         }
-    }
-    if root.editor.mode != ProjectEditorMode.list: ProjectEditor {
-        width: parent.width;
-        height: parent.height;
-        state <=> root.editor;
     }
 }

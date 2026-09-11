@@ -1,7 +1,8 @@
-import { Range } from "models.slint";
+import { Page, Range } from "models.slint";
 
 export enum UiCommandKind {
     tick,
+    navigate,
     start-tracking,
     open-last-task,
     end-tracking,
@@ -11,6 +12,8 @@ export enum UiCommandKind {
     delete-evaluation-task,
     choose-range,
 
+    open-project-create,
+    open-project-edit,
     add-project,
     save-project,
     archive-project,
@@ -23,6 +26,7 @@ export enum UiCommandKind {
 
 export struct UiCommand {
     kind: UiCommandKind,
+    page: Page,
     id: string,
     text: string,
     range: Range,
@@ -32,6 +36,7 @@ export global AppActions {
     callback dispatch(UiCommand);
 
     callback tick();
+    callback navigate(Page);
     callback start-tracking(string);
     callback open-last-task();
     callback end-tracking();
@@ -41,6 +46,8 @@ export global AppActions {
     callback delete-evaluation-task(string);
     callback choose-range(Range);
 
+    callback open-project-create();
+    callback open-project-edit(string);
     callback add-project(string);
     callback save-project(string, string);
     callback archive-project(string);
@@ -51,6 +58,7 @@ export global AppActions {
     callback open-drilldown(string);
 
     tick => { dispatch({ kind: UiCommandKind.tick }); }
+    navigate(page) => { dispatch({ kind: UiCommandKind.navigate, page: page }); }
     start-tracking(id) => { dispatch({ kind: UiCommandKind.start-tracking, id: id }); }
     open-last-task => { dispatch({ kind: UiCommandKind.open-last-task }); }
     end-tracking => { dispatch({ kind: UiCommandKind.end-tracking }); }
@@ -60,6 +68,8 @@ export global AppActions {
     delete-evaluation-task(id) => { dispatch({ kind: UiCommandKind.delete-evaluation-task, id: id }); }
     choose-range(range) => { dispatch({ kind: UiCommandKind.choose-range, range: range }); }
 
+    open-project-create => { dispatch({ kind: UiCommandKind.open-project-create }); }
+    open-project-edit(id) => { dispatch({ kind: UiCommandKind.open-project-edit, id: id }); }
     add-project(name) => { dispatch({ kind: UiCommandKind.add-project, text: name }); }
     save-project(id, name) => { dispatch({ kind: UiCommandKind.save-project, id: id, text: name }); }
     archive-project(id) => { dispatch({ kind: UiCommandKind.archive-project, id: id }); }
