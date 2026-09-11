@@ -4,8 +4,10 @@ import { Theme } from "../../theme.slint";
 // One focusable target per row; the chevron is decorative.
 export component ProjectRow inherits Rectangle {
     in property <ProjectItem> project;
+
     callback clicked();
-    min-height: project.archived ? 58px : 44px;
+
+    min-height: project.archived ? 50px : 44px;
     vertical-stretch: 0;
     border-radius: Theme.border.radius;
     border-width: focus.has-focus ? 2px : Theme.border.width;
@@ -16,6 +18,7 @@ export component ProjectRow inherits Rectangle {
     accessible-label: project.name + (project.archived ? " · " + @tr("Archived") : "");
     accessible-action-default => { root.clicked(); }
     forward-focus: focus;
+
     focus := FocusScope {
         key-pressed(event) => {
             if (event.text == Key.Return || event.text == " ") {
@@ -29,8 +32,11 @@ export component ProjectRow inherits Rectangle {
     HorizontalLayout {
         padding: 10px;
         spacing: 10px;
+        cross-axis-alignment: center;
+
         VerticalLayout {
             spacing: 3px;
+
             Text {
                 text: root.project.name;
                 overflow: elide;
@@ -42,8 +48,8 @@ export component ProjectRow inherits Rectangle {
             if root.project.archived: Text {
                 text: @tr("Archived");
                 color: Theme.content-secondary;
-                font-size: Theme.typography.label.size;
-                font-weight: Theme.typography.label.weight;
+                font-size: Theme.typography.caption.size;
+                font-weight: Theme.typography.caption.weight;
             }
         }
 
