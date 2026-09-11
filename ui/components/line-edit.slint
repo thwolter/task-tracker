@@ -1,0 +1,24 @@
+import { Theme } from "../theme.slint";
+export component LineEdit inherits Rectangle {
+    in-out property <string> text;
+
+    callback accepted();
+    callback edited();
+
+    background: Theme.surface-chrome;
+    border-color: Theme.border-default;
+    border-width: 1px;
+
+    HorizontalLayout {
+        padding: 10px;
+
+        TextInput {
+            font-size: Theme.typography.body.size;
+            color: Theme.content-primary;
+            text <=> root.text;
+            accepted => { root.accepted(); }
+            edited => { root.edited(); }
+            init => { self.focus(); }
+        }
+    }
+}

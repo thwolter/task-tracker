@@ -1,4 +1,4 @@
-import { LineEdit } from "std-widgets.slint";
+import { LineEdit } from "../components/line-edit.slint";
 import { Page, ProjectEditorState, ProjectEditorMode } from "../models.slint";
 import { AppActions } from "../actions.slint";
 import { Theme } from "../theme.slint";
@@ -10,7 +10,8 @@ import {
     LabelText,
 } from "../components/typography.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
-export component ProjectEditorView inherits Rectangle {
+
+export component ProjectEditor inherits Rectangle {
     private property <length> content-padding: 20px;
     in-out property <ProjectEditorState> state;
     private property <bool> creating: state.mode == ProjectEditorMode.create;
@@ -70,8 +71,6 @@ export component ProjectEditorView inherits Rectangle {
 
                     name-input := LineEdit {
                         text <=> root.state.draft-name;
-                        font-size: Theme.typography.body.size;
-                        init => { self.focus(); }
                         accepted => { root.save(); }
                         edited => { root.state.error = ""; }
                     }

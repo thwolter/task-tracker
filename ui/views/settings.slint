@@ -19,7 +19,7 @@ export component ProjectRow inherits Rectangle {
 
     callback clicked();
 
-    min-height: project.archived ? 58px : 44px;
+    min-height: project.archived ? 50px : 44px;
     vertical-stretch: 0;
 
     border-radius: Theme.border.radius;
@@ -32,6 +32,8 @@ export component ProjectRow inherits Rectangle {
     HorizontalLayout {
         padding: 10px;
         spacing: 10px;
+        cross-axis-alignment: center;
+
         VerticalLayout {
             spacing: 3px;
             Text {
@@ -45,8 +47,8 @@ export component ProjectRow inherits Rectangle {
             if root.project.archived: Text {
                 text: @tr("Archived");
                 color: Theme.content-secondary;
-                font-size: Theme.typography.label.size;
-                font-weight: Theme.typography.label.weight;
+                font-size: Theme.typography.caption.size;
+                font-weight: Theme.typography.caption.weight;
             }
         }
 

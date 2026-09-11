@@ -16,7 +16,7 @@ import { HomeView } from "views/home.slint";
 import { TrackingView } from "views/tracking.slint";
 import { NoteView } from "views/note.slint";
 import { SettingsView } from "views/settings.slint";
-import { ProjectEditorView } from "views/project-editor.slint";
+import { ProjectEditor } from "views/project-editor.slint";
 import { EvaluationView } from "views/evaluation.slint";
 import { Theme } from "theme.slint";
 import { StatusText } from "components/status-text.slint";
@@ -62,7 +62,7 @@ export component AppWindow inherits Window {
             if root.current-page == Page.settings: SettingsView {
                 projects: root.project-settings;
             }
-            if root.current-page == Page.project-editor: ProjectEditorView {
+            if root.current-page == Page.project-editor: ProjectEditor {
                 state <=> root.project-editor;
             }
             if root.current-page == Page.evaluation: EvaluationView {
