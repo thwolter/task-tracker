@@ -14,7 +14,7 @@ import { EvaluationSummary } from "../components/evaluation-summary.slint";
 import { RangeList } from "../components/range-list.slint";
 
 
-export component ProjectCard inherits Rectangle {
+export component ProjectRow inherits Rectangle {
     in property <ProjectTotalItem> entry;
 
     callback clicked(string);
@@ -105,7 +105,7 @@ export component EvaluationView inherits Rectangle {
         }
 
         ScrollableColumn {
-            for totals in root.state.project_totals: ProjectCard {
+            for totals in root.state.project_totals: ProjectRow {
                 entry: totals;
                 clicked(project) => { AppActions.open-drilldown(project); }
             }

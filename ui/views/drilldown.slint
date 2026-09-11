@@ -1,5 +1,5 @@
 import { AppButton } from "../components/app-button.slint";
-import { ViewHeader } from "../components/typography.slint";
+import { ViewHeader, TextLink } from "../components/typography.slint";
 import {
     EvaluationTasksState,
     Page,
@@ -32,6 +32,33 @@ component TaskTimelineMarker inherits Rectangle {
     }
 }
 
+component TaskEditor inherits Rectangle {
+
+	callback save();
+
+	HorizontalLayout {
+        alignment: start;
+        padding-left: 5px;
+
+
+        VerticalLayout {
+            spacing: 10px;
+            cross-axis-alignment: center;
+            AppButton {
+                label: @tr("Save");
+                label-font: Theme.typography.caption;
+                prefix-icon: @image-url("../assets/icons/check.svg");
+                clicked => { root.save(); }
+            }
+            TextLink {
+                text: @tr("Cancel");
+                font-size: Theme.typography.caption.size;
+            }
+        }
+
+    }
+}
+
 component TaksCardButtons inherits Rectangle {
     in property <bool> editing;
 
@@ -56,17 +83,7 @@ component TaksCardButtons inherits Rectangle {
         }
     }
 
-    if (root.editing): HorizontalLayout {
-        alignment: start;
-        padding-left: 5px;
-        IconButton {
-            icon: @image-url("../assets/icons/check.svg");
-            icon-color: Theme.action-primary;
-            clicked => {
-                root.save();
-            }
-        }
-    }
+    if (root.editing): TaskEditor {}
 }
 
 component TaskNoteContent inherits VerticalLayout {
@@ -146,6 +163,7 @@ export component TaskCard inherits Rectangle {
             HorizontalLayout {
                 padding-top: 5px;
                 padding-bottom: 10px;
+                cross-axis-alignment: center;
 
                 VerticalLayout {
                     alignment: start;
@@ -158,16 +176,28 @@ export component TaskCard inherits Rectangle {
                         font-weight: Theme.typography.caption.weight;
                     }
 
-                    TaskNoteContent {
+                    Text {
+			            height: 100%;
+			            text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
+			            color: Theme.content-primary;
+			            font-size: Theme.typography.body.size;
+			            font-weight: Theme.typography.body.weight;
+			            wrap: word-wrap;
+			            horizontal-alignment: left;
+			            vertical-alignment: top;
+			            horizontal-stretch: 0;
+			        }
+
+                    /*TaskNoteContent {
                         note: root.entry.note;
                         editing: root.editing;
 
                         draft <=> root.description-draft;
                         save(draft) => { root.save-requested(root.entry.id, root.description-draft); }
-                    }
+                    }*/
                 }
 
-                // Duration label and edit/delte buttons
+                /*// Duration label and edit/delte buttons
                 VerticalLayout {
                     Text {
                         width: 70px;
@@ -184,8 +214,17 @@ export component TaskCard inherits Rectangle {
                         save => { root.save-requested(root.entry.id, root.description-draft); }
                         delete => { root.delete-task(root.entry.id); }
                     }
-                }
+                }*/
+
+				Image {
+		            source: @image-url("../assets/icons/edit.svg");
+		            width: 18px;
+		        }
             }
+
+            TouchArea {
+	            mouse-cursor: pointer;
+	        }
 
             Rectangle {
                 y: parent.height - 1px;
