@@ -257,54 +257,70 @@ msgctxt "ProjectEditor"
 msgid "Back to projects"
 msgstr "Zurück zu Projekten"
 
-msgctxt "ProjectEditor"
-msgid "Delete project?"
-msgstr "Projekt löschen?"
-
-msgctxt "ProjectEditor"
+msgctxt "CreateProjectForm"
 msgid "Add project"
 msgstr "Projekt hinzufügen"
 
-msgctxt "ProjectEditor"
-msgid "Archived project"
-msgstr "Archiviertes Projekt"
-
-msgctxt "ProjectEditor"
-msgid "Edit project"
-msgstr "Projekt bearbeiten"
-
-msgctxt "ProjectEditor"
-msgid "This permanently deletes the project and all its recorded work. This cannot be undone."
-msgstr "Das Projekt und alle erfassten Zeiten werden unwiderruflich gelöscht."
-
-msgctxt "ProjectEditor"
+msgctxt "CreateProjectForm"
 msgid "Project name"
 msgstr "Projektname"
 
-msgctxt "ProjectEditor"
-msgid "Hidden from Home. Past time entries remain in Evaluation."
-msgstr "Auf der Startseite ausgeblendet. Bisherige Zeiten bleiben in der Auswertung."
-
-msgctxt "ProjectEditor"
+msgctxt "CreateProjectForm"
 msgid "Cancel"
 msgstr "Abbrechen"
 
-msgctxt "ProjectEditor"
+msgctxt "EditProjectForm"
+msgid "Edit project"
+msgstr "Projekt bearbeiten"
+
+msgctxt "EditProjectForm"
+msgid "Project name"
+msgstr "Projektname"
+
+msgctxt "EditProjectForm"
 msgid "Save"
 msgstr "Speichern"
 
-msgctxt "ProjectEditor"
+msgctxt "EditProjectForm"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "EditProjectForm"
 msgid "Archiving hides this project from Home and keeps its recorded work."
 msgstr "Archivieren blendet das Projekt auf der Startseite aus. Erfasste Zeiten bleiben erhalten."
 
-msgctxt "ProjectEditor"
+msgctxt "EditProjectForm"
 msgid "Archive project"
 msgstr "Projekt archivieren"
 
-msgctxt "ProjectEditor"
+msgctxt "ArchivedProjectForm"
+msgid "Archived project"
+msgstr "Archiviertes Projekt"
+
+msgctxt "ArchivedProjectForm"
+msgid "Hidden from Home. Past time entries remain in Evaluation."
+msgstr "Auf der Startseite ausgeblendet. Bisherige Zeiten bleiben in der Auswertung."
+
+msgctxt "ArchivedProjectForm"
 msgid "Restore project"
 msgstr "Projekt wiederherstellen"
 
-msgctxt "ProjectEditor"
+msgctxt "ArchivedProjectForm"
+msgid "Delete permanently"
+msgstr "Endgültig löschen"
+
+msgctxt "DeleteProjectForm"
+msgid "Delete project?"
+msgstr "Projekt löschen?"
+
+msgctxt "DeleteProjectForm"
+msgid "This permanently deletes the project and all its recorded work. This cannot be undone."
+msgstr "Das Projekt und alle erfassten Zeiten werden unwiderruflich gelöscht."
+
+msgctxt "DeleteProjectForm"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgctxt "DeleteProjectForm"
 msgid "Delete permanently"
 msgstr "Endgültig löschen"

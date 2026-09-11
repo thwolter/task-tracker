@@ -197,11 +197,13 @@ fn project_editor_creates_after_archived_edit_and_confirms_deletion() {
     activate(&ui, "Renamed focus work");
     activate(&ui, "Archive project");
     assert_eq!(ui.get_project_settings().archived.row_count(), 2);
+    activate(&ui, "Archived (2)");
     activate(&ui, "Renamed focus work · Archived");
     activate(&ui, "Restore project");
     assert_eq!(ui.get_project_settings().archived.row_count(), 1);
     assert_eq!(ui.get_project_settings().active.row_count(), 4);
 
+    activate(&ui, "Archived (1)");
     activate(&ui, &format!("{} · Archived", archived.name));
     activate(&ui, "Delete permanently");
     assert_eq!(
