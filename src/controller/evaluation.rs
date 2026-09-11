@@ -51,6 +51,6 @@ impl UiController {
     pub(super) fn open_drilldown(&mut self, ui: &AppWindow, id: SharedString) {
         self.tracker.select_evaluation_project(id.to_string());
         self.refresh(ui);
-        ui.set_page(Page::Drilldown);
+        ui.set_current_page(Page::Drilldown);
     }
 }

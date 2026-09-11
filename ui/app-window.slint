@@ -29,14 +29,14 @@ export component AppWindow inherits Window {
     min-height: 400px;
     background: Theme.surface-canvas;
 
-    in property <Page> page: Page.home;
+    in property <Page> current-page: Page.home;
     in property <HomeState> home;
     in property <ProjectSettingsState> project-settings;
     in-out property <ProjectEditorState> project-editor;
     in property <TrackingState> tracking;
     in property <EvaluationState> evaluation;
-    in property <EvaluationTasksState> drilldown;
-    in property <Status> status: { message: "", kind: StatusKind.success };
+    in property <EvaluationTasksState> evaluation-drilldown;
+    in property <Status> transient-status: { message: "", kind: StatusKind.success };
 
     Timer {
         interval: 1s;
@@ -47,34 +47,34 @@ export component AppWindow inherits Window {
     VerticalLayout {
         spacing: 0px;
 
-        content := Rectangle {
+        page-content := Rectangle {
             vertical-stretch: 1;
 
-            if root.page == Page.home: HomeView {
+            if root.current-page == Page.home: HomeView {
                 state: root.home;
             }
-            if root.page == Page.tracking: TrackingView {
+            if root.current-page == Page.tracking: TrackingView {
                 state: root.tracking;
             }
-            if root.page == Page.note: NoteView {
+            if root.current-page == Page.note: NoteView {
                 last-task: root.home.last-task;
             }
-            if root.page == Page.settings: SettingsView {
+            if root.current-page == Page.settings: SettingsView {
                 projects: root.project-settings;
             }
-            if root.page == Page.project-editor: ProjectEditorView {
+            if root.current-page == Page.project-editor: ProjectEditorView {
                 state <=> root.project-editor;
             }
-            if root.page == Page.evaluation: EvaluationView {
+            if root.current-page == Page.evaluation: EvaluationView {
                 state: root.evaluation;
             }
-            if root.page == Page.drilldown: DrilldownView {
-                state: root.drilldown;
+            if root.current-page == Page.drilldown: DrilldownView {
+                state: root.evaluation-drilldown;
             }
         }
 
-        if root.status.message != "": StatusText {
-            status: root.status;
+        if root.transient-status.message != "": StatusText {
+            status: root.transient-status;
         }
     }
 }

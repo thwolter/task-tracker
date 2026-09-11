@@ -20,9 +20,9 @@ fn navigation_command_changes_the_controller_owned_page() {
     bind(&ui, Tracker::at(path.clone()), Language::English);
     let actions = ui.global::<AppActions>();
     actions.invoke_navigate(Page::Settings);
-    assert_eq!(ui.get_page(), Page::Settings);
+    assert_eq!(ui.get_current_page(), Page::Settings);
     actions.invoke_navigate(Page::Home);
-    assert_eq!(ui.get_page(), Page::Home);
+    assert_eq!(ui.get_current_page(), Page::Home);
 
     std::fs::remove_file(path).unwrap();
 }
@@ -37,7 +37,7 @@ fn add_project_command_refreshes_the_settings_projection() {
 
     actions.invoke_navigate(Page::Settings);
     actions.invoke_add_project("Focus work".into());
-    assert_eq!(ui.get_page(), Page::Settings);
+    assert_eq!(ui.get_current_page(), Page::Settings);
     assert_eq!(ui.get_project_settings().active.row_count(), 5);
 
     std::fs::remove_file(path).unwrap();
@@ -74,7 +74,7 @@ fn project_commands_archive_and_restore_the_home_projection() {
     assert_eq!(ui.get_project_settings().archived.row_count(), 1);
 
     actions.invoke_unarchive_project("project-1".into());
-    assert_eq!(ui.get_page(), Page::Settings);
+    assert_eq!(ui.get_current_page(), Page::Settings);
     assert_eq!(ui.get_home().projects.row_count(), 4);
 
     std::fs::remove_file(path).unwrap();
@@ -99,12 +99,16 @@ fn evaluation_commands_change_range_update_and_delete_tasks() {
     actions.invoke_open_drilldown("project-1".into());
     actions.invoke_update_evaluation_task(task_id.clone().into(), "Updated note".into());
     assert_eq!(
-        ui.get_drilldown().tasks.row_data(0).unwrap().note,
+        ui.get_evaluation_drilldown()
+            .tasks
+            .row_data(0)
+            .unwrap()
+            .note,
         "Updated note"
     );
 
     actions.invoke_delete_evaluation_task(task_id.into());
-    assert_eq!(ui.get_drilldown().tasks.row_count(), 0);
+    assert_eq!(ui.get_evaluation_drilldown().tasks.row_count(), 0);
 
     std::fs::remove_file(path).unwrap();
 }
@@ -118,7 +122,7 @@ fn tracking_commands_refresh_the_ui_through_the_single_dispatcher() {
     let actions = ui.global::<AppActions>();
 
     actions.invoke_start_tracking("project-1".into());
-    assert_eq!(ui.get_page(), Page::Tracking);
+    assert_eq!(ui.get_current_page(), Page::Tracking);
     assert_eq!(ui.get_tracking().active_task, "PROJECT ATLAS");
 
     actions.invoke_toggle_tracking_pause();
@@ -126,11 +130,11 @@ fn tracking_commands_refresh_the_ui_through_the_single_dispatcher() {
     actions.invoke_tick();
 
     actions.invoke_end_tracking();
-    assert_eq!(ui.get_page(), Page::Note);
+    assert_eq!(ui.get_current_page(), Page::Note);
     assert!(ui.get_home().has_last_task);
 
     actions.invoke_save_task_note("Finished the review".into());
-    assert_eq!(ui.get_page(), Page::Home);
+    assert_eq!(ui.get_current_page(), Page::Home);
     assert_eq!(ui.get_home().last_task.note, "Finished the review");
 
     std::fs::remove_file(path).unwrap();
@@ -145,9 +149,9 @@ fn persistence_errors_are_shown_and_status_expires() {
     let ui = AppWindow::new().unwrap();
     bind(&ui, Tracker::at(path), Language::English);
 
-    assert!(!ui.get_status().message.is_empty());
+    assert!(!ui.get_transient_status().message.is_empty());
     i_slint_backend_testing::mock_elapsed_time(Duration::from_secs(3));
-    assert!(ui.get_status().message.is_empty());
+    assert!(ui.get_transient_status().message.is_empty());
 
     std::fs::remove_file(blocked_parent).unwrap();
 }
@@ -178,7 +182,7 @@ fn project_editor_creates_after_archived_edit_and_confirms_deletion() {
     activate(&ui, &format!("{} · Archived", archived.name));
     activate(&ui, "Back to projects");
     activate(&ui, "Add project");
-    assert_eq!(ui.get_page(), Page::ProjectEditor);
+    assert_eq!(ui.get_current_page(), Page::ProjectEditor);
     assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::Create);
     assert!(ui.get_project_editor().project.id.is_empty());
     assert!(ui.get_project_editor().draft_name.is_empty());
@@ -188,7 +192,7 @@ fn project_editor_creates_after_archived_edit_and_confirms_deletion() {
         &ui,
         &slint::SharedString::from(slint::platform::Key::Return),
     );
-    assert_eq!(ui.get_page(), Page::Settings);
+    assert_eq!(ui.get_current_page(), Page::Settings);
     assert_eq!(ui.get_project_settings().active.row_count(), 4);
     assert_eq!(
         ui.get_project_settings().archived.row_data(0).unwrap().name,
@@ -200,7 +204,7 @@ fn project_editor_creates_after_archived_edit_and_confirms_deletion() {
     editor.draft_name = "Renamed focus work".into();
     ui.set_project_editor(editor);
     activate(&ui, "Save");
-    assert_eq!(ui.get_page(), Page::Settings);
+    assert_eq!(ui.get_current_page(), Page::Settings);
     activate(&ui, "Renamed focus work");
     activate(&ui, "Archive project");
     assert_eq!(ui.get_project_settings().archived.row_count(), 2);
@@ -225,7 +229,7 @@ fn project_editor_creates_after_archived_edit_and_confirms_deletion() {
     assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::Edit);
     activate(&ui, "Delete permanently");
     activate(&ui, "Delete permanently");
-    assert_eq!(ui.get_page(), Page::Settings);
+    assert_eq!(ui.get_current_page(), Page::Settings);
     assert_eq!(ui.get_project_settings().archived.row_count(), 0);
     std::fs::remove_file(path).unwrap();
 }
@@ -254,7 +258,7 @@ fn invalid_project_name_keeps_editor_and_escape_cancels() {
         &ui,
         &slint::SharedString::from(slint::platform::Key::Escape),
     );
-    assert_eq!(ui.get_page(), Page::Settings);
+    assert_eq!(ui.get_current_page(), Page::Settings);
     std::fs::remove_file(path).unwrap();
 }
 
@@ -281,7 +285,7 @@ fn failed_project_save_preserves_draft_and_can_be_retried() {
     std::fs::remove_file(&blocked_parent).unwrap();
     std::fs::create_dir(&blocked_parent).unwrap();
     actions.invoke_add_project("Retry me".into());
-    assert_eq!(ui.get_page(), Page::Settings);
+    assert_eq!(ui.get_current_page(), Page::Settings);
     assert_eq!(ui.get_project_settings().active.row_count(), 5);
     std::fs::remove_file(path).unwrap();
     std::fs::remove_dir(blocked_parent).unwrap();

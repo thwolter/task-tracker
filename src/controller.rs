@@ -81,7 +81,7 @@ impl UiController {
     /// Displays a simple user-requested destination. Workflow handlers select pages only
     /// after their application operation succeeds.
     fn navigate(&self, ui: &AppWindow, page: Page) {
-        ui.set_page(page);
+        ui.set_current_page(page);
     }
 
     fn refresh(&self, ui: &AppWindow) {
@@ -103,7 +103,7 @@ impl UiController {
     }
 
     fn set_status(&self, ui: &AppWindow, message: impl Into<SharedString>, kind: StatusKind) {
-        ui.set_status(Status {
+        ui.set_transient_status(Status {
             message: message.into(),
             kind,
         });
@@ -114,7 +114,7 @@ impl UiController {
                 let Some(ui) = ui.upgrade() else {
                     return;
                 };
-                ui.set_status(Status {
+                ui.set_transient_status(Status {
                     message: SharedString::new(),
                     kind: StatusKind::Success,
                 });

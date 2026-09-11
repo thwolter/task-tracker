@@ -8,7 +8,7 @@ impl UiController {
             self.set_error(ui, format!("Could not save data: {error}"));
         }
         // Refresh only the live tracking view to avoid stealing focus from text inputs.
-        if ui.get_page() == Page::Tracking {
+        if ui.get_current_page() == Page::Tracking {
             self.refresh(ui);
         }
     }
@@ -20,19 +20,19 @@ impl UiController {
         {
             self.set_error(ui, format!("Could not save data: {error}"));
         }
-        ui.set_page(Page::Tracking);
+        ui.set_current_page(Page::Tracking);
         self.refresh(ui);
     }
 
     pub(super) fn open_last_task(&mut self, ui: &AppWindow) {
         if self.tracker.data().has_tasks() {
-            ui.set_page(Page::Note);
+            ui.set_current_page(Page::Note);
         }
     }
 
     pub(super) fn end_tracking(&mut self, ui: &AppWindow) {
         match self.tracker.end_tracking(domain::now()) {
-            Ok(true) => ui.set_page(Page::Note),
+            Ok(true) => ui.set_current_page(Page::Note),
             Ok(false) => {}
             Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
         }
@@ -50,7 +50,7 @@ impl UiController {
         if let Err(error) = self.tracker.save_task_note(note.to_string()) {
             self.set_error(ui, format!("Could not save data: {error}"));
         }
-        ui.set_page(Page::Home);
+        ui.set_current_page(Page::Home);
         self.refresh(ui);
     }
 }

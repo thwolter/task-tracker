@@ -8,7 +8,7 @@ impl UiController {
             mode: ProjectEditorMode::Create,
             ..Default::default()
         });
-        ui.set_page(Page::ProjectEditor);
+        ui.set_current_page(Page::ProjectEditor);
     }
 
     pub(super) fn open_project_edit(&mut self, ui: &AppWindow, id: SharedString) {
@@ -34,7 +34,7 @@ impl UiController {
             project: editor_project,
             ..Default::default()
         });
-        ui.set_page(Page::ProjectEditor);
+        ui.set_current_page(Page::ProjectEditor);
     }
 
     pub(super) fn add_project(&mut self, ui: &AppWindow, name: SharedString) {
@@ -68,7 +68,7 @@ impl UiController {
             Ok(()) => {
                 self.refresh(ui);
                 ui.set_project_editor(Default::default());
-                ui.set_page(Page::Settings);
+                ui.set_current_page(Page::Settings);
             }
             Err(error) => {
                 let mut editor = ui.get_project_editor();

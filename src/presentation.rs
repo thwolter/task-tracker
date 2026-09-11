@@ -284,7 +284,7 @@ pub(crate) fn refresh(
     ui.set_project_settings(project_settings(tracker));
     ui.set_evaluation(evaluation(tracker, timestamp, language));
     if let Some(project) = tracker.evaluating_project() {
-        ui.set_drilldown(evaluation_tasks(tracker, timestamp, project, language));
+        ui.set_evaluation_drilldown(evaluation_tasks(tracker, timestamp, project, language));
     }
     ui.set_tracking(tracking(tracker, timestamp));
 }
