@@ -30,6 +30,7 @@ component NoteEditor inherits Rectangle {
             wrap: word-wrap;
             font-size: Theme.typography.body.size;
             font-weight: Theme.typography.body.weight;
+            color: Theme.content-primary;
             text <=> root.text;
         }
     }
@@ -104,8 +105,10 @@ export component NoteView inherits Rectangle {
             vertical-stretch: 0;
 
             AppButton {
+                width: 100%;
                 label: @tr("Save note");
                 clicked => { AppActions.save-task-note(root.note-draft); }
+                horizontal-stretch: 1;
             }
 
             VerticalBox {

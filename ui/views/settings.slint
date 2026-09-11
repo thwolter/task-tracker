@@ -90,7 +90,7 @@ export component SettingsView inherits Rectangle {
 
         project-list := ScrollableColumn {
             // A stable gutter avoids width/scrollbar feedback when rows are laid out.
-            property <length> row-width: root.width - 2 * root.content-padding - 10px;
+            property <length> row-width: root.width - 2 * root.content-padding;
             spacing: 8px;
             LabelText {
                 text: @tr("Active");

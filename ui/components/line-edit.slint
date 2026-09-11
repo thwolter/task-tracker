@@ -18,7 +18,6 @@ export component LineEdit inherits Rectangle {
             text <=> root.text;
             accepted => { root.accepted(); }
             edited => { root.edited(); }
-            init => { self.focus(); }
         }
     }
 }
