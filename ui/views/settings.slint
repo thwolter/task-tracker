@@ -76,9 +76,11 @@ export component SettingsView inherits Rectangle {
     private property <bool> archived-expanded: false;
 
     background: Theme.surface-canvas;
+
     VerticalLayout {
         padding: root.content-padding;
         spacing: 16px;
+
         BackLink {
             text: @tr("Home");
             clicked => { AppActions.navigate(Page.home); }

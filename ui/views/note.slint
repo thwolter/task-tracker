@@ -12,41 +12,8 @@ import { BackLink } from "../components/back-link.slint";
 import { Page, TaskItem } from "../models.slint";
 import { AppActions } from "../actions.slint";
 import { DurationLabel } from "../components/duration-label.slint";
+import { TextEdit } from "../components/text-edit.slint";
 
-component NoteEditor inherits Rectangle {
-    in-out property <string> text;
-
-    border-radius: Theme.border.radius;
-    background: Theme.surface-soft;
-    border-width: Theme.border.width;
-    border-color: Theme.border-subtle;
-
-    HorizontalLayout {
-        padding: 10px;
-        input := TextInput {
-            height: 60px;
-            width: 100%;
-            single-line: false;
-            wrap: word-wrap;
-            font-size: Theme.typography.body.size;
-            font-weight: Theme.typography.body.weight;
-            color: Theme.content-primary;
-            text <=> root.text;
-        }
-    }
-
-    if root.text == "" && !input.has-focus: HorizontalLayout {
-        padding: 10px;
-        Text {
-            width: 100%;
-            text: @tr("e.g. prepared the Q4 project brief");
-            wrap: word-wrap;
-            color: Theme.content-muted;
-            font-size: Theme.typography.body.size;
-            font-weight: Theme.typography.body.weight;
-        }
-    }
-}
 
 export component NoteView inherits Rectangle {
     in property <TaskItem> last-task;
@@ -54,7 +21,7 @@ export component NoteView inherits Rectangle {
 
     VerticalLayout {
         padding: 20px;
-        spacing: 30px;
+        spacing: 20px;
 
         VerticalLayout {
             spacing: 20px;
@@ -83,45 +50,46 @@ export component NoteView inherits Rectangle {
         }
 
         VerticalLayout {
-            spacing: 10px;
-            vertical-stretch: 0;
+            preferred-height: parent.height;
+            alignment: space-between;
 
-            LabelText {
-                text: @tr("Add a brief note for your activity log.");
-            }
+	        VerticalLayout {
+	            spacing: 10px;
+	            vertical-stretch: 0;
 
-            NoteEditor {
-                text <=> root.note-draft;
-            }
-        }
+	            LabelText {
+	                text: @tr("Add a brief note for your activity log.");
+	            }
 
-        Rectangle {
-            min-height: 0px;
-            horizontal-stretch: 1;
-        }
+	            TextEdit {
+	                text <=> root.note-draft;
+	                placeholder: @tr("e.g. prepared the Q4 project brief");
+	            }
+	        }
 
-        VerticalLayout {
-            spacing: 10px;
-            vertical-stretch: 0;
+	        VerticalLayout {
+				spacing: 10px;
 
-            AppButton {
-                width: 100%;
-                label: @tr("Save note");
-                clicked => { AppActions.save-task-note(root.note-draft); }
-                horizontal-stretch: 1;
-            }
+	            AppButton {
+	                width: parent.width;
+	                label: @tr("Save note");
+	                enabled: root.note-draft != "";
+	                clicked => { AppActions.save-task-note(root.note-draft); }
+	                horizontal-stretch: 1;
+	            }
 
-            VerticalBox {
-                cross-axis-alignment: center;
+	            VerticalBox {
+	                cross-axis-alignment: center;
 
-                TextLink {
-                    text: @tr("Skip for now");
-                    horizontal-alignment: center;
-                    vertical-alignment: top;
+	                TextLink {
+	                    text: @tr("Skip for now");
+	                    horizontal-alignment: center;
+	                    vertical-alignment: top;
 
-                    clicked => { AppActions.navigate(Page.home); }
-                }
-            }
+	                    clicked => { AppActions.navigate(Page.home); }
+	                }
+	            }
+	        }
         }
     }
 }

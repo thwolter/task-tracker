@@ -1,0 +1,44 @@
+import { Theme } from "../theme.slint";
+
+export component TextEdit inherits Rectangle {
+    in-out property <string> text;
+    in property <string> placeholder;
+    in property <length> input-height: 60px;
+
+    callback edited();
+    callback accepted();
+
+    background: Theme.surface-soft;
+
+    border-radius: Theme.border.radius;
+    border-width: Theme.border.width;
+    border-color: Theme.border-subtle;
+
+    HorizontalLayout {
+        padding: 10px;
+        input := TextInput {
+            height: root.input-height;
+            width: 100%;
+            single-line: false;
+            wrap: word-wrap;
+            font-size: Theme.typography.body.size;
+            font-weight: Theme.typography.body.weight;
+            color: Theme.content-primary;
+            text <=> root.text;
+            edited => { root.edited(); }
+            accepted => { root.accepted(); }
+        }
+    }
+
+    if root.text == "" && !input.has-focus: HorizontalLayout {
+        padding: 10px;
+        Text {
+            width: 100%;
+            text: root.placeholder;
+            wrap: word-wrap;
+            color: Theme.content-muted;
+            font-size: Theme.typography.body.size;
+            font-weight: Theme.typography.body.weight;
+        }
+    }
+}
