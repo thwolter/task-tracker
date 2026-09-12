@@ -210,6 +210,7 @@ fn localized_weekday(weekday: Weekday, language: Language) -> &'static str {
         (Language::English, Weekday::Fri) => "Fri",
         (Language::English, Weekday::Sat) => "Sat",
         (Language::English, Weekday::Sun) => "Sun",
+
         (Language::German, Weekday::Mon) => "Mo.",
         (Language::German, Weekday::Tue) => "Di.",
         (Language::German, Weekday::Wed) => "Mi.",
@@ -234,6 +235,7 @@ fn localized_month(month: u32, language: Language) -> &'static str {
         (Language::English, 10) => "Oct",
         (Language::English, 11) => "Nov",
         (Language::English, 12) => "Dec",
+
         (Language::German, 1) => "Jan.",
         (Language::German, 2) => "Feb.",
         (Language::German, 3) => "März",
