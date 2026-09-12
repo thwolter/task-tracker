@@ -38,9 +38,11 @@ component TaskTimelineMarker inherits Rectangle {
 
 component TaskEditor inherits HorizontalLayout {
     in property <EvaluationTaskItem> entry;
+    in-out property <string> draft-note: entry.note;
 
     callback cancel();
-    callback delete-requested(EvaluationTaskItem);
+    callback save(string, string);
+    callback delete(EvaluationTaskItem);
 
 
     VerticalLayout {
@@ -48,9 +50,10 @@ component TaskEditor inherits HorizontalLayout {
         spacing: 10px;
 
         TextEdit {
-            placeholder: root.entry.note == ""
+            placeholder: root.draft-note == ""
                 ? @tr("e.g. prepared the Q4 project brief")
                 : root.entry.note;
+            text <=> root.draft-note;
         }
         HorizontalLayout {
             alignment: space-between;
@@ -60,7 +63,7 @@ component TaskEditor inherits HorizontalLayout {
                 icon: @image-url("../assets/icons/delete.svg");
                 icon-color: Theme.action-danger;
                 background: transparent;
-                clicked => { root.delete-requested(root.entry); }
+                clicked => { root.delete(root.entry); }
             }
             HorizontalLayout {
                 spacing: 10px;
@@ -74,6 +77,7 @@ component TaskEditor inherits HorizontalLayout {
                 AppButton {
                     prefix-icon: @image-url("../assets/icons/check.svg");
                     label: @tr("Save");
+                    clicked => { root.save(root.entry.id, root.draft-note); }
                 }
             }
 
@@ -84,7 +88,6 @@ component TaskEditor inherits HorizontalLayout {
 
 export component TaskCard inherits Rectangle {
     in property <EvaluationTaskItem> entry;
-    in-out property <string> description-draft;
     private property <bool> editing;
 
     // Cards retain their content height; the footer spacer absorbs any surplus.
@@ -92,7 +95,6 @@ export component TaskCard inherits Rectangle {
     height: card-content.preferred-height;
 
     callback edit(EvaluationTaskItem);
-    callback save-requested(string, string);
     callback delete(EvaluationTaskItem);
 
     card-content := HorizontalLayout {
@@ -146,18 +148,23 @@ export component TaskCard inherits Rectangle {
                                 vertical-alignment: top;
                                 horizontal-stretch: 0;
                             }
-                            Image {
-                                source: @image-url("../assets/icons/edit.svg");
-                                width: 18px;
+                            IconButton {
+                                icon: @image-url("../assets/icons/edit.svg");
+                                background: transparent;
                             }
                         }
 			        }
 
                     if (root.editing): TaskEditor {
-		            entry: root.entry;
-		            cancel => { root.editing = false;}
-		            delete-requested(task) => { root.delete(task); }
-		        }
+			            entry: root.entry;
+			            
+			            cancel => { root.editing = false;}
+			            delete(task) => { root.delete(task); }
+			            save(id, draft-note) => {
+			                AppActions.update-evaluation-task(id, draft-note);
+			                root.editing = false;
+			            }
+			        }
                 }
             }
 
@@ -205,7 +212,7 @@ export component DrilldownView inherits Rectangle {
         spacing: 20px;
 
         BackLink {
-            text: @tr("Projects");
+            text: @tr("Evaluation");
             clicked => { AppActions.navigate(Page.evaluation); }
         }
 
@@ -236,8 +243,6 @@ export component DrilldownView inherits Rectangle {
         ScrollView {
             min-height: 0px;
             preferred-height: task-list.preferred-height;
-            // Keep the viewport at the list's content height. The footer block
-            // below receives any additional window height instead.
             vertical-stretch: 0;
             max-height: task-list.preferred-height;
             task-list := VerticalLayout {

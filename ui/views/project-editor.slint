@@ -41,7 +41,7 @@ export component ProjectEditor inherits Rectangle {
         padding: root.content-padding;
         spacing: 16px;
         back := BackLink {
-            text: root.confirming-delete ? @tr("Back to project") : @tr("Back to projects");
+            text: @tr("Settings");
             clicked => { root.cancel(); }
         }
 

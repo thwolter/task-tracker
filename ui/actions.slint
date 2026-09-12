@@ -63,9 +63,12 @@ export global AppActions {
     open-last-task => { dispatch({ kind: UiCommandKind.open-last-task }); }
     end-tracking => { dispatch({ kind: UiCommandKind.end-tracking }); }
     toggle-tracking-pause => { dispatch({ kind: UiCommandKind.toggle-tracking-pause }); }
+
     save-task-note(note) => { dispatch({ kind: UiCommandKind.save-task-note, text: note }); }
+
     update-evaluation-task(id, note) => { dispatch({ kind: UiCommandKind.update-evaluation-task, id: id, text: note }); }
     delete-evaluation-task(id) => { dispatch({ kind: UiCommandKind.delete-evaluation-task, id: id }); }
+
     choose-range(range) => { dispatch({ kind: UiCommandKind.choose-range, range: range }); }
 
     open-project-create => { dispatch({ kind: UiCommandKind.open-project-create }); }
