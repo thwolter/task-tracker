@@ -35,70 +35,66 @@ export global Theme {
     // consume only the semantic roles below, so a future resolver can replace
     // the complete scheme without changing component code.
     private property <color> sage-canvas: #f6f8f6;
-    private property <color> sage-chrome: #e8f0e5;
     private property <color> sage-card: #fffffc;
     private property <color> sage-subtle: #e0f0de;
-    private property <color> sage-soft: #edf5eb;
-    private property <color> neutral-control: #e7ece6;
-    private property <color> neutral-archived: #d6d9de;
-    private property <color> grey-light: #f2f2f2;
-    private property <color> grey-dark: #dedede;
+    private property <color> sage-input: #edf5eb;
+    private property <color> neutral-disabled: #e6e9e5;
+    private property <color> neutral-archived: #d9ded9;
     private property <color> ink-primary: #14241a;
-    private property <color> ink-secondary: #637d66;
-    private property <color> ink-muted: #526654;
+    private property <color> ink-secondary: #526654;
+    private property <color> ink-muted: #5e725f;
+    private property <color> ink-disabled: #647566;
     private property <color> ink-on-accent: #fffffc;
     private property <color> green-primary: #296e45;
     private property <color> green-focus: #3f7f5a;
     private property <color> green-timer: #d6f0d6;
     private property <color> red-danger: #9b3f33;
-    private property <color> red-danger-surface: #fcebe7;
-    private property <color> border-default-color: #d6e0d4;
-    private property <color> border-subtle-color: #c9d6c7;
-    private property <color> border-divider-color: #c7d6c4;
+    private property <color> red-danger-surface: #fbece8;
+    private property <color> border-default-color: #c9d8c7;
+    private property <color> border-subtle-color: #d4e0d2;
+    private property <color> border-divider-color: #cbd8c9;
 
     // Surface roles
     in-out property <color> surface-canvas: sage-canvas;
-    in-out property <color> surface-chrome: sage-chrome;
     in-out property <color> surface-card: sage-card;
+    in-out property <color> surface-input: sage-input;
     in-out property <color> surface-subtle: sage-subtle;
-    in-out property <color> surface-soft: sage-soft;
     in-out property <color> surface-archived: neutral-archived;
-    in-out property <color> surface-disabled: sage-subtle;
+    in-out property <color> surface-disabled: neutral-disabled;
     in-out property <color> surface-danger: red-danger-surface;
 
     // Content and structural roles
     in-out property <color> content-primary: ink-primary;
     in-out property <color> content-secondary: ink-secondary;
     in-out property <color> content-muted: ink-muted;
-    in-out property <color> content-disabled: ink-muted;
+    in-out property <color> content-disabled: ink-disabled;
     in-out property <color> content-on-accent: ink-on-accent;
-    in-out property <color> content-on-primary-hover: #fffffce0;
-    in-out property <color> content-on-primary-pressed: #fffffcb8;
+    in-out property <color> content-on-primary-hover: ink-on-accent;
+    in-out property <color> content-on-primary-pressed: ink-on-accent;
     in-out property <color> action-primary: green-primary;
     in-out property <color> action-danger: red-danger;
-    in-out property <color> action-danger-hover: #9b3f33e0;
-    in-out property <color> action-danger-pressed: #9b3f33b8;
+    in-out property <color> action-danger-hover: #873529;
+    in-out property <color> action-danger-pressed: #702b22;
     in-out property <color> border-default: border-default-color;
     in-out property <color> border-subtle: border-subtle-color;
     in-out property <color> border-divider: border-divider-color;
     in-out property <color> border-focus: green-focus;
     in-out property <color> timer-ring: green-timer;
 
-    // Resolved interactive roles. The primary alpha values reproduce the
-    // Figma hover (88%) and pressed (72%) component variants.
-    in-out property <color> action-primary-hover: #296e45e0;
-    in-out property <color> action-primary-pressed: #296e45b8;
+    // Opaque interaction colors keep the same contrast on every surface.
+    in-out property <color> action-primary-hover: #245f3d;
+    in-out property <color> action-primary-pressed: #1f5134;
     in-out property <color> action-secondary: sage-subtle;
-    in-out property <color> action-secondary-hover: grey-light;
-    in-out property <color> action-secondary-pressed: grey-dark;
-    in-out property <color> action-icon: neutral-control;
-    in-out property <color> action-icon-hover: sage-subtle;
-    in-out property <color> action-icon-pressed: sage-chrome;
-    in-out property <color> action-card-hover: sage-soft;
+    in-out property <color> action-secondary-hover: #d4e8d1;
+    in-out property <color> action-secondary-pressed: #c8dec5;
+    in-out property <color> action-icon: sage-subtle;
+    in-out property <color> action-icon-hover: #d4e8d1;
+    in-out property <color> action-icon-pressed: #c8dec5;
+    in-out property <color> action-card-hover: sage-input;
     in-out property <color> action-card-pressed: sage-subtle;
     in-out property <color> content-link: green-primary;
-    in-out property <color> content-link-hover: #296e45e0;
-    in-out property <color> content-link-pressed: #296e45b8;
+    in-out property <color> content-link-hover: #245f3d;
+    in-out property <color> content-link-pressed: #1f5134;
     in-out property <color> dialog-backdrop: #14241a80;
 
     in property <Typo> typography: {

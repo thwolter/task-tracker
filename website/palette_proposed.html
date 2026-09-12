@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tempo Palette</title>
+    <title>Tempo — proposed palette</title>
     <style>
       :root {
         color-scheme: light;
 
-        /* Semantic colors mirrored from ui/theme.slint. */
+        /* Proposed semantic colors. This file does not change the app theme. */
         --surface-canvas: #f6f8f6;
         --surface-card: #fffffc;
         --surface-input: #edf5eb;
@@ -183,14 +183,14 @@
   </head>
   <body>
     <main>
-      <div class="eyebrow">Tempo · color system</div>
-      <h1>Tempo palette</h1>
-      <p class="lede">The app's semantic colors, shown both as individual roles and together in familiar screens. Green actions deepen on interaction; supporting text and inactive surfaces keep their own hierarchy.</p>
-      <div class="notice"><strong>Theme reference.</strong> These colors mirror <code>ui/theme.slint</code>. Single- and multi-line fields share <code>surface-input</code>; icon controls share the secondary action ramp.</div>
+      <div class="eyebrow">Tempo · color study</div>
+      <h1>Proposed palette</h1>
+      <p class="lede">A calmer set of surfaces, clearer text hierarchy, and interaction colors that become deeper as an action is engaged. The screens below use the proposed colors together.</p>
+      <div class="notice"><strong>Proposal only.</strong> The app theme and the existing <code>palette.html</code> are unchanged. <code>surface-chrome</code> and <code>surface-soft</code> would become one <code>surface-input</code> role; the preview shows the proposed interface.</div>
 
       <section aria-labelledby="preview-heading">
         <h2 id="preview-heading">In context</h2>
-        <p class="section-intro">These compact examples combine the fills, text, borders, and controls used across the app. They show color relationships rather than exact layout recreations.</p>
+        <p class="section-intro">These compact examples combine the fills, text, borders, and controls from the attached screens. They are color previews rather than exact layout recreations.</p>
         <div class="preview-grid">
           <div class="window">
             <div class="window-bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="bar-title">· 00:00</span></div>
@@ -275,10 +275,10 @@
       </section>
 
       <section aria-labelledby="changes-heading">
-        <h2 id="changes-heading">Changes from the previous palette</h2>
-        <p class="section-intro">The same hue can serve more than one role when the meaning is compatible. The current theme uses one input role for both field types and one action ramp for secondary and icon controls.</p>
+        <h2 id="changes-heading">Decisions behind this proposal</h2>
+        <p class="section-intro">The same hues may serve more than one semantic role when the meaning is compatible. The preview removes role names that do not help users of the theme choose a color.</p>
         <table class="compare">
-          <thead><tr><th>Previous</th><th>Now</th><th>Reason</th></tr></thead>
+          <thead><tr><th>Current</th><th>Proposed</th><th>Reason</th></tr></thead>
           <tbody>
             <tr><td><code>surface-chrome</code> + <code>surface-soft</code></td><td><code>surface-input #EDF5EB</code></td><td>Both are editable fields; one role gives them the same affordance.</td></tr>
             <tr><td><code>surface-disabled #E0F0DE</code></td><td><code>#E6E9E5</code></td><td>Unavailable controls no longer share the green summary fill.</td></tr>
