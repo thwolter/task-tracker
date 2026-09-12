@@ -43,6 +43,20 @@
         --border-divider: #c7d6c4;
         --border-focus: #3f7f5a;
         --timer-ring: #d6f0d6;
+        --font-heading: 700 20px/1.4 system-ui, sans-serif;
+        --font-title: 700 18px/1.4 system-ui, sans-serif;
+        --font-body: 400 15px/1.4 system-ui, sans-serif;
+        --font-body-strong: 700 15px/1.4 system-ui, sans-serif;
+        --font-body-link: 500 15px/1.4 system-ui, sans-serif;
+        --font-supporting: 600 13px/1.4 system-ui, sans-serif;
+        --font-label: 600 13px/1.4 system-ui, sans-serif;
+        --font-small-label: 600 11px/1.4 system-ui, sans-serif;
+        --font-small-label-letter-spacing: 1.2px;
+        --font-caption: 500 10px/1.4 system-ui, sans-serif;
+        --font-timer: 700 32px/1.4 system-ui, sans-serif;
+        --border-radius: 8px;
+        --border-width: 1px;
+        --dialog-shadow: 0 4px 6px #14241a1a;
       }
 
       * { box-sizing: border-box; }
@@ -62,8 +76,8 @@
       .swatch {
         min-height: 104px;
         padding: 14px;
-        border: 1px solid var(--border-default);
-        border-radius: 10px;
+        border: var(--border-width) solid var(--border-default);
+        border-radius: var(--border-radius);
         background: var(--color);
         color: var(--ink, var(--content-primary));
         display: flex;
@@ -72,6 +86,26 @@
       }
       .name { font-weight: 700; }
       .hex { font: 12px ui-monospace, monospace; opacity: .8; }
+      .type-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+      .type-sample, .token-sample {
+        padding: 16px;
+        border: var(--border-width) solid var(--border-default);
+        border-radius: var(--border-radius);
+        background: var(--surface-card);
+      }
+      .type-sample { margin: 0; }
+      .type-sample small, .token-sample small { display: block; margin-top: 8px; color: var(--content-muted); }
+      .type-heading { font: var(--font-heading); }
+      .type-title { font: var(--font-title); }
+      .type-body { font: var(--font-body); }
+      .type-body-strong { font: var(--font-body-strong); }
+      .type-body-link { font: var(--font-body-link); color: var(--content-link); }
+      .type-supporting { font: var(--font-supporting); }
+      .type-label { font: var(--font-label); }
+      .type-small-label { font: var(--font-small-label); letter-spacing: var(--font-small-label-letter-spacing); }
+      .type-caption { font: var(--font-caption); }
+      .type-timer { font: var(--font-timer); }
+      .dialog-shadow { box-shadow: var(--dialog-shadow); }
     </style>
   </head>
   <body>
@@ -131,6 +165,30 @@
           <div class="swatch" style="--color: var(--content-link-pressed); --ink: var(--content-on-primary-pressed)"><span class="name">content-link-pressed</span><span class="hex">#296e45b8</span></div>
           <div class="swatch" style="--color: var(--content-on-primary-hover)"><span class="name">content-on-primary-hover</span><span class="hex">#fffffce0</span></div>
           <div class="swatch" style="--color: var(--content-on-primary-pressed)"><span class="name">content-on-primary-pressed</span><span class="hex">#fffffcb8</span></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="typography">
+        <h2 id="typography">Typography</h2>
+        <div class="type-grid">
+          <p class="type-sample type-heading">Heading<small>20px / 700 / 0px</small></p>
+          <p class="type-sample type-title">Title<small>18px / 700 / 0px</small></p>
+          <p class="type-sample type-body">Body<small>15px / 400 / 0px</small></p>
+          <p class="type-sample type-body-strong">Body strong<small>15px / 700 / 0px</small></p>
+          <p class="type-sample type-body-link">Body link<small>15px / 500 / 0px</small></p>
+          <p class="type-sample type-supporting">Supporting<small>13px / 600 / 0px</small></p>
+          <p class="type-sample type-label">Label<small>13px / 600 / 0px</small></p>
+          <p class="type-sample type-small-label">SMALL LABEL<small>11px / 600 / 1.2px</small></p>
+          <p class="type-sample type-caption">Caption<small>10px / 500 / 0px</small></p>
+          <p class="type-sample type-timer">25:00<small>32px / 700 / 0px</small></p>
+        </div>
+      </section>
+
+      <section aria-labelledby="elevation">
+        <h2 id="elevation">Borders and shadows</h2>
+        <div class="type-grid">
+          <div class="token-sample">Default border<small>1px radius 8px</small></div>
+          <div class="token-sample dialog-shadow">Dialog shadow<small>0px 4px 6px #14241a1a</small></div>
         </div>
       </section>
     </main>

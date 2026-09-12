@@ -3,6 +3,7 @@ import { TimerDisplay } from "../components/timer-display.slint";
 import { Page, TrackingState } from "../models.slint";
 import { AppActions } from "../actions.slint";
 import { BackLink } from "../components/back-link.slint";
+import { Theme } from "../theme.slint";
 
 export component TrackingView inherits Rectangle {
     in property <TrackingState> state;
@@ -11,16 +12,33 @@ export component TrackingView inherits Rectangle {
         padding: 20px;
         spacing: 10px;
 
-        BackLink {
+        if (!root.state.secondary-active):  BackLink {
             text: @tr("Home");
-            clicked => { AppActions.navigate(Page.home); }
+            clicked => {
+                AppActions.toggle-tracking-pause();
+                AppActions.navigate(Page.home);
+            }
         }
 
         VerticalLayout {
             vertical-stretch: 1;
-            spacing: 50px;
             cross-axis-alignment: center;
-            alignment: center;
+            alignment: space-between;
+
+            VerticalLayout {
+                Text {
+                    text: @tr("Need to step away?");
+                    color: Theme.content-primary;
+                    font-size: Theme.typography.supporting.size;
+                    font-weight: Theme.typography.supporting.weight;
+                }
+                Text {
+                    text: @tr("Going home pauses this task. You can resume it anytime");
+                    wrap: word-wrap;
+                    font-size: Theme.typography.supporting.size;
+                    color: Theme.content-primary;
+                }
+            }
 
             TimerDisplay {
                 task: root.state.active-task;
@@ -30,13 +48,30 @@ export component TrackingView inherits Rectangle {
                 pause => { AppActions.toggle-tracking-pause(); }
             }
 
-            AppButton {
-                width: 232px;
-                height: 50px;
-                label: @tr("End task");
-                primary: root.state.paused ? false : true;
+			VerticalLayout {
+				spacing: 10px;
 
-                clicked => { AppActions.end-tracking(); }
+				// End tracking
+	            AppButton {
+	                width: 232px;
+	                height: 50px;
+	                label: @tr("End task");
+	                primary: root.state.paused ? false : true;
+
+	                clicked => { AppActions.end-tracking(); }
+	            }
+
+	            // Pause tracking
+	            AppButton {
+	                width: 232px;
+	                height: 50px;
+	                label: @tr("Pause");
+	                label-color: Theme.content-secondary;
+	                outlined: true;
+	                primary: false;
+
+	                clicked => { AppActions.toggle-tracking-pause(); }
+	            }
             }
         }
     }

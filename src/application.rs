@@ -25,7 +25,9 @@ pub(crate) struct Tracker {
 impl Tracker {
     /// Loads the default database and closes any restored active task in memory.
     pub(crate) fn load_default() -> Self {
-        let store = SqliteStore::at(SqliteStore::default_path());
+        Self::load(SqliteStore::at(SqliteStore::default_path()))
+    }
+    fn load(store: SqliteStore) -> Self {
         let mut data = store.load_or_default();
         data.recover_active();
         Self {
@@ -34,6 +36,10 @@ impl Tracker {
             range: Range::Day,
             evaluating_project: None,
         }
+    }
+    #[cfg(test)]
+    fn load_at(path: PathBuf) -> Self {
+        Self::load(SqliteStore::at(path))
     }
     #[cfg(test)]
     pub(crate) fn at(path: PathBuf) -> Self {
@@ -59,9 +65,11 @@ impl Tracker {
 
     /// Starts tracking for a project and persists the resulting active task.
     pub(crate) fn start_tracking(&mut self, project_id: String, timestamp: i64) -> Result<()> {
-        self.data
-            .start_tracking(ProjectId::from(project_id), timestamp);
-        self.save()
+        let mut next = self.data.clone();
+        next.start_tracking(ProjectId::from(project_id), timestamp)?;
+        self.store.save(&next)?;
+        self.data = next;
+        Ok(())
     }
 
     /// Checkpoints active, unpaused work and saves only when the checkpoint changed.
@@ -76,9 +84,11 @@ impl Tracker {
     ///
     /// Returns whether the tracking state changed.
     pub(crate) fn toggle_tracking_pause(&mut self, timestamp: i64) -> Result<bool> {
-        let changed = self.data.toggle_pause(timestamp);
+        let mut next = self.data.clone();
+        let changed = next.toggle_pause(timestamp);
         if changed {
-            self.save()?;
+            self.store.save(&next)?;
+            self.data = next;
         }
         Ok(changed)
     }
@@ -87,9 +97,11 @@ impl Tracker {
     ///
     /// Returns whether an active task was finished.
     pub(crate) fn end_tracking(&mut self, timestamp: i64) -> Result<bool> {
-        let ended = self.data.end_tracking(timestamp);
+        let mut next = self.data.clone();
+        let ended = next.end_tracking(timestamp);
         if ended {
-            self.save()?;
+            self.store.save(&next)?;
+            self.data = next;
         }
         Ok(ended)
     }
@@ -195,6 +207,36 @@ mod tests {
         tracker
             .save_project("project-1".into(), "Planning")
             .unwrap();
+
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn reopening_finishes_interrupted_work_without_resuming_either_task() {
+        let path = std::env::temp_dir().join(format!(
+            "tempo-application-recovery-test-{}-{}.sqlite",
+            std::process::id(),
+            domain::now()
+        ));
+        let mut tracker = Tracker::at(path.clone());
+        tracker.start_tracking("project-1".into(), 10).unwrap();
+        tracker.tick(40).unwrap();
+        tracker.start_tracking("project-2".into(), 50).unwrap();
+        tracker.tick(70).unwrap();
+
+        let reopened = Tracker::load_at(path.clone());
+
+        assert!(reopened.data().active_task().is_none());
+        assert!(!reopened.data().has_interrupted_task());
+        assert_eq!(reopened.data().tasks().len(), 2);
+        assert_eq!(
+            reopened.data().tasks()[0].ended() - reopened.data().tasks()[0].started(),
+            40
+        );
+        assert_eq!(
+            reopened.data().tasks()[1].ended() - reopened.data().tasks()[1].started(),
+            20
+        );
 
         std::fs::remove_file(path).unwrap();
     }

@@ -164,6 +164,32 @@ fn active_tracking_remains_available_after_returning_home() {
     std::fs::remove_file(path).unwrap();
 }
 
+#[test]
+fn secondary_tracking_locks_home_until_it_finishes_and_restores_the_primary() {
+    i_slint_backend_testing::init_no_event_loop();
+    let path = test_path("secondary-tracking");
+    let ui = AppWindow::new().unwrap();
+    bind(&ui, Tracker::at(path.clone()), Language::English);
+    let actions = ui.global::<AppActions>();
+
+    actions.invoke_start_tracking("project-1".into());
+    actions.invoke_navigate(Page::Home);
+    actions.invoke_start_tracking("project-2".into());
+    assert_eq!(ui.get_tracking().active_task, "ADMIN");
+    assert!(ui.get_tracking().secondary_active);
+
+    actions.invoke_navigate(Page::Home);
+    assert_eq!(ui.get_current_page(), Page::Tracking);
+
+    actions.invoke_end_tracking();
+    assert_eq!(ui.get_current_page(), Page::Note);
+    assert_eq!(ui.get_tracking().active_task, "PROJECT ATLAS");
+    assert!(ui.get_tracking().paused);
+    assert!(!ui.get_tracking().secondary_active);
+
+    std::fs::remove_file(path).unwrap();
+}
+
 #[cfg(debug_assertions)]
 #[test]
 fn home_tracker_control_reacts_to_live_tracking_updates() {
@@ -175,6 +201,7 @@ fn home_tracker_control_reacts_to_live_tracking_updates() {
         active_task: "PROJECT ATLAS".into(),
         elapsed: "00:10".into(),
         paused: false,
+        secondary_active: false,
     });
     assert!(
         i_slint_backend_testing::ElementHandle::find_by_accessible_label(
@@ -189,6 +216,7 @@ fn home_tracker_control_reacts_to_live_tracking_updates() {
         active_task: "PROJECT ATLAS".into(),
         elapsed: "00:11".into(),
         paused: false,
+        secondary_active: false,
     });
     assert!(
         i_slint_backend_testing::ElementHandle::find_by_accessible_label(

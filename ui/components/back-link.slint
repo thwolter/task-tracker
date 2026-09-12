@@ -3,13 +3,15 @@ import { Theme } from "../theme.slint";
 export component BackLink inherits Rectangle {
     in property <string> text: @tr("Back");
     in property <image> prefix-icon: @image-url("../assets/icons/chevron-left.svg");
+    in property <bool> enabled: true;
 
     private property <length> icon-width: Theme.typography.label.size + 4px;
 
     callback clicked();
 
     touch := TouchArea {
-        mouse-cursor: pointer;
+        enabled: root.enabled;
+        mouse-cursor: root.enabled ? pointer : not-allowed;
         clicked => { root.clicked(); }
     }
 
@@ -27,7 +29,8 @@ export component BackLink inherits Rectangle {
 		        width: icon-width;
                 height: icon-width;
                 source: root.prefix-icon;
-                colorize: touch.pressed ? Theme.content-link-pressed
+                colorize: !root.enabled ? Theme.content-disabled
+                    : touch.pressed ? Theme.content-link-pressed
                     : touch.has-hover ? Theme.content-link-hover
                     : Theme.content-link;
             }
@@ -37,7 +40,8 @@ export component BackLink inherits Rectangle {
             text: root.text;
             font-size: Theme.typography.supporting.size;
             font-weight: Theme.typography.supporting.weight;
-            color: touch.pressed ? Theme.content-link-pressed
+            color: !root.enabled ? Theme.content-disabled
+                : touch.pressed ? Theme.content-link-pressed
                 : touch.has-hover ? Theme.content-link-hover
                 : Theme.content-secondary;
         }

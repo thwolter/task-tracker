@@ -73,9 +73,11 @@ export component AppWindow inherits Window {
                 state: root.evaluation-drilldown;
             }
         }
+    }
 
-        if root.transient-status.message != "": StatusText {
-            status: root.transient-status;
-        }
+    if root.transient-status.message != "": StatusText {
+        width: parent.width;
+        y: parent.height - self.height;
+        status: root.transient-status;
     }
 }

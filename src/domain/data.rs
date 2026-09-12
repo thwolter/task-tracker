@@ -4,8 +4,10 @@
 //! tracking, as well as for project lifecycle changes.
 
 use super::{ActiveTask, Project, ProjectId, Task, TaskId};
+use crate::error::{Result, TrackerError};
 
-/// Owns all projects, completed tasks, and at most one active task.
+/// Owns all projects, completed tasks, and one active task with an optional
+/// paused task it interrupted.
 ///
 /// Project deletion also removes its completed work and any matching active
 /// task. Archiving, by contrast, retains the project's history.
@@ -14,6 +16,7 @@ pub(crate) struct Data {
     projects: Vec<Project>,
     tasks: Vec<Task>,
     active_task: Option<ActiveTask>,
+    interrupted_task: Option<ActiveTask>,
 }
 
 impl Data {
@@ -22,11 +25,13 @@ impl Data {
         projects: Vec<Project>,
         tasks: Vec<Task>,
         active_task: Option<ActiveTask>,
+        interrupted_task: Option<ActiveTask>,
     ) -> Self {
         Self {
             projects,
             tasks,
             active_task,
+            interrupted_task,
         }
     }
 
@@ -45,6 +50,7 @@ impl Data {
                 .collect(),
             tasks: Vec::new(),
             active_task: None,
+            interrupted_task: None,
         }
     }
 
@@ -56,6 +62,13 @@ impl Data {
     }
     pub(crate) fn active_task(&self) -> Option<&ActiveTask> {
         self.active_task.as_ref()
+    }
+    pub(crate) fn interrupted_task(&self) -> Option<&ActiveTask> {
+        self.interrupted_task.as_ref()
+    }
+    /// Returns whether the active task temporarily interrupts a paused task.
+    pub(crate) fn has_interrupted_task(&self) -> bool {
+        self.interrupted_task.is_some()
     }
     pub(crate) fn has_tasks(&self) -> bool {
         !self.tasks.is_empty()
@@ -70,20 +83,36 @@ impl Data {
             .unwrap_or_else(|| "Deleted project".into())
     }
 
-    /// Stops a restored active task at its most recently persisted checkpoint.
+    /// Stops restored unfinished work at each task's most recently persisted checkpoint.
     ///
     /// This prevents time spent while the application was not running from
     /// being included in the completed task.
     pub(crate) fn recover_active(&mut self) {
+        if let Some(interrupted) = self.interrupted_task.take() {
+            self.tasks.push(interrupted.recover());
+        }
         if let Some(active) = self.active_task.take() {
             self.tasks.push(active.recover());
         }
     }
 
-    /// Begins a task for `project_id`, replacing any existing active task.
-    pub(crate) fn start_tracking(&mut self, project_id: ProjectId, timestamp: i64) {
-        let id = TaskId::new(format!("task-{timestamp}-{}", self.tasks.len() + 1));
+    /// Begins a task or temporarily interrupts the current task.
+    ///
+    /// Only one interruption level is supported: the active secondary task
+    /// must be finished before another task can begin.
+    pub(crate) fn start_tracking(&mut self, project_id: ProjectId, timestamp: i64) -> Result<()> {
+        if self.interrupted_task.is_some() {
+            return Err(TrackerError::SecondaryTaskAlreadyActive);
+        }
+        if let Some(mut primary) = self.active_task.take() {
+            if !primary.paused() {
+                primary.toggle_pause(timestamp);
+            }
+            self.interrupted_task = Some(primary);
+        }
+        let id = self.next_task_id(timestamp);
         self.active_task = Some(ActiveTask::new(id, project_id, timestamp));
+        Ok(())
     }
     /// Records elapsed work through `timestamp` when an unpaused task is active.
     ///
@@ -104,7 +133,8 @@ impl Data {
         true
     }
 
-    /// Converts the active task into a completed task at `timestamp`.
+    /// Converts the active task into a completed task at `timestamp` and makes
+    /// a paused primary task active again after its secondary task finishes.
     ///
     /// Returns `false` when no task is active.
     pub(crate) fn end_tracking(&mut self, timestamp: i64) -> bool {
@@ -112,6 +142,9 @@ impl Data {
             return false;
         };
         self.tasks.push(active.into_task(timestamp));
+        if let Some(primary) = self.interrupted_task.take() {
+            self.active_task = Some(primary);
+        }
         true
     }
     /// Replaces the note on the most recently completed task, if there is one.
@@ -168,6 +201,40 @@ impl Data {
         {
             self.active_task = None;
         }
+        if self
+            .interrupted_task
+            .as_ref()
+            .is_some_and(|task| task.project_id() == id)
+        {
+            self.interrupted_task = None;
+        }
+    }
+
+    /// Creates an ID that remains unique when multiple tasks start in the same second.
+    ///
+    /// Completed work, the visible active task, and a paused interrupted task all
+    /// participate in the check because a primary and secondary task may coexist.
+    fn next_task_id(&self, timestamp: i64) -> TaskId {
+        let mut sequence = 1;
+        loop {
+            let candidate = format!("task-{timestamp}-{sequence}");
+            let in_use = self
+                .tasks
+                .iter()
+                .any(|task| task.id().as_str() == candidate)
+                || self
+                    .active_task
+                    .as_ref()
+                    .is_some_and(|task| task.id().as_str() == candidate)
+                || self
+                    .interrupted_task
+                    .as_ref()
+                    .is_some_and(|task| task.id().as_str() == candidate);
+            if !in_use {
+                return TaskId::new(candidate);
+            }
+            sequence += 1;
+        }
     }
 }
 
@@ -179,13 +246,15 @@ mod tests {
     #[test]
     fn tracking_creates_tasks_under_projects() {
         let mut data = Data::defaults();
-        data.start_tracking(ProjectId::new("project-2"), 10);
+        data.start_tracking(ProjectId::new("project-2"), 10)
+            .unwrap();
         assert!(data.checkpoint_active(40));
         data.recover_active();
         assert!(data.active_task().is_none());
         assert_eq!(data.tasks()[0].ended() - data.tasks()[0].started(), 30);
         assert_eq!(data.project_name(data.tasks()[0].project_id()), "Admin");
-        data.start_tracking(ProjectId::new("project-1"), 50);
+        data.start_tracking(ProjectId::new("project-1"), 50)
+            .unwrap();
         assert!(data.end_tracking(80));
         data.save_task_note("Brief".into());
         assert_eq!(data.tasks()[1].note(), "Brief");
@@ -201,7 +270,8 @@ mod tests {
     #[test]
     fn paused_tracking_excludes_the_paused_interval() {
         let mut data = Data::defaults();
-        data.start_tracking(ProjectId::new("project-1"), 10);
+        data.start_tracking(ProjectId::new("project-1"), 10)
+            .unwrap();
         assert!(data.toggle_pause(70));
         assert_eq!(data.active_task().unwrap().elapsed_until(120), 60);
         assert!(data.toggle_pause(130));
@@ -209,6 +279,59 @@ mod tests {
         assert!(data.toggle_pause(170));
         assert!(data.end_tracking(220));
         assert_eq!(data.tasks()[0].ended() - data.tasks()[0].started(), 100);
+    }
+
+    #[test]
+    fn secondary_task_pauses_and_then_restores_the_primary_task() {
+        let mut data = Data::defaults();
+        data.start_tracking(ProjectId::new("project-1"), 10)
+            .unwrap();
+        assert!(data.checkpoint_active(40));
+
+        data.start_tracking(ProjectId::new("project-2"), 50)
+            .unwrap();
+        assert!(data.has_interrupted_task());
+        assert_eq!(
+            data.active_task().unwrap().project_id().as_str(),
+            "project-2"
+        );
+        assert_eq!(data.interrupted_task().unwrap().elapsed_until(80), 40);
+        assert!(data.interrupted_task().unwrap().paused());
+        assert!(matches!(
+            data.start_tracking(ProjectId::new("project-3"), 60),
+            Err(TrackerError::SecondaryTaskAlreadyActive)
+        ));
+
+        assert!(data.end_tracking(80));
+        assert_eq!(data.tasks().len(), 1);
+        assert_eq!(data.tasks()[0].project_id().as_str(), "project-2");
+        assert_eq!(
+            data.active_task().unwrap().project_id().as_str(),
+            "project-1"
+        );
+        assert!(data.active_task().unwrap().paused());
+        assert!(!data.has_interrupted_task());
+    }
+
+    #[test]
+    fn recovery_finishes_both_tasks_without_resuming_them() {
+        let mut data = Data::defaults();
+        data.start_tracking(ProjectId::new("project-1"), 10)
+            .unwrap();
+        assert!(data.checkpoint_active(40));
+        data.start_tracking(ProjectId::new("project-2"), 50)
+            .unwrap();
+        assert!(data.checkpoint_active(70));
+
+        data.recover_active();
+
+        assert!(data.active_task().is_none());
+        assert!(!data.has_interrupted_task());
+        assert_eq!(data.tasks().len(), 2);
+        assert_eq!(data.tasks()[0].project_id().as_str(), "project-1");
+        assert_eq!(data.tasks()[0].ended() - data.tasks()[0].started(), 40);
+        assert_eq!(data.tasks()[1].project_id().as_str(), "project-2");
+        assert_eq!(data.tasks()[1].ended() - data.tasks()[1].started(), 20);
     }
 
     #[test]
@@ -233,7 +356,7 @@ mod tests {
     fn projects_can_be_archived_without_removing_their_history() {
         let mut data = Data::defaults();
         let project_id = ProjectId::new("project-1");
-        data.start_tracking(project_id.clone(), 10);
+        data.start_tracking(project_id.clone(), 10).unwrap();
         assert!(data.end_tracking(70));
         data.archive_project(&project_id);
         assert!(data.projects()[0].archived());
@@ -249,7 +372,7 @@ mod tests {
     fn deleting_a_project_removes_its_sessions() {
         let mut data = Data::defaults();
         let project_id = ProjectId::new("project-1");
-        data.start_tracking(project_id.clone(), 10);
+        data.start_tracking(project_id.clone(), 10).unwrap();
         assert!(data.end_tracking(70));
         data.delete_project(&project_id);
         assert!(

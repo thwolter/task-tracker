@@ -15,13 +15,13 @@ impl UiController {
     }
 
     pub(super) fn start_tracking(&mut self, ui: &AppWindow, project_id: SharedString) {
-        if let Err(error) = self
+        match self
             .tracker
             .start_tracking(project_id.to_string(), domain::now())
         {
-            self.set_error(ui, format!("Could not save data: {error}"));
+            Ok(()) => ui.set_current_page(Page::Tracking),
+            Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
         }
-        ui.set_current_page(Page::Tracking);
         self.refresh(ui);
     }
 

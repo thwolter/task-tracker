@@ -123,6 +123,63 @@ component LastTaskCard inherits Rectangle {
         : Theme.surface-subtle;
 }
 
+component ResumeCard inherits Rectangle {
+    in property <TrackingState> tracker;
+
+    background: Theme.surface-card;
+    border-width: 1px;
+    border-color: Theme.border-default;
+    border-radius: Theme.border.radius;
+
+    VerticalLayout {
+        padding: 10px;
+        spacing: 10px;
+
+        Text {
+            text: @tr("PAUSED") + " · " + root.tracker.elapsed + " TRACKED";
+            color: Theme.action-primary;
+            font-size: Theme.typography.caption.size;
+            font-weight: Theme.typography.caption.weight;
+        }
+        Text {
+            text: root.tracker.active-task;
+            color: Theme.content-primary;
+            font-size: Theme.typography.body-strong.size;
+            font-weight: Theme.typography.body-strong.weight;
+        }
+		Text {
+			text: @tr("Timer stopped until you resume.");
+			color: Theme.content-primary;
+			font-size: Theme.typography.caption.size;
+            font-weight: Theme.typography.caption.weight;
+		}
+        HorizontalLayout {
+            alignment: space-between;
+            AppButton {
+                width: parent.width / 2 - 8px;
+                label: "Resume";
+                primary: true;
+                clicked => {
+                    AppActions.toggle-tracking-pause();
+                    AppActions.navigate(Page.tracking);
+                }
+            }
+
+            AppButton {
+                width: parent.width / 2 - 8px;
+                label: "Stop";
+                primary: false;
+                background: Theme.action-danger;
+                label-color: Theme.content-on-accent;
+                clicked => {
+                    AppActions.end-tracking();
+                    AppActions.navigate(Page.note);
+                }
+            }
+        }
+    }
+}
+
 component Footer inherits Text {
     height: 16px;
     color: Theme.content-muted;
@@ -152,15 +209,13 @@ export component HomeView inherits Rectangle {
             HomeHeader {
             }
 
-            if (root.state.has-last-task): LastTaskCard {
+            if (root.state.has-last-task && root.tracker.active-task == ""): LastTaskCard {
                 task: root.state.last-task;
                 clicked => { AppActions.open-last-task(); }
             }
 
-            if (root.tracker.active-task != ""): AppButton {
-                label: root.tracker.active-task + " · " + root.tracker.elapsed;
-                primary: false;
-                clicked => { AppActions.navigate(Page.tracking); }
+            if (root.tracker.active-task != ""): ResumeCard {
+                tracker: root.tracker;
             }
 
             VerticalLayout {

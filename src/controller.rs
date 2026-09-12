@@ -81,6 +81,10 @@ impl UiController {
     /// Displays a simple user-requested destination. Workflow handlers select pages only
     /// after their application operation succeeds.
     fn navigate(&self, ui: &AppWindow, page: Page) {
+        if page == Page::Home && self.tracker.data().has_interrupted_task() {
+            self.set_error(ui, "Finish the interrupted task before returning home");
+            return;
+        }
         ui.set_current_page(page);
     }
 

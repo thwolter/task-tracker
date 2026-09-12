@@ -75,6 +75,14 @@ impl SqliteStore {
                 checkpoint INTEGER NOT NULL,
                 paused INTEGER NOT NULL CHECK (paused IN (0, 1))
             );
+            CREATE TABLE IF NOT EXISTS interrupted_task (
+                singleton INTEGER PRIMARY KEY CHECK (singleton = 1),
+                id TEXT NOT NULL,
+                project_id TEXT NOT NULL REFERENCES projects(id),
+                started INTEGER NOT NULL,
+                checkpoint INTEGER NOT NULL,
+                paused INTEGER NOT NULL CHECK (paused IN (0, 1))
+            );
             ",
         )?;
         Ok(connection)
@@ -139,7 +147,28 @@ impl SqliteStore {
             )
             .optional()?;
 
-        Ok(Data::from_storage(projects, tasks, active_task))
+        let interrupted_task = connection
+            .query_row(
+                "SELECT id, project_id, started, checkpoint, paused FROM interrupted_task WHERE singleton = 1",
+                [],
+                |row| {
+                    Ok(ActiveTask::from_storage(
+                        TaskId::from(row.get::<_, String>(0)?),
+                        ProjectId::from(row.get::<_, String>(1)?),
+                        row.get(2)?,
+                        row.get(3)?,
+                        row.get::<_, i64>(4)? != 0,
+                    ))
+                },
+            )
+            .optional()?;
+
+        Ok(Data::from_storage(
+            projects,
+            tasks,
+            active_task,
+            interrupted_task,
+        ))
     }
 
     /// Replaces the stored tracker state in one transaction.
@@ -147,6 +176,7 @@ impl SqliteStore {
         let mut connection = self.connection()?;
         let transaction = connection.transaction()?;
         transaction.execute("DELETE FROM active_task", [])?;
+        transaction.execute("DELETE FROM interrupted_task", [])?;
         transaction.execute("DELETE FROM tasks", [])?;
         transaction.execute("DELETE FROM projects", [])?;
 
@@ -185,6 +215,18 @@ impl SqliteStore {
                 ],
             )?;
         }
+        if let Some(interrupted) = data.interrupted_task() {
+            transaction.execute(
+                "INSERT INTO interrupted_task (singleton, id, project_id, started, checkpoint, paused) VALUES (1, ?1, ?2, ?3, ?4, ?5)",
+                params![
+                    interrupted.id().as_str(),
+                    interrupted.project_id().as_str(),
+                    interrupted.started(),
+                    interrupted.checkpoint(),
+                    interrupted.paused() as i64,
+                ],
+            )?;
+        }
         transaction.commit()?;
         Ok(())
     }
@@ -211,10 +253,14 @@ mod tests {
 
         assert_eq!(store.load_or_default().projects().len(), 4);
         let mut data = Data::defaults();
-        data.start_tracking(ProjectId::from("project-1".to_owned()), 10);
+        data.start_tracking(ProjectId::from("project-1".to_owned()), 10)
+            .unwrap();
         assert!(data.end_tracking(40));
         data.save_task_note("Planning".into());
-        data.start_tracking(ProjectId::from("project-2".to_owned()), 50);
+        data.start_tracking(ProjectId::from("project-1".to_owned()), 45)
+            .unwrap();
+        data.start_tracking(ProjectId::from("project-2".to_owned()), 50)
+            .unwrap();
         assert!(data.toggle_pause(60));
 
         store.save(&data).unwrap();
@@ -227,6 +273,11 @@ mod tests {
             "project-2"
         );
         assert!(loaded.active_task().unwrap().paused());
+        assert!(loaded.has_interrupted_task());
+        assert_eq!(
+            loaded.interrupted_task().unwrap().project_id().as_str(),
+            "project-1"
+        );
         assert!(path.exists());
 
         fs::remove_file(path).unwrap();

@@ -5,6 +5,9 @@ pub enum TrackerError {
     #[error("Project name cannot be empty")]
     EmptyProjectName,
 
+    #[error("Finish the interrupted task before starting another one")]
+    SecondaryTaskAlreadyActive,
+
     #[error(transparent)]
     Sqlite(#[from] rusqlite::Error),
 

@@ -259,7 +259,6 @@ pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
                 tracker
                     .data()
                     .project_name(active.project_id())
-                    .to_uppercase()
                     .into(),
                 format_elapsed(active.elapsed_until(timestamp)).into(),
                 active.paused(),
@@ -270,6 +269,7 @@ pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
         active_task,
         elapsed,
         paused,
+        secondary_active: tracker.data().has_interrupted_task(),
     }
 }
 
