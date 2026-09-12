@@ -23,7 +23,7 @@ import { StatusText } from "components/status-text.slint";
 import { DrilldownView } from "views/drilldown.slint";
 
 export component AppWindow inherits Window {
-    title: "Tempo" + (tracking.paused ? " · " + @tr("paused") : "");
+    title: tracking.active-task + " · " + (tracking.paused ? @tr("paused") : tracking.elapsed);
     width: 280px;
     preferred-height: 460px;
     min-height: 400px;
