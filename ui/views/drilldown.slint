@@ -13,7 +13,8 @@ import { DurationLabel } from "../components/duration-label.slint";
 import { EvaluationSummary } from "../components/evaluation-summary.slint";
 import { RangeList } from "../components/range-list.slint";
 import { IconButton } from "../components/icon-button.slint";
-import { ScrollView } from "std-widgets.slint";
+import { ScrollView, HorizontalBox } from "std-widgets.slint";
+import { TextEdit } from "../components/text-edit.slint";
 
 component TaskTimelineMarker inherits Rectangle {
     Rectangle {
@@ -32,127 +33,56 @@ component TaskTimelineMarker inherits Rectangle {
     }
 }
 
-component TaskEditor inherits Rectangle {
+component TaskEditor inherits HorizontalLayout {
+    in property <EvaluationTaskItem> entry;
 
-	callback save();
+    callback cancel();
 
-	HorizontalLayout {
-        alignment: start;
-        padding-left: 5px;
+    VerticalLayout {
+        width: 100%;
+        spacing: 10px;
 
-
-        VerticalLayout {
-            spacing: 10px;
+        TextEdit {
+            placeholder: root.entry.note;
+        }
+        HorizontalLayout {
+            alignment: space-between;
             cross-axis-alignment: center;
-            AppButton {
-                label: @tr("Save");
-                label-font: Theme.typography.caption;
-                prefix-icon: @image-url("../assets/icons/check.svg");
-                clicked => { root.save(); }
+
+            IconButton {
+                icon: @image-url("../assets/icons/delete.svg");
+                icon-color: Theme.action-danger;
+                background: Theme.surface-card;
             }
-            TextLink {
-                text: @tr("Cancel");
-                font-size: Theme.typography.caption.size;
-            }
-        }
+            HorizontalLayout {
+                spacing: 10px;
 
-    }
-}
-
-component TaksCardButtons inherits Rectangle {
-    in property <bool> editing;
-
-    callback edit();
-    callback save();
-    callback delete();
-
-    if (!root.editing): HorizontalLayout {
-        spacing: 8px;
-        alignment: end;
-
-        IconButton {
-            icon: @image-url("../assets/icons/edit.svg");
-            icon-color: Theme.action-primary;
-            clicked => { root.edit(); }
-        }
-
-        IconButton {
-            icon: @image-url("../assets/icons/delete.svg");
-            icon-color: Theme.action-danger;
-            clicked => { root.delete(); }
-        }
-    }
-
-    if (root.editing): TaskEditor {}
-}
-
-component TaskNoteContent inherits VerticalLayout {
-    in property <bool> editing;
-    in property <string> note;
-
-    in-out property <string> draft;
-
-    callback save(string);
-
-    vertical-stretch: 0;
-    alignment: start;
-
-    if (!root.editing): Rectangle {
-
-        height: description.preferred-height;
-
-        description := Text {
-            x: 0px;
-            width: 120px;
-            height: 100%;
-            text: note == "" ? @tr("No details added") : root.note;
-            color: Theme.content-primary;
-            font-size: Theme.typography.body.size;
-            font-weight: Theme.typography.body.weight;
-            wrap: word-wrap;
-            horizontal-alignment: left;
-            vertical-alignment: top;
-            horizontal-stretch: 0;
-        }
-    }
-
-    if (root.editing): Rectangle {
-        height: max(34px, description-input.preferred-height + 10px);
-        background: Theme.surface-card;
-        border-color: Theme.border-focus;
-        border-width: 1px;
-
-        description-input := HorizontalLayout {
-            padding: 5px;
-            TextInput {
-                width: 100%;
-                height: self.preferred-height;
-                single-line: false;
-                wrap: word-wrap;
-                font-size: Theme.typography.body.size;
-                font-weight: Theme.typography.body.weight;
-                color: Theme.content-primary;
-                text <=> root.draft;
-                accepted => {
-                    root.save(root.draft);
+                AppButton {
+                    label: @tr("Cancel");
+                    primary: false;
+                    clicked => { cancel(); }
+                }
+                AppButton {
+                    label: @tr("Save");
                 }
             }
+
         }
     }
+
 }
 
 export component TaskCard inherits Rectangle {
     in property <EvaluationTaskItem> entry;
-    in property <bool> editing;
     in-out property <string> description-draft;
+    private property <bool> editing;
 
-    callback edit-requested(string, string);
+    callback edit(EvaluationTaskItem);
     callback save-requested(string, string);
     callback delete-task(string);
 
-    min-width: 0px;
-
     HorizontalLayout {
+        width: 100%;
         spacing: 12px;
 
         TaskTimelineMarker {
@@ -160,12 +90,15 @@ export component TaskCard inherits Rectangle {
         }
 
         Rectangle {
+            horizontal-stretch: 1;
+            max-width: parent.width;
             HorizontalLayout {
                 padding-top: 5px;
                 padding-bottom: 10px;
                 cross-axis-alignment: center;
 
                 VerticalLayout {
+                    width: 100%;
                     alignment: start;
                     spacing: 5px;
 
@@ -176,55 +109,39 @@ export component TaskCard inherits Rectangle {
                         font-weight: Theme.typography.caption.weight;
                     }
 
-                    Text {
-			            height: 100%;
-			            text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
-			            color: Theme.content-primary;
-			            font-size: Theme.typography.body.size;
-			            font-weight: Theme.typography.body.weight;
-			            wrap: word-wrap;
-			            horizontal-alignment: left;
-			            vertical-alignment: top;
-			            horizontal-stretch: 0;
+                    if (!root.editing): Rectangle {
+                        TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { root.editing = true; }
+                        }
+                        HorizontalLayout {
+                            alignment: space-between;
+                            cross-axis-alignment: start;
+
+                            Text {
+                                height: 100%;
+                                text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
+                                color: Theme.content-primary;
+                                font-size: Theme.typography.body.size;
+                                font-weight: Theme.typography.body.weight;
+                                wrap: word-wrap;
+                                horizontal-alignment: left;
+                                vertical-alignment: top;
+                                horizontal-stretch: 0;
+                            }
+                            Image {
+                                source: @image-url("../assets/icons/edit.svg");
+                                width: 18px;
+                            }
+                        }
 			        }
 
-                    /*TaskNoteContent {
-                        note: root.entry.note;
-                        editing: root.editing;
-
-                        draft <=> root.description-draft;
-                        save(draft) => { root.save-requested(root.entry.id, root.description-draft); }
-                    }*/
+                    if (root.editing): TaskEditor {
+			            entry: root.entry;
+			            cancel => { root.editing = false;}
+			        }
                 }
-
-                /*// Duration label and edit/delte buttons
-                VerticalLayout {
-                    Text {
-                        width: 70px;
-                        text: duration.text;
-                        color: Theme.action-primary;
-                        font-size: Theme.typography.supporting.size;
-                        font-weight: Theme.typography.supporting.weight;
-                        horizontal-alignment: right;
-                    }
-
-                    TaksCardButtons {
-                        editing: root.editing;
-                        edit => { root.edit-requested(root.entry.id, root.entry.note); }
-                        save => { root.save-requested(root.entry.id, root.description-draft); }
-                        delete => { root.delete-task(root.entry.id); }
-                    }
-                }*/
-
-				Image {
-		            source: @image-url("../assets/icons/edit.svg");
-		            width: 18px;
-		        }
             }
-
-            TouchArea {
-	            mouse-cursor: pointer;
-	        }
 
             Rectangle {
                 y: parent.height - 1px;
@@ -242,7 +159,9 @@ export component TaskCard inherits Rectangle {
 
 export component DrilldownView inherits Rectangle {
     in property <EvaluationTasksState> state;
-    private property <string> editing-task-id: "";
+
+    private property <EvaluationTaskItem> active-task;
+    private property <bool> editing: false;
     private property <string> description-draft: "";
 
     VerticalLayout {
@@ -289,17 +208,18 @@ export component DrilldownView inherits Rectangle {
 
                 for task in root.state.tasks: TaskCard {
                     entry: task;
-                    editing: root.editing-task-id == task.id;
-                    description-draft <=> root.description-draft;
-                    edit-requested(id, note) => {
-                        root.editing-task-id = id;
-                        root.description-draft = note;
+                    /*description-draft <=> root.description-draft;
+                    edit(task) => {
+                        root.active-task = task;
+                        root.editing = true;
+                        root.description-draft = task.note;
                     }
                     save-requested(id, note) => {
                         AppActions.update-evaluation-task(id, note);
                         root.editing-task-id = "";
                     }
                     delete-task(id) => { AppActions.delete-evaluation-task(id); }
+                    */
                 }
             }
         }
