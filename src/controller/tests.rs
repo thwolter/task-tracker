@@ -1,7 +1,10 @@
 use super::bind;
-use crate::{AppActions, AppWindow, Page, Range, application::Tracker, domain, language::Language};
+use crate::{
+    AppActions, AppWindow, Page, Range, TrackingState, application::Tracker, domain,
+    language::Language,
+};
 use slint::{ComponentHandle, Model};
-use std::{path::PathBuf, time::Duration};
+use std::{path::PathBuf, thread, time::Duration};
 
 fn test_path(name: &str) -> PathBuf {
     std::env::temp_dir().join(format!(
@@ -138,6 +141,63 @@ fn tracking_commands_refresh_the_ui_through_the_single_dispatcher() {
     assert_eq!(ui.get_home().last_task.note, "Finished the review");
 
     std::fs::remove_file(path).unwrap();
+}
+
+#[test]
+fn active_tracking_remains_available_after_returning_home() {
+    i_slint_backend_testing::init_no_event_loop();
+    let path = test_path("tracking-home");
+    let ui = AppWindow::new().unwrap();
+    bind(&ui, Tracker::at(path.clone()), Language::English);
+    let actions = ui.global::<AppActions>();
+
+    actions.invoke_start_tracking("project-1".into());
+    actions.invoke_navigate(Page::Home);
+    let elapsed_before_tick = ui.get_tracking().elapsed;
+    thread::sleep(Duration::from_millis(1_100));
+    actions.invoke_tick();
+
+    assert_eq!(ui.get_current_page(), Page::Home);
+    assert_eq!(ui.get_tracking().active_task, "PROJECT ATLAS");
+    assert_ne!(ui.get_tracking().elapsed, elapsed_before_tick);
+
+    std::fs::remove_file(path).unwrap();
+}
+
+#[cfg(debug_assertions)]
+#[test]
+fn home_tracker_control_reacts_to_live_tracking_updates() {
+    i_slint_backend_testing::init_no_event_loop();
+    let ui = AppWindow::new().unwrap();
+    ui.set_current_page(Page::Home);
+
+    ui.set_tracking(TrackingState {
+        active_task: "PROJECT ATLAS".into(),
+        elapsed: "00:10".into(),
+        paused: false,
+    });
+    assert!(
+        i_slint_backend_testing::ElementHandle::find_by_accessible_label(
+            &ui,
+            "PROJECT ATLAS · 00:10"
+        )
+        .next()
+        .is_some()
+    );
+
+    ui.set_tracking(TrackingState {
+        active_task: "PROJECT ATLAS".into(),
+        elapsed: "00:11".into(),
+        paused: false,
+    });
+    assert!(
+        i_slint_backend_testing::ElementHandle::find_by_accessible_label(
+            &ui,
+            "PROJECT ATLAS · 00:11"
+        )
+        .next()
+        .is_some()
+    );
 }
 
 #[test]

@@ -52,6 +52,7 @@ export component AppWindow inherits Window {
 
             if root.current-page == Page.home: HomeView {
                 state: root.home;
+                tracker: root.tracking;
             }
             if root.current-page == Page.tracking: TrackingView {
                 state: root.tracking;

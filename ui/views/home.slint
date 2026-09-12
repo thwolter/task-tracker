@@ -1,6 +1,7 @@
 import { ScrollView, VerticalBox } from "std-widgets.slint";
+import { AppButton } from "../components/app-button.slint";
 import { ProjectCard } from "../components/project-card.slint";
-import { HomeState, Page, TaskItem } from "../models.slint";
+import { HomeState, Page, TaskItem, TrackingState } from "../models.slint";
 import { AppActions } from "../actions.slint";
 import { Theme } from "../theme.slint";
 import { ViewHeader } from "../components/typography.slint";
@@ -133,6 +134,9 @@ component Footer inherits Text {
 
 export component HomeView inherits Rectangle {
     in property <HomeState> state;
+    // AppWindow owns this projection, so an active session survives replacing
+    // TrackingView with HomeView during navigation.
+    in property <TrackingState> tracker;
 
     private property <length> footer-clearance: 20px;
 
@@ -151,6 +155,12 @@ export component HomeView inherits Rectangle {
             if (root.state.has-last-task): LastTaskCard {
                 task: root.state.last-task;
                 clicked => { AppActions.open-last-task(); }
+            }
+
+            if (root.tracker.active-task != ""): AppButton {
+                label: root.tracker.active-task + " · " + root.tracker.elapsed;
+                primary: false;
+                clicked => { AppActions.navigate(Page.tracking); }
             }
 
             VerticalLayout {

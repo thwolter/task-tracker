@@ -7,10 +7,11 @@ impl UiController {
         if let Err(error) = self.tracker.tick(domain::now()) {
             self.set_error(ui, format!("Could not save data: {error}"));
         }
-        // Refresh only the live tracking view to avoid stealing focus from text inputs.
-        if ui.get_current_page() == Page::Tracking {
-            self.refresh(ui);
-        }
+        // Keep the application-owned projection live even when TrackingView is
+        // conditionally removed. HomeView consumes this same state as its link
+        // back to the active session, while other editable projections retain
+        // their current drafts and focus.
+        ui.set_tracking(crate::presentation::tracking(&self.tracker, domain::now()));
     }
 
     pub(super) fn start_tracking(&mut self, ui: &AppWindow, project_id: SharedString) {

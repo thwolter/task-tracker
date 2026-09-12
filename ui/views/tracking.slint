@@ -1,32 +1,43 @@
 import { AppButton } from "../components/app-button.slint";
 import { TimerDisplay } from "../components/timer-display.slint";
-import { TrackingState } from "../models.slint";
+import { Page, TrackingState } from "../models.slint";
 import { AppActions } from "../actions.slint";
+import { BackLink } from "../components/back-link.slint";
 
 export component TrackingView inherits Rectangle {
     in property <TrackingState> state;
 
     VerticalLayout {
         padding: 20px;
-        spacing: 50px;
-        cross-axis-alignment: center;
-        alignment: center;
+        spacing: 10px;
 
-        TimerDisplay {
-            task: root.state.active-task;
-            elapsed: root.state.elapsed;
-            paused: root.state.paused;
-
-            pause => { AppActions.toggle-tracking-pause(); }
+        BackLink {
+            text: @tr("Home");
+            clicked => { AppActions.navigate(Page.home); }
         }
 
-        AppButton {
-            width: 232px;
-            height: 50px;
-            label: @tr("End task");
-            primary: root.state.paused ? false : true;
+        VerticalLayout {
+            vertical-stretch: 1;
+            spacing: 50px;
+            cross-axis-alignment: center;
+            alignment: center;
 
-            clicked => { AppActions.end-tracking(); }
+            TimerDisplay {
+                task: root.state.active-task;
+                elapsed: root.state.elapsed;
+                paused: root.state.paused;
+
+                pause => { AppActions.toggle-tracking-pause(); }
+            }
+
+            AppButton {
+                width: 232px;
+                height: 50px;
+                label: @tr("End task");
+                primary: root.state.paused ? false : true;
+
+                clicked => { AppActions.end-tracking(); }
+            }
         }
     }
 }
