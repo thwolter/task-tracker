@@ -2,13 +2,20 @@ import { Theme } from "../theme.slint";
 
 export component DialogCard inherits Rectangle {
     in property <string> title: "";
+    in property <length> spacing: 10px;
+    in property <color> title-color: Theme.content-primary;
 
     background: Theme.surface-canvas;
 
     VerticalLayout {
+        width: 100%;
+        padding: 20px;
         alignment: center;
+        horizontal-stretch: 1;
+
         HorizontalLayout {
             Rectangle {
+                width: parent.width;
 	            background: Theme.surface-card;
 
 	            border-width: 1px;
@@ -22,10 +29,11 @@ export component DialogCard inherits Rectangle {
 
 				VerticalLayout {
 					padding: 20px;
+					spacing: root.spacing;
 
 					if (root.title != ""): Text {
 						text: root.title;
-						color: Theme.content-primary;
+						color: root.title-color;
 						font-size: Theme.typography.title.size;
 						font-weight: Theme.typography.title.weight;
 					}

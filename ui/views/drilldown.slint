@@ -1,5 +1,5 @@
 import { AppButton } from "../components/app-button.slint";
-import { ViewHeader, TextLink } from "../components/typography.slint";
+import { ViewHeader, TextLink, LabelText, BodyText } from "../components/typography.slint";
 import {
     EvaluationTasksState,
     Page,
@@ -13,6 +13,7 @@ import { DurationLabel } from "../components/duration-label.slint";
 import { EvaluationSummary } from "../components/evaluation-summary.slint";
 import { RangeList } from "../components/range-list.slint";
 import { IconButton } from "../components/icon-button.slint";
+import { DeleteConfirmation } from "../components/delete-confirmation.slint";
 import { ScrollView, HorizontalBox } from "std-widgets.slint";
 import { TextEdit } from "../components/text-edit.slint";
 
@@ -37,13 +38,16 @@ component TaskEditor inherits HorizontalLayout {
     in property <EvaluationTaskItem> entry;
 
     callback cancel();
+    callback delete-requested(EvaluationTaskItem);
 
     VerticalLayout {
         width: 100%;
         spacing: 10px;
 
         TextEdit {
-            placeholder: root.entry.note;
+            placeholder: root.entry.note == ""
+                ? @tr("e.g. prepared the Q4 project brief")
+                : root.entry.note;
         }
         HorizontalLayout {
             alignment: space-between;
@@ -52,7 +56,8 @@ component TaskEditor inherits HorizontalLayout {
             IconButton {
                 icon: @image-url("../assets/icons/delete.svg");
                 icon-color: Theme.action-danger;
-                background: Theme.surface-card;
+                background: transparent;
+                clicked => { root.delete-requested(root.entry); }
             }
             HorizontalLayout {
                 spacing: 10px;
@@ -60,6 +65,7 @@ component TaskEditor inherits HorizontalLayout {
                 AppButton {
                     label: @tr("Cancel");
                     primary: false;
+                    outlined: true;
                     clicked => { cancel(); }
                 }
                 AppButton {
@@ -79,7 +85,7 @@ export component TaskCard inherits Rectangle {
 
     callback edit(EvaluationTaskItem);
     callback save-requested(string, string);
-    callback delete-task(string);
+    callback delete(EvaluationTaskItem);
 
     HorizontalLayout {
         width: 100%;
@@ -137,9 +143,10 @@ export component TaskCard inherits Rectangle {
 			        }
 
                     if (root.editing): TaskEditor {
-			            entry: root.entry;
-			            cancel => { root.editing = false;}
-			        }
+		            entry: root.entry;
+		            cancel => { root.editing = false;}
+		            delete-requested(task) => { root.delete(task); }
+		        }
                 }
             }
 
@@ -163,6 +170,24 @@ export component DrilldownView inherits Rectangle {
     private property <EvaluationTaskItem> active-task;
     private property <bool> editing: false;
     private property <string> description-draft: "";
+    private property <EvaluationTaskItem> pending-delete: {
+        id: "",
+        project: "",
+        note: "",
+        duration-seconds: 0,
+        completed-label: "",
+    };
+    private property <bool> confirming-delete: root.pending-delete.id != "";
+
+    function cancel-delete() {
+        root.pending-delete = {
+            id: "",
+            project: "",
+            note: "",
+            duration-seconds: 0,
+            completed-label: "",
+        };
+    }
 
     VerticalLayout {
         padding: 20px;
@@ -218,8 +243,8 @@ export component DrilldownView inherits Rectangle {
                         AppActions.update-evaluation-task(id, note);
                         root.editing-task-id = "";
                     }
-                    delete-task(id) => { AppActions.delete-evaluation-task(id); }
                     */
+                    delete(task) => { root.pending-delete = task; }
                 }
             }
         }
@@ -240,6 +265,38 @@ export component DrilldownView inherits Rectangle {
                 primary: true;
                 clicked => { AppActions.export-markdown(); }
             }
+        }
+    }
+
+    if (root.confirming-delete): DeleteConfirmation {
+        private property <EvaluationTaskItem> task: root.pending-delete;
+
+        Text {
+			text: @tr("Delete permanently?");
+			color: Theme.action-danger;
+			font-size: Theme.typography.title.size;
+			font-weight: Theme.typography.title.weight;
+		}
+		VerticalLayout {
+			spacing: 10px;
+			padding-top: 10px;
+
+            LabelText {
+	            text: task.completed-label;
+	            color: Theme.content-secondary;
+	            wrap: word-wrap;
+	        }
+	        BodyText {
+	            text: task.note == "" ? "[No description]" : task.note;
+	            color: Theme.content-primary;
+	            wrap: word-wrap;
+	        }
+        }
+
+        canceled => { root.cancel-delete(); }
+        confirmed => {
+            AppActions.delete-evaluation-task(root.pending-delete.id);
+            root.cancel-delete();
         }
     }
 }

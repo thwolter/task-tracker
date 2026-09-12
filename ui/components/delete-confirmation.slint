@@ -1,0 +1,46 @@
+import { EvaluationTaskItem } from "../models.slint";
+import { Theme } from "../theme.slint";
+import { AppButton } from "app-button.slint";
+import { DialogCard } from "dialog-card.slint";
+import { BodyText, LabelText } from "typography.slint";
+
+// A blocking, in-window confirmation for destructive evaluation-task actions.
+export component DeleteConfirmation inherits Rectangle {
+
+    callback canceled();
+    callback confirmed();
+
+    background: Theme.dialog-backdrop;
+
+    // Absorb pointer events before they reach the editor behind this overlay.
+    TouchArea { }
+
+    DialogCard {
+        background: transparent;
+
+		@children
+
+        HorizontalLayout {
+            padding-top: 12px;
+            spacing: 10px;
+            alignment: space-between;
+
+            AppButton {
+                label: @tr("Cancel");
+                primary: false;
+                outlined: true;
+                width: parent.width / 2 - 8px;
+                clicked => { root.canceled(); }
+            }
+
+            AppButton {
+                label: @tr("Delete");
+                fill: Theme.action-danger;
+                hover-fill: Theme.action-danger-hover;
+                pressed-fill: Theme.action-danger-pressed;
+                width: parent.width / 2 - 8px;
+                clicked => { root.confirmed(); }
+            }
+        }
+    }
+}

@@ -66,7 +66,7 @@ export component AppButton inherits Rectangle {
         if (!root.enabled) { return root.style.disabled-fill; }
         if (touch.pressed) { return Theme.action-secondary-pressed; }
         if (touch.has-hover) { return Theme.action-secondary-hover; }
-        return Theme.surface-card;
+        return transparent;
     }
 
     function set-current-label-color() -> color {
