@@ -18,10 +18,12 @@ import { ScrollView, HorizontalBox } from "std-widgets.slint";
 import { TextEdit } from "../components/text-edit.slint";
 
 component TaskTimelineMarker inherits Rectangle {
+    in property <length> line-height;
+
     Rectangle {
         x: 4px;
         width: 2px;
-        height: parent.height;
+        height: root.line-height;
         background: Theme.border-subtle;
     }
 
@@ -39,6 +41,7 @@ component TaskEditor inherits HorizontalLayout {
 
     callback cancel();
     callback delete-requested(EvaluationTaskItem);
+
 
     VerticalLayout {
         width: 100%;
@@ -69,6 +72,7 @@ component TaskEditor inherits HorizontalLayout {
                     clicked => { cancel(); }
                 }
                 AppButton {
+                    prefix-icon: @image-url("../assets/icons/check.svg");
                     label: @tr("Save");
                 }
             }
@@ -83,16 +87,22 @@ export component TaskCard inherits Rectangle {
     in-out property <string> description-draft;
     private property <bool> editing;
 
+    // Cards retain their content height; the footer spacer absorbs any surplus.
+    vertical-stretch: 0;
+    height: card-content.preferred-height;
+
     callback edit(EvaluationTaskItem);
     callback save-requested(string, string);
     callback delete(EvaluationTaskItem);
 
-    HorizontalLayout {
+    card-content := HorizontalLayout {
         width: 100%;
         spacing: 12px;
 
         TaskTimelineMarker {
             width: 10px;
+            height: 40px;
+            line-height: root.height;
         }
 
         Rectangle {
@@ -116,6 +126,8 @@ export component TaskCard inherits Rectangle {
                     }
 
                     if (!root.editing): Rectangle {
+                        height: description.preferred-height > 18px
+                            ? description.preferred-height : 18px;
                         TouchArea {
                             mouse-cursor: pointer;
                             clicked => { root.editing = true; }
@@ -124,8 +136,7 @@ export component TaskCard inherits Rectangle {
                             alignment: space-between;
                             cross-axis-alignment: start;
 
-                            Text {
-                                height: 100%;
+                            description := Text {
                                 text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
                                 color: Theme.content-primary;
                                 font-size: Theme.typography.body.size;
@@ -225,25 +236,17 @@ export component DrilldownView inherits Rectangle {
         ScrollView {
             min-height: 0px;
             preferred-height: task-list.preferred-height;
-            vertical-stretch: 1;
+            // Keep the viewport at the list's content height. The footer block
+            // below receives any additional window height instead.
+            vertical-stretch: 0;
             max-height: task-list.preferred-height;
             task-list := VerticalLayout {
                 width: 100%;
                 vertical-stretch: 0;
+                alignment: start;
 
                 for task in root.state.tasks: TaskCard {
                     entry: task;
-                    /*description-draft <=> root.description-draft;
-                    edit(task) => {
-                        root.active-task = task;
-                        root.editing = true;
-                        root.description-draft = task.note;
-                    }
-                    save-requested(id, note) => {
-                        AppActions.update-evaluation-task(id, note);
-                        root.editing-task-id = "";
-                    }
-                    */
                     delete(task) => { root.pending-delete = task; }
                 }
             }
@@ -260,7 +263,8 @@ export component DrilldownView inherits Rectangle {
             }
 
             AppButton {
-                label: @tr("Export Markdown");
+                width: parent.width;
+                label: @tr("Export");
                 prefix-icon: @image-url("../assets/icons/download.svg");
                 primary: true;
                 clicked => { AppActions.export-markdown(); }
