@@ -1,4 +1,4 @@
-import { AppButton } from "../components/app-button.slint";
+import { AppButton, AppButtonIntent, AppButtonVariant } from "../components/app-button.slint";
 import { ViewHeader, TextLink, LabelText, BodyText } from "../components/typography.slint";
 import {
     EvaluationTasksState,
@@ -70,8 +70,8 @@ component TaskEditor inherits HorizontalLayout {
 
                 AppButton {
                     label: @tr("Cancel");
-                    primary: false;
-                    outlined: true;
+                    intent: AppButtonIntent.secondary;
+                    variant: AppButtonVariant.outline;
                     clicked => { cancel(); }
                 }
                 AppButton {
@@ -271,7 +271,6 @@ export component DrilldownView inherits Rectangle {
                 width: parent.width;
                 label: @tr("Export");
                 prefix-icon: @image-url("../assets/icons/download.svg");
-                primary: true;
                 clicked => { AppActions.export-markdown(); }
             }
         }

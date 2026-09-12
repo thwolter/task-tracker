@@ -114,7 +114,6 @@ export component EvaluationView inherits Rectangle {
         AppButton {
             label: @tr("Export Markdown");
             prefix-icon: @image-url("../assets/icons/download.svg");
-            primary: true;
             clicked => { AppActions.export-markdown(); }
         }
     }

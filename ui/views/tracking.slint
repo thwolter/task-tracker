@@ -1,4 +1,4 @@
-import { AppButton } from "../components/app-button.slint";
+import { AppButton, AppButtonIntent, AppButtonVariant, AppButtonSize } from "../components/app-button.slint";
 import { TimerDisplay } from "../components/timer-display.slint";
 import { Page, TrackingState } from "../models.slint";
 import { AppActions } from "../actions.slint";
@@ -54,9 +54,9 @@ export component TrackingView inherits Rectangle {
 				// End tracking
 	            AppButton {
 	                width: 232px;
-	                height: 50px;
+	                size: AppButtonSize.large;
 	                label: @tr("End task");
-	                primary: root.state.paused ? false : true;
+	                intent: root.state.paused ? AppButtonIntent.secondary : AppButtonIntent.primary;
 
 	                clicked => { AppActions.end-tracking(); }
 	            }
@@ -64,11 +64,11 @@ export component TrackingView inherits Rectangle {
 	            // Pause tracking
 	            AppButton {
 	                width: 232px;
-	                height: 50px;
-	                label: @tr("Pause");
+	                size: AppButtonSize.large;
+	                label: root.state.paused ? @tr("Resume") : @tr("Pause");
 	                label-color: Theme.content-secondary;
-	                outlined: true;
-	                primary: false;
+	                variant: AppButtonVariant.outline;
+	                intent: AppButtonIntent.secondary;
 
 	                clicked => { AppActions.toggle-tracking-pause(); }
 	            }

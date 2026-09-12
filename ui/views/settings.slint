@@ -11,7 +11,7 @@ import {
     LabelText,
     BodyText,
 } from "../components/typography.slint";
-import { AppButton } from "../components/app-button.slint";
+import { AppButton, AppButtonIntent } from "../components/app-button.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
 
 export component ProjectRow inherits Rectangle {
@@ -113,7 +113,7 @@ export component SettingsView inherits Rectangle {
                 AppButton {
                     width: project-list.row-width;
                     label: @tr("Archived ({})", root.projects.archived.length);
-                    primary: false;
+                    intent: AppButtonIntent.secondary;
                     suffix-icon: root.archived-expanded ? @image-url("../assets/icons/chevron-down.svg")
                         : @image-url("../assets/icons/chevron-right.svg");
                     clicked => { root.archived-expanded = !root.archived-expanded; }

@@ -2,7 +2,7 @@ import { LineEdit } from "../components/line-edit.slint";
 import { Page, ProjectEditorState, ProjectEditorMode } from "../models.slint";
 import { AppActions } from "../actions.slint";
 import { Theme } from "../theme.slint";
-import { AppButton } from "../components/app-button.slint";
+import { AppButton, AppButtonIntent, AppButtonVariant } from "../components/app-button.slint";
 import { BackLink } from "../components/back-link.slint";
 import {
     ViewHeader,
@@ -95,8 +95,8 @@ export component ProjectEditor inherits Rectangle {
                     AppButton {
                         width: root.width - 2 * root.content-padding;
                         label: @tr("Cancel");
-                        primary: false;
-                        outlined: true;
+                        intent: AppButtonIntent.secondary;
+                        variant: AppButtonVariant.outline;
                         clicked => { root.cancel(); }
                     }
                 }
@@ -116,8 +116,8 @@ export component ProjectEditor inherits Rectangle {
                     AppButton {
                         width: root.width - 2 * root.content-padding;
                         label: @tr("Archive project");
-                        primary: false;
-                        outlined: true;
+                        intent: AppButtonIntent.secondary;
+                        variant: AppButtonVariant.outline;
                         clicked => { AppActions.archive-project(root.state.project.id); }
                     }
                 }
@@ -132,9 +132,8 @@ export component ProjectEditor inherits Rectangle {
                     AppButton {
                         width: root.width - 2 * root.content-padding;
                         label: @tr("Delete permanently");
-                        primary: false;
-                        outlined: true;
-                        label-color: Theme.action-danger;
+                        intent: AppButtonIntent.danger;
+                        variant: AppButtonVariant.outline;
                         clicked => {
                             root.state.error = "";
                             root.state.mode = ProjectEditorMode.confirm-delete;
@@ -146,17 +145,15 @@ export component ProjectEditor inherits Rectangle {
                     AppButton {
                         width: root.width - 2 * root.content-padding;
                         label: @tr("Cancel");
-                        primary: false;
-                        outlined: true;
+                        intent: AppButtonIntent.secondary;
+                        variant: AppButtonVariant.outline;
                         clicked => { root.cancel(); }
                     }
 
                     AppButton {
                         width: root.width - 2 * root.content-padding;
                         label: @tr("Delete permanently");
-                        fill: Theme.action-danger;
-                        hover-fill: Theme.action-danger-hover;
-                        pressed-fill: Theme.action-danger-pressed;
+                        intent: AppButtonIntent.danger;
                         clicked => { AppActions.delete-project(root.state.project.id); }
                     }
                 }

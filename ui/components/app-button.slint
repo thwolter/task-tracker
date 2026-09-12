@@ -1,6 +1,10 @@
 import { Theme, Font } from "../theme.slint";
 import { HorizontalBox } from "std-widgets.slint";
 
+export enum AppButtonIntent { primary, secondary, danger }
+export enum AppButtonVariant { filled, outline }
+export enum AppButtonSize { small, medium, large }
+
 struct AppButtonStyle {
     fill: color,
     hover-fill: color,
@@ -10,24 +14,34 @@ struct AppButtonStyle {
     hover-label-color: color,
     pressed-label-color: color,
     disabled-label-color: color,
+    border-color: color,
     changes-label-on-interaction: bool,
+}
+
+struct AppButtonMetrics {
+    height: length,
+    horizontal-padding: length,
+    icon-size: length,
+    icon-gap: length,
+    font: Font,
 }
 
 export component AppButton inherits Rectangle {
     in property <string> label: @tr("Button");
-    in property <bool> primary: true;
-    in property <bool> outlined: false;
+    in property <AppButtonIntent> intent: AppButtonIntent.primary;
+    in property <AppButtonVariant> variant: AppButtonVariant.filled;
+    in property <AppButtonSize> size: AppButtonSize.medium;
     in property <image> suffix-icon;
     in property <image> prefix-icon;
     in property <color> fill;
     in property <color> hover-fill: root.style.hover-fill;
     in property <color> pressed-fill: root.style.pressed-fill;
     in property <color> label-color;
-    in property <color> outline-color: Theme.border-default;
-    in property <Font> label-font: Theme.typography.label;
+    in property <color> outline-color: root.style.border-color;
+    in property <Font> label-font: root.metrics.font;
     in property <bool> enabled: true;
 
-    private property <AppButtonStyle> primary-style: {
+    private property <AppButtonStyle> primary-filled-style: {
         fill: Theme.action-primary,
         hover-fill: Theme.action-primary-hover,
         pressed-fill: Theme.action-primary-pressed,
@@ -36,9 +50,10 @@ export component AppButton inherits Rectangle {
         hover-label-color: Theme.content-on-primary-hover,
         pressed-label-color: Theme.content-on-primary-pressed,
         disabled-label-color: Theme.content-disabled,
+        border-color: #00000000,
         changes-label-on-interaction: true,
     };
-    private property <AppButtonStyle> secondary-style: {
+    private property <AppButtonStyle> secondary-filled-style: {
         fill: Theme.action-secondary,
         hover-fill: Theme.action-secondary-hover,
         pressed-fill: Theme.action-secondary-pressed,
@@ -47,45 +62,116 @@ export component AppButton inherits Rectangle {
         hover-label-color: Theme.content-primary,
         pressed-label-color: Theme.content-primary,
         disabled-label-color: Theme.content-disabled,
+        border-color: #00000000,
         changes-label-on-interaction: false,
     };
-    private property <AppButtonStyle> style: root.primary ? root.primary-style : root.secondary-style;
-    private property <length> icon-width: Theme.typography.label.size + 2px;
-    private property <color> current-label-color: set_current_label_color();
+    private property <AppButtonStyle> danger-filled-style: {
+        fill: Theme.action-danger,
+        hover-fill: Theme.action-danger-hover,
+        pressed-fill: Theme.action-danger-pressed,
+        disabled-fill: Theme.surface-disabled,
+        label-color: Theme.content-on-accent,
+        hover-label-color: Theme.content-on-accent,
+        pressed-label-color: Theme.content-on-accent,
+        disabled-label-color: Theme.content-disabled,
+        border-color: #00000000,
+        changes-label-on-interaction: false,
+    };
+    private property <AppButtonStyle> primary-outline-style: {
+        fill: #00000000,
+        hover-fill: Theme.surface-subtle,
+        pressed-fill: Theme.action-secondary-hover,
+        disabled-fill: Theme.surface-disabled,
+        label-color: Theme.action-primary,
+        hover-label-color: Theme.action-primary,
+        pressed-label-color: Theme.action-primary,
+        disabled-label-color: Theme.content-disabled,
+        border-color: Theme.action-primary,
+        changes-label-on-interaction: false,
+    };
+    private property <AppButtonStyle> secondary-outline-style: {
+        fill: #00000000,
+        hover-fill: Theme.action-secondary-hover,
+        pressed-fill: Theme.action-secondary-pressed,
+        disabled-fill: Theme.surface-disabled,
+        label-color: Theme.content-primary,
+        hover-label-color: Theme.content-primary,
+        pressed-label-color: Theme.content-primary,
+        disabled-label-color: Theme.content-disabled,
+        border-color: Theme.border-default,
+        changes-label-on-interaction: false,
+    };
+    private property <AppButtonStyle> danger-outline-style: {
+        fill: #00000000,
+        hover-fill: Theme.surface-danger,
+        pressed-fill: Theme.action-danger-outline-pressed,
+        disabled-fill: Theme.surface-disabled,
+        label-color: Theme.action-danger,
+        hover-label-color: Theme.action-danger,
+        pressed-label-color: Theme.action-danger,
+        disabled-label-color: Theme.content-disabled,
+        border-color: Theme.action-danger,
+        changes-label-on-interaction: false,
+    };
+    private property <AppButtonStyle> style: select-style();
+    private property <AppButtonMetrics> small-metrics: {
+        height: 24px, horizontal-padding: 6px, icon-size: 13px,
+        icon-gap: 3px, font: Theme.typography.small-label,
+    };
+    private property <AppButtonMetrics> medium-metrics: {
+        height: 28px, horizontal-padding: 5px, icon-size: 15px,
+        icon-gap: 4px, font: Theme.typography.label,
+    };
+    private property <AppButtonMetrics> large-metrics: {
+        height: 50px, horizontal-padding: 16px, icon-size: 19px,
+        icon-gap: 8px, font: Theme.typography.body-strong,
+    };
+    private property <AppButtonMetrics> metrics: select-metrics();
+    private property <color> current-label-color: resolve-label-color();
 
     callback clicked();
 
-    function default-background() -> brush {
-        if (!root.enabled) { return root.style.disabled-fill; }
-        if (touch.pressed) { return root.pressed-fill; }
-        if (touch.has-hover) { return root.hover-fill; }
-        return root.fill;
+    function select-style() -> AppButtonStyle {
+        if (root.variant == AppButtonVariant.outline) {
+            if (root.intent == AppButtonIntent.primary) { return root.primary-outline-style; }
+            if (root.intent == AppButtonIntent.danger) { return root.danger-outline-style; }
+            return root.secondary-outline-style;
+        }
+        if (root.intent == AppButtonIntent.primary) { return root.primary-filled-style; }
+        if (root.intent == AppButtonIntent.danger) { return root.danger-filled-style; }
+        return root.secondary-filled-style;
     }
 
-    function outlined-background() -> brush {
-        if (!root.enabled) { return root.style.disabled-fill; }
-        if (touch.pressed) { return Theme.action-secondary-pressed; }
-        if (touch.has-hover) { return Theme.action-secondary-hover; }
-        return transparent;
+    function select-metrics() -> AppButtonMetrics {
+        if (root.size == AppButtonSize.small) { return root.small-metrics; }
+        if (root.size == AppButtonSize.large) { return root.large-metrics; }
+        return root.medium-metrics;
     }
 
-    function set-current-label-color() -> color {
+    function resolve-label-color() -> color {
         if (!root.enabled) { return root.style.disabled-label-color; }
         if (root.style.changes-label-on-interaction && touch.pressed) { return root.style.pressed-label-color; }
         if (root.style.changes-label-on-interaction && touch.has-hover) { return root.style.hover-label-color; }
         return root.label-color;
     }
 
-    height: root.label-font.size + 15px;
-    width: content.preferred-width + 10px;
+    function resolve-background() -> brush {
+        if (!root.enabled) { return root.style.disabled-fill; }
+        if (touch.pressed) { return root.pressed-fill; }
+        if (touch.has-hover) { return root.hover-fill; }
+        return root.fill;
+    }
+
+    height: root.metrics.height;
+    width: content.preferred-width + 2 * root.metrics.horizontal-padding;
 
     fill: root.style.fill;
     label-color: root.style.label-color;
-    background: root.outlined ? root.outlined-background() : root.default-background();
+    background: resolve-background();
 
     border-radius: Theme.border.radius;
-    border-width: root.outlined ? Theme.border.width : 0px;
-    border-color: root.outline-color;
+    border-width: root.variant == AppButtonVariant.outline ? Theme.border.width : 0px;
+    border-color: root.enabled ? root.outline-color : Theme.border-default;
 
     touch := TouchArea {
         enabled: root.enabled;
@@ -94,19 +180,18 @@ export component AppButton inherits Rectangle {
     }
 
     content := HorizontalBox {
+        x: root.metrics.horizontal-padding;
+        width: root.width - 2 * root.metrics.horizontal-padding;
+        height: root.height;
         alignment: center;
         cross-axis-alignment: center;
-        spacing: 0px;
+        spacing: root.metrics.icon-gap;
 
-        if (root.prefix-icon.width > 0): Rectangle {
-            width: icon-width;
-            Image {
-                x: -4px;
-                source: prefix-icon;
-                width: icon-width;
-                height: icon-width;
-                colorize: root.current-label-color;
-            }
+        if (root.prefix-icon.width > 0): Image {
+            source: root.prefix-icon;
+            width: root.metrics.icon-size;
+            height: root.metrics.icon-size;
+            colorize: root.current-label-color;
         }
 
         Text {
@@ -118,15 +203,11 @@ export component AppButton inherits Rectangle {
             vertical-alignment: center;
         }
 
-        if (root.suffix-icon.width > 0): Rectangle {
-            width: icon-width;
-            Image {
-                x: 4px;
-                source: suffix-icon;
-                width: icon-width;
-                height: icon-width;
-                colorize: root.current-label-color;
-            }
+        if (root.suffix-icon.width > 0): Image {
+            source: root.suffix-icon;
+            width: root.metrics.icon-size;
+            height: root.metrics.icon-size;
+            colorize: root.current-label-color;
         }
     }
 }

@@ -1,5 +1,5 @@
 import { ScrollView, VerticalBox } from "std-widgets.slint";
-import { AppButton } from "../components/app-button.slint";
+import { AppButton, AppButtonIntent } from "../components/app-button.slint";
 import { ProjectCard } from "../components/project-card.slint";
 import { HomeState, Page, TaskItem, TrackingState } from "../models.slint";
 import { AppActions } from "../actions.slint";
@@ -126,12 +126,13 @@ component LastTaskCard inherits Rectangle {
 component ResumeCard inherits Rectangle {
     in property <TrackingState> tracker;
 
+    height: card-content.preferred-height;
     background: Theme.surface-card;
     border-width: 1px;
     border-color: Theme.border-default;
     border-radius: Theme.border.radius;
 
-    VerticalLayout {
+    card-content := VerticalLayout {
         padding: 10px;
         spacing: 10px;
 
@@ -158,7 +159,6 @@ component ResumeCard inherits Rectangle {
             AppButton {
                 width: parent.width / 2 - 8px;
                 label: "Resume";
-                primary: true;
                 clicked => {
                     AppActions.toggle-tracking-pause();
                     AppActions.navigate(Page.tracking);
@@ -168,9 +168,7 @@ component ResumeCard inherits Rectangle {
             AppButton {
                 width: parent.width / 2 - 8px;
                 label: "Stop";
-                primary: false;
-                background: Theme.action-danger;
-                label-color: Theme.content-on-accent;
+                intent: AppButtonIntent.danger;
                 clicked => {
                     AppActions.end-tracking();
                     AppActions.navigate(Page.note);

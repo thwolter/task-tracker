@@ -1,6 +1,6 @@
 import { EvaluationTaskItem } from "../models.slint";
 import { Theme } from "../theme.slint";
-import { AppButton } from "app-button.slint";
+import { AppButton, AppButtonIntent, AppButtonVariant } from "app-button.slint";
 import { DialogCard } from "dialog-card.slint";
 import { BodyText, LabelText } from "typography.slint";
 
@@ -27,17 +27,15 @@ export component DeleteConfirmation inherits Rectangle {
 
             AppButton {
                 label: @tr("Cancel");
-                primary: false;
-                outlined: true;
+                intent: AppButtonIntent.secondary;
+                variant: AppButtonVariant.outline;
                 width: parent.width / 2 - 8px;
                 clicked => { root.canceled(); }
             }
 
             AppButton {
                 label: @tr("Delete");
-                fill: Theme.action-danger;
-                hover-fill: Theme.action-danger-hover;
-                pressed-fill: Theme.action-danger-pressed;
+                intent: AppButtonIntent.danger;
                 width: parent.width / 2 - 8px;
                 clicked => { root.confirmed(); }
             }
