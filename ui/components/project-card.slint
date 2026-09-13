@@ -4,6 +4,8 @@ import { Theme } from "../theme.slint";
 export component ProjectCard inherits Rectangle {
     in property <ProjectItem> project;
 
+    private property <string> timer-tooltip: @tr("Start a timer for {}", root.project.name);
+
     callback clicked(string);
 
     touch := TouchArea {
@@ -26,5 +28,9 @@ export component ProjectCard inherits Rectangle {
         horizontal-alignment: center;
         vertical-alignment: center;
     }
+
+    Tooltip {
+	    text: @markdown("\{root.timer-tooltip}");
+	}
 
 }

@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tempo Palette</title>
+    <script>
+      try {
+        if (localStorage.getItem("tempo-palette-theme") === "dark") document.documentElement.dataset.theme = "dark";
+      } catch (_) { /* The preview still works when storage is unavailable. */ }
+    </script>
     <style>
       :root {
         color-scheme: light;
@@ -66,6 +71,52 @@
         --font-timer: 700 32px/1.4 var(--font-family);
       }
 
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        /* Proposed dark values for review; ui/theme.slint remains unchanged. */
+        --surface-canvas: #121b15;
+        --surface-card: #1d2b21;
+        --surface-input: #283a2d;
+        --surface-subtle: #294331;
+        --surface-disabled: #2b372f;
+        --surface-archived: #344138;
+        --surface-danger: #432b29;
+
+        --content-primary: #f1f7ef;
+        --content-secondary: #c0d1bf;
+        --content-muted: #a9bda9;
+        --content-disabled: #a2b4a3;
+        --content-on-accent: #102218;
+        --content-on-primary-hover: #102218;
+        --content-on-primary-pressed: #102218;
+
+        --action-primary: #78ce98;
+        --action-primary-hover: #8ddca9;
+        --action-primary-pressed: #62bb83;
+        --action-secondary: #345c40;
+        --action-secondary-hover: #40704d;
+        --action-secondary-pressed: #2c5138;
+        --action-icon: #345c40;
+        --action-icon-hover: #40704d;
+        --action-icon-pressed: #2c5138;
+        --action-card-hover: #293e30;
+        --action-card-pressed: #34513c;
+        --action-danger: #e8968c;
+        --action-danger-hover: #f0aaa0;
+        --action-danger-pressed: #d78177;
+
+        --content-link: #91dfaa;
+        --content-link-hover: #aaf0bf;
+        --content-link-pressed: #7dcc98;
+        --border-default: #4c6351;
+        --border-subtle: #3e5444;
+        --border-divider: #435a49;
+        --border-focus: #a7eab5;
+        --timer-ring: #3b6548;
+        --dialog-backdrop: #080f0bd9;
+        --dialog-shadow: 0 4px 12px #050b0770;
+      }
+
       * { box-sizing: border-box; }
       body {
         margin: 0;
@@ -82,6 +133,11 @@
       button { cursor: default; }
       .eyebrow { color: var(--action-primary); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
       .lede { max-width: 68ch; margin-top: 10px; color: var(--content-secondary); }
+      .page-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+      .theme-switch { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--surface-card); }
+      .theme-switch button { padding: 7px 13px; border: 0; border-radius: 7px; background: transparent; color: var(--content-secondary); font: var(--font-label); cursor: pointer; }
+      .theme-switch button[aria-pressed="true"] { background: var(--action-primary); color: var(--content-on-accent); }
+      .theme-switch button:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
       .notice {
         margin-top: 22px;
         padding: 14px 16px;
@@ -108,6 +164,7 @@
         padding: 10px 12px;
         background: var(--sample);
         color: var(--content-primary);
+        text-shadow: 0 1px 2px var(--surface-card);
         font: 600 12px/1.3 ui-monospace, monospace;
       }
       .swatch-meta { display: grid; gap: 3px; padding: 11px 12px 13px; }
@@ -187,6 +244,11 @@
       .field { width: 100%; padding: 10px; border: 1px solid var(--border-subtle); border-radius: 8px; background: var(--surface-input); color: var(--content-primary); resize: none; }
       .field:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
       .danger-note { padding: 9px 10px; border: 1px solid #e8c9c2; border-radius: 8px; background: var(--surface-danger); color: var(--action-danger); font: var(--font-supporting); }
+      :root[data-theme="dark"] .danger-note { border-color: #77504c; }
+      :root[data-theme="dark"] .swatch-color { color: #f1f7ef; text-shadow: 0 1px 3px #09110b; }
+      :root[data-theme="dark"] .light-only { display: none; }
+      .dark-only { display: none; }
+      :root[data-theme="dark"] .dark-only { display: inline; }
       .compare { width: 100%; border-collapse: collapse; background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden; }
       .compare th, .compare td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); text-align: left; vertical-align: top; font-size: 13px; }
       .compare th { background: var(--surface-input); color: var(--content-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
@@ -212,9 +274,9 @@
   <body>
     <main>
       <div class="eyebrow">Tempo · color system</div>
-      <h1>Tempo palette</h1>
+      <div class="page-heading"><h1>Tempo palette</h1><div class="theme-switch" role="group" aria-label="Preview color mode"><button type="button" data-theme-choice="light" aria-pressed="true">Light</button><button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button></div></div>
       <p class="lede">The app's semantic colors and typography, shown as individual roles and together in familiar screens. The screen previews use Tempo's 280 px window width and 460 px preferred height.</p>
-      <div class="notice"><strong>Theme reference.</strong> Colors and type styles mirror <code>ui/theme.slint</code>. On macOS the system font is SF Pro. Single- and multi-line fields share <code>surface-input</code>; icon controls share the secondary action ramp.</div>
+      <div class="notice"><strong>Theme reference.</strong> <span class="light-only">Light colors and type styles mirror <code>ui/theme.slint</code>.</span><span class="dark-only">Dark colors are a proposal for review; they are not yet in the app.</span> On macOS the system font is SF Pro. Single- and multi-line fields share <code>surface-input</code>; icon controls share the secondary action ramp.</div>
 
       <section aria-labelledby="typography-heading">
         <h2 id="typography-heading">Typography</h2>
@@ -284,12 +346,12 @@
 
       <section aria-labelledby="surface-heading">
         <h2 id="surface-heading">Surfaces</h2>
-        <p class="section-intro">White and near-white carry the layout. Green identifies useful emphasis, and neutral gray-green identifies unavailable or archived content.</p>
+        <p class="section-intro"><span class="light-only">White and near-white carry the layout.</span><span class="dark-only">Deep green surfaces carry the layout.</span> Green identifies useful emphasis, and neutral gray-green identifies unavailable or archived content.</p>
         <div class="swatch-grid">
-          <div class="swatch" style="--sample: var(--surface-canvas)"><div class="swatch-color">#F6F8F6</div><div class="swatch-meta"><span class="swatch-name">surface-canvas</span><span class="swatch-use">App background · unchanged</span></div></div>
-          <div class="swatch" style="--sample: var(--surface-card)"><div class="swatch-color">#FFFFFC</div><div class="swatch-meta"><span class="swatch-name">surface-card</span><span class="swatch-use">Cards and window surface · unchanged</span></div></div>
+          <div class="swatch" style="--sample: var(--surface-canvas)"><div class="swatch-color">#F6F8F6</div><div class="swatch-meta"><span class="swatch-name">surface-canvas</span><span class="swatch-use">App background</span></div></div>
+          <div class="swatch" style="--sample: var(--surface-card)"><div class="swatch-color">#FFFFFC</div><div class="swatch-meta"><span class="swatch-name">surface-card</span><span class="swatch-use">Cards and window surface</span></div></div>
           <div class="swatch" style="--sample: var(--surface-input)"><div class="swatch-color">#EDF5EB</div><div class="swatch-meta"><span class="swatch-name">surface-input</span><span class="swatch-use">Single- and multi-line fields</span></div></div>
-          <div class="swatch" style="--sample: var(--surface-subtle)"><div class="swatch-color">#E0F0DE</div><div class="swatch-meta"><span class="swatch-name">surface-subtle</span><span class="swatch-use">Summaries and recent activity · unchanged</span></div></div>
+          <div class="swatch" style="--sample: var(--surface-subtle)"><div class="swatch-color">#E0F0DE</div><div class="swatch-meta"><span class="swatch-name">surface-subtle</span><span class="swatch-use">Summaries and recent activity</span></div></div>
           <div class="swatch" style="--sample: var(--surface-disabled)"><div class="swatch-color">#E6E9E5</div><div class="swatch-meta"><span class="swatch-name">surface-disabled</span><span class="swatch-use">Unavailable controls · neutral</span></div></div>
           <div class="swatch" style="--sample: var(--surface-archived)"><div class="swatch-color">#D9DED9</div><div class="swatch-meta"><span class="swatch-name">surface-archived</span><span class="swatch-use">Stored, inactive items · neutral</span></div></div>
           <div class="swatch" style="--sample: var(--surface-danger)"><div class="swatch-color">#FBECE8</div><div class="swatch-meta"><span class="swatch-name">surface-danger</span><span class="swatch-use">Destructive confirmation</span></div></div>
@@ -298,17 +360,17 @@
 
       <section aria-labelledby="text-heading">
         <h2 id="text-heading">Text, borders, and focus</h2>
-        <p class="section-intro">The text steps move from dark ink to supporting copy to muted detail. Darker borders outline controls; lighter borders separate content without becoming decorative stripes.</p>
+        <p class="section-intro">The text steps move from primary ink to supporting copy to muted detail. Stronger borders outline controls; quieter borders separate content without becoming decorative stripes.</p>
         <div class="role-grid">
-          <div class="role-card"><h3>Text hierarchy</h3><div class="type-demo"><strong>Primary · #14241A</strong><span class="secondary-text">Secondary · #526654</span><span class="muted-text">Muted · #5E725F</span><span class="disabled-text">Disabled · #647566</span><span class="link">Link · #296E45</span></div><p>Secondary and muted text both exceed 4.5:1 on the canvas. Disabled text is intentionally quieter on its neutral surface.</p></div>
-          <div class="role-card"><h3>Structure</h3><div class="type-demo"><span style="border: 1px solid var(--border-default); padding: 6px">Default border · #C9D8C7</span><span style="border: 1px solid var(--border-subtle); padding: 6px">Subtle border · #D4E0D2</span><span style="border-bottom: 1px solid var(--border-divider); padding: 6px">Divider · #CBD8C9</span><span class="focus-sample">Focus · #3F7F5A</span></div><p>Fields should also receive a visible focus outline, as shown on the editable note above.</p></div>
-          <div class="role-card"><h3>Special accents</h3><div class="type-demo"><span style="padding: 6px; background: var(--timer-ring)">Timer ring · #D6F0D6</span><span style="padding: 6px; background: var(--surface-danger); color: var(--action-danger)">Danger surface · #FBECE8</span><span style="padding: 6px; background: var(--surface-archived)">Archived · #D9DED9</span><span style="padding: 6px; background: var(--surface-disabled); color: var(--content-disabled)">Disabled · #E6E9E5</span><span style="padding: 6px; background: var(--dialog-backdrop); color: var(--content-on-accent)">Dialog backdrop · #14241A80</span></div><p>The danger hue remains muted and warm; the timer stays soft behind the time.</p></div>
+          <div class="role-card"><h3>Text hierarchy</h3><div class="type-demo"><strong data-color-token="content-primary">Primary · #14241A</strong><span class="secondary-text" data-color-token="content-secondary">Secondary · #526654</span><span class="muted-text" data-color-token="content-muted">Muted · #5E725F</span><span class="disabled-text" data-color-token="content-disabled">Disabled · #647566</span><span class="link" data-color-token="content-link">Link · #296E45</span></div><p>Supporting text remains readable on the canvas. Disabled text is intentionally quieter on its neutral surface.</p></div>
+          <div class="role-card"><h3>Structure</h3><div class="type-demo"><span data-color-token="border-default" style="border: 1px solid var(--border-default); padding: 6px">Default border · #C9D8C7</span><span data-color-token="border-subtle" style="border: 1px solid var(--border-subtle); padding: 6px">Subtle border · #D4E0D2</span><span data-color-token="border-divider" style="border-bottom: 1px solid var(--border-divider); padding: 6px">Divider · #CBD8C9</span><span data-color-token="border-focus" class="focus-sample">Focus · #3F7F5A</span></div><p>Fields should also receive a visible focus outline, as shown on the editable note above.</p></div>
+          <div class="role-card"><h3>Special accents</h3><div class="type-demo"><span data-color-token="timer-ring" style="padding: 6px; background: var(--timer-ring)">Timer ring · #D6F0D6</span><span data-color-token="surface-danger" style="padding: 6px; background: var(--surface-danger); color: var(--action-danger)">Danger surface · #FBECE8</span><span data-color-token="surface-archived" style="padding: 6px; background: var(--surface-archived)">Archived · #D9DED9</span><span data-color-token="surface-disabled" style="padding: 6px; background: var(--surface-disabled); color: var(--content-disabled)">Disabled · #E6E9E5</span><span data-color-token="dialog-backdrop" style="padding: 6px; background: var(--dialog-backdrop); color: var(--content-on-accent)">Dialog backdrop · #14241A80</span></div><p>The danger hue remains muted and warm; the timer stays soft behind the time.</p></div>
         </div>
       </section>
 
       <section aria-labelledby="action-heading">
         <h2 id="action-heading">Action states</h2>
-        <p class="section-intro">Each sequence reads left to right: default, hover, pressed. Filled actions darken; pale actions gain definition; white text on green and red stays opaque.</p>
+        <p class="section-intro">Each sequence reads left to right: default, hover, pressed. Filled actions shift in brightness, and their labels stay opaque.</p>
         <div class="action-grid">
           <div class="action-card"><h3>Primary</h3><div class="state-row"><span class="state primary-default">Default<small>#296E45</small></span><span class="state primary-hover">Hover<small>#245F3D</small></span><span class="state primary-pressed">Pressed<small>#1F5134</small></span></div></div>
           <div class="action-card"><h3>Secondary</h3><div class="state-row"><span class="state secondary-default">Default<small>#E0F0DE</small></span><span class="state secondary-hover">Hover<small>#D4E8D1</small></span><span class="state secondary-pressed">Pressed<small>#C8DEC5</small></span></div></div>
@@ -319,7 +381,7 @@
         </div>
       </section>
 
-      <section aria-labelledby="changes-heading">
+      <section class="light-only" aria-labelledby="changes-heading">
         <h2 id="changes-heading">Changes from the previous palette</h2>
         <p class="section-intro">The same hue can serve more than one role when the meaning is compatible. The current theme uses one input role for both field types and one action ramp for secondary and icon controls.</p>
         <table class="compare">
@@ -339,5 +401,45 @@
         <p class="check" style="margin-top: 12px">Measured pairs: primary text on canvas 15.17:1; secondary 5.81:1; muted 4.86:1; white on primary 6.15:1; white on danger 6.65:1. Disabled text on disabled surface is 4.01:1.</p>
       </section>
     </main>
+    <script>
+      const root = document.documentElement;
+      const stateTokens = {
+        "primary-default": "action-primary", "primary-hover": "action-primary-hover", "primary-pressed": "action-primary-pressed",
+        "secondary-default": "action-secondary", "secondary-hover": "action-secondary-hover", "secondary-pressed": "action-secondary-pressed",
+        "icon-default": "action-icon", "icon-hover": "action-icon-hover", "icon-pressed": "action-icon-pressed",
+        "card-default": "surface-card", "card-hover": "action-card-hover", "card-pressed": "action-card-pressed",
+        "danger-default": "action-danger", "danger-hover": "action-danger-hover", "danger-pressed": "action-danger-pressed",
+        "link-default": "content-link", "link-hover": "content-link-hover", "link-pressed": "content-link-pressed"
+      };
+
+      document.querySelectorAll(".swatch").forEach((swatch) => {
+        const token = swatch.style.getPropertyValue("--sample").match(/var\(--([\w-]+)\)/)?.[1];
+        if (token) swatch.querySelector(".swatch-color").dataset.colorToken = token;
+      });
+      document.querySelectorAll(".state").forEach((state) => {
+        const token = [...state.classList].map((name) => stateTokens[name]).find(Boolean);
+        if (token) state.querySelector("small").dataset.colorToken = token;
+      });
+
+      function showTheme(theme) {
+        root.dataset.theme = theme;
+        document.querySelectorAll("[data-theme-choice]").forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.themeChoice === theme));
+        });
+        const styles = getComputedStyle(root);
+        document.querySelectorAll("[data-color-token]").forEach((label) => {
+          const value = styles.getPropertyValue(`--${label.dataset.colorToken}`).trim().toUpperCase();
+          label.textContent = label.textContent.replace(/#[0-9A-F]{6}(?:[0-9A-F]{2})?/i, value);
+        });
+      }
+
+      document.querySelectorAll("[data-theme-choice]").forEach((button) => {
+        button.addEventListener("click", () => {
+          showTheme(button.dataset.themeChoice);
+          try { localStorage.setItem("tempo-palette-theme", button.dataset.themeChoice); } catch (_) { /* Optional preference. */ }
+        });
+      });
+      showTheme(root.dataset.theme === "dark" ? "dark" : "light");
+    </script>
   </body>
 </html>

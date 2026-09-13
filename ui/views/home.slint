@@ -7,14 +7,13 @@ import { Theme } from "../theme.slint";
 import { ViewHeader } from "../components/typography.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
 import { DurationLabel } from "../components/duration-label.slint";
-import { CommonStrings } from "../common-strings.slint";
 
 component HomeHeader inherits HorizontalLayout {
     alignment: stretch;
     cross-axis-alignment: center;
 
-    private property <string> evaluation-tooltip: @tr("Evaluation");
-    private property <string> project-settings-tooltip: @tr("Manage projects");
+    private property <string> evaluation-tooltip: @tr("View activity and time reports");
+    private property <string> project-settings-tooltip: @tr("Manage projects and settings");
 
     ViewHeader {
         text: @tr("What next?");
@@ -74,7 +73,7 @@ component HomeHeader inherits HorizontalLayout {
 component LastTaskCard inherits Rectangle {
     in property <TaskItem> task;
 
-    private property <string> add-task-tooltip: @tr("Add a task");
+    private property <string> add-task-tooltip: @tr("Add a note to your last {} session", root.task.project);
 
     callback clicked();
 
@@ -159,7 +158,7 @@ component ResumeCard inherits Rectangle {
             alignment: space-between;
             AppButton {
                 width: parent.width / 2 - 8px;
-                label: CommonStrings.resume;
+                label: @tr("Resume");
                 clicked => {
                     AppActions.toggle-tracking-pause();
                     AppActions.navigate(Page.tracking);

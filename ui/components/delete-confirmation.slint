@@ -3,7 +3,6 @@ import { Theme } from "../theme.slint";
 import { AppButton, AppButtonIntent, AppButtonVariant } from "app-button.slint";
 import { DialogCard } from "dialog-card.slint";
 import { BodyText, LabelText } from "typography.slint";
-import { CommonStrings } from "../common-strings.slint";
 
 // A blocking, in-window confirmation for destructive evaluation-task actions.
 export component DeleteConfirmation inherits Rectangle {
@@ -27,7 +26,7 @@ export component DeleteConfirmation inherits Rectangle {
             alignment: space-between;
 
             AppButton {
-                label: CommonStrings.cancel;
+                label: @tr("Cancel");
                 intent: AppButtonIntent.secondary;
                 variant: AppButtonVariant.outline;
                 width: parent.width / 2 - 8px;
@@ -35,7 +34,7 @@ export component DeleteConfirmation inherits Rectangle {
             }
 
             AppButton {
-                label: CommonStrings.delete;
+                label: @tr("Delete");
                 intent: AppButtonIntent.danger;
                 width: parent.width / 2 - 8px;
                 clicked => { root.confirmed(); }

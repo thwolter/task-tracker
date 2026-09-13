@@ -4,7 +4,6 @@ import { Page, TrackingState } from "../models.slint";
 import { AppActions } from "../actions.slint";
 import { BackLink } from "../components/back-link.slint";
 import { Theme } from "../theme.slint";
-import { CommonStrings } from "../common-strings.slint";
 
 export component TrackingView inherits Rectangle {
     in property <TrackingState> state;
@@ -67,7 +66,7 @@ export component TrackingView inherits Rectangle {
 	            AppButton {
 	                width: 232px;
 	                size: AppButtonSize.large;
-                label: root.state.paused ? CommonStrings.resume : CommonStrings.pause;
+                label: root.state.paused ? @tr("Resume") : @tr("Pause");
 	                label-color: Theme.content-secondary;
 	                variant: AppButtonVariant.outline;
 	                intent: AppButtonIntent.secondary;

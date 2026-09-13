@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-09-12 18:55+0000\n"
+"POT-Creation-Date: 2026-09-13 06:29+0000\n"
 "PO-Revision-Date: 2026-09-06 16:00+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,6 +27,16 @@ msgstr "Schaltfläche"
 msgctxt "BackLink"
 msgid "Back"
 msgstr "Zurück"
+
+#: ui/components/delete-confirmation.slint:29
+msgctxt "DeleteConfirmation"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: ui/components/delete-confirmation.slint:37
+msgctxt "DeleteConfirmation"
+msgid "Delete"
+msgstr "Löschen"
 
 #: ui/components/evaluation-summary.slint:10
 msgctxt "EvaluationSummary"
@@ -83,17 +93,17 @@ msgctxt "DurationLabel"
 msgid "{} min"
 msgstr "{} Min."
 
-#: ui/views/tracking.slint:17
+#: ui/views/tracking.slint:16
 msgctxt "TrackingView"
 msgid "Home"
 msgstr "Startseite"
 
-#: ui/views/tracking.slint:31
+#: ui/views/tracking.slint:30
 msgctxt "TrackingView"
 msgid "Need to step away?"
 msgstr "Musst du kurz weg?"
 
-#: ui/views/tracking.slint:37
+#: ui/views/tracking.slint:36
 msgctxt "TrackingView"
 msgid "Going home pauses this task. You can resume it anytime"
 msgstr ""
@@ -105,117 +115,142 @@ msgctxt "TrackingView"
 msgid "End task"
 msgstr "Aufgabe beenden"
 
-#: ui/views/project-editor.slint:45
+#: ui/views/tracking.slint:69
+msgctxt "TrackingView"
+msgid "Resume"
+msgstr "Fortsetzen"
+
+#: ui/views/tracking.slint:69
+msgctxt "TrackingView"
+msgid "Pause"
+msgstr "Pausieren"
+
+#: ui/views/project-editor.slint:44
 msgctxt "ProjectEditor"
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: ui/views/project-editor.slint:52
+#: ui/views/project-editor.slint:51
 msgctxt "ProjectEditor"
 msgid "Delete project?"
 msgstr "Projekt löschen?"
 
-#: ui/views/project-editor.slint:53 ui/views/project-editor.slint:92
+#: ui/views/project-editor.slint:52 ui/views/project-editor.slint:91
 msgctxt "ProjectEditor"
 msgid "Add project"
 msgstr "Projekt hinzufügen"
 
-#: ui/views/project-editor.slint:54
+#: ui/views/project-editor.slint:53
 msgctxt "ProjectEditor"
 msgid "Archived project"
 msgstr "Archiviertes Projekt"
 
-#: ui/views/project-editor.slint:54
+#: ui/views/project-editor.slint:53
 msgctxt "ProjectEditor"
 msgid "Edit project"
 msgstr "Projekt bearbeiten"
 
-#: ui/views/project-editor.slint:64
+#: ui/views/project-editor.slint:63
 msgctxt "ProjectEditor"
 msgid ""
 "This permanently deletes the project and all its recorded work. This cannot "
 "be undone."
 msgstr "Das Projekt und alle erfassten Zeiten werden unwiderruflich gelöscht."
 
-#: ui/views/project-editor.slint:70
+#: ui/views/project-editor.slint:69
 msgctxt "ProjectEditor"
 msgid "Project name"
 msgstr "Projektname"
 
-#: ui/views/project-editor.slint:80
+#: ui/views/project-editor.slint:79
 msgctxt "ProjectEditor"
 msgid "Hidden from Home. Past time entries remain in Evaluation."
 msgstr ""
 "Auf der Startseite ausgeblendet. Bisherige Zeiten bleiben in der Auswertung."
 
-#: ui/views/project-editor.slint:113
+#: ui/views/project-editor.slint:91
+msgctxt "ProjectEditor"
+msgid "Save"
+msgstr "Speichern"
+
+#: ui/views/project-editor.slint:97 ui/views/project-editor.slint:147
+msgctxt "ProjectEditor"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: ui/views/project-editor.slint:112
 msgctxt "ProjectEditor"
 msgid "Archiving hides this project from Home and keeps its recorded work."
 msgstr ""
 "Archivieren blendet das Projekt auf der Startseite aus. Erfasste Zeiten "
 "bleiben erhalten."
 
-#: ui/views/project-editor.slint:119
+#: ui/views/project-editor.slint:118
 msgctxt "ProjectEditor"
 msgid "Archive project"
 msgstr "Projekt archivieren"
 
-#: ui/views/project-editor.slint:129
+#: ui/views/project-editor.slint:128
 msgctxt "ProjectEditor"
 msgid "Restore project"
 msgstr "Projekt wiederherstellen"
 
-#: ui/views/project-editor.slint:135 ui/views/project-editor.slint:156
+#: ui/views/project-editor.slint:134 ui/views/project-editor.slint:155
 msgctxt "ProjectEditor"
 msgid "Delete permanently"
 msgstr "Endgültig löschen"
 
-#: ui/views/home.slint:16
+#: ui/views/home.slint:15
 msgctxt "HomeHeader"
 msgid "Evaluation"
 msgstr "Auswertung"
 
-#: ui/views/home.slint:17
+#: ui/views/home.slint:16
 msgctxt "HomeHeader"
 msgid "Manage projects"
 msgstr "Projekte verwalten"
 
-#: ui/views/home.slint:20
+#: ui/views/home.slint:19
 msgctxt "HomeHeader"
 msgid "What next?"
 msgstr "Was steht an?"
 
-#: ui/views/home.slint:77
+#: ui/views/home.slint:76
 msgctxt "LastTaskCard"
 msgid "Add a task"
 msgstr "Aufgabe hinzufügen"
 
-#: ui/views/home.slint:95
+#: ui/views/home.slint:94
 msgctxt "LastTaskCard"
 msgid "LAST SESSION · TAP TO ADD A NOTE"
 msgstr "LETZTE SITZUNG · NOTIZ HINZUFÜGEN"
 
-#: ui/views/home.slint:109
+#: ui/views/home.slint:108
 msgctxt "LastTaskCard"
 msgid "[No task description]"
 msgstr "[Keine Aufgabenbeschreibung]"
 
-#: ui/views/home.slint:141
+#: ui/views/home.slint:140
 msgctxt "ResumeCard"
 msgid "PAUSED"
 msgstr "PAUSIERT"
 
-#: ui/views/home.slint:153
+#: ui/views/home.slint:152
 msgctxt "ResumeCard"
 msgid "Timer stopped until you resume."
 msgstr "Timer angehalten, bis du ihn fortsetzt."
 
-#: ui/views/home.slint:224
+#: ui/views/home.slint:161
+msgctxt "ResumeCard"
+msgid "Resume"
+msgstr "Fortsetzen"
+
+#: ui/views/home.slint:223
 msgctxt "HomeView"
 msgid "Start a timer"
 msgstr "Timer starten"
 
-#: ui/views/home.slint:244
+#: ui/views/home.slint:243
 msgctxt "HomeView"
 msgid "A quiet place to keep your day moving."
 msgstr "Ein ruhiger Ort, um voranzukommen."
@@ -312,62 +347,47 @@ msgctxt "EvaluationView"
 msgid "Export Markdown"
 msgstr "Markdown exportieren"
 
-#: ui/views/drilldown.slint:55
+#: ui/views/drilldown.slint:54
 msgctxt "TaskEditor"
 msgid "e.g. prepared the Q4 project brief"
 msgstr "z. B. Projektbeschreibung für Q4 vorbereitet"
 
-#: ui/views/drilldown.slint:143
+#: ui/views/drilldown.slint:72
+msgctxt "TaskEditor"
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: ui/views/drilldown.slint:79
+msgctxt "TaskEditor"
+msgid "Save"
+msgstr "Speichern"
+
+#: ui/views/drilldown.slint:142
 msgctxt "TaskCard"
 msgid "No details added"
 msgstr "Keine Details hinzugefügt"
 
-#: ui/views/drilldown.slint:216
+#: ui/views/drilldown.slint:215
 msgctxt "DrilldownView"
 msgid "Evaluation"
 msgstr "Auswertung"
 
-#: ui/views/drilldown.slint:237
+#: ui/views/drilldown.slint:236
 msgctxt "DrilldownView"
 msgid "1 completed task"
 msgstr "1 erledigte Aufgabe"
 
-#: ui/views/drilldown.slint:238
+#: ui/views/drilldown.slint:237
 msgctxt "DrilldownView"
 msgid "completed tasks"
 msgstr "erledigte Aufgaben"
 
-#: ui/views/drilldown.slint:273
+#: ui/views/drilldown.slint:272
 msgctxt "DrilldownView"
 msgid "Export"
 msgstr "Exportieren"
 
-#: ui/views/drilldown.slint:284
+#: ui/views/drilldown.slint:283
 msgctxt "DrilldownView"
 msgid "Delete permanently?"
 msgstr "Endgültig löschen?"
-
-#: ui/common-strings.slint:4
-msgctxt "CommonStrings"
-msgid "Pause"
-msgstr "Pausieren"
-
-#: ui/common-strings.slint:5
-msgctxt "CommonStrings"
-msgid "Resume"
-msgstr "Fortsetzen"
-
-#: ui/common-strings.slint:6
-msgctxt "CommonStrings"
-msgid "Cancel"
-msgstr "Abbrechen"
-
-#: ui/common-strings.slint:7
-msgctxt "CommonStrings"
-msgid "Save"
-msgstr "Speichern"
-
-#: ui/common-strings.slint:8
-msgctxt "CommonStrings"
-msgid "Delete"
-msgstr "Löschen"
