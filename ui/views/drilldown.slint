@@ -271,7 +271,7 @@ export component DrilldownView inherits Rectangle {
                 width: parent.width;
                 label: @tr("Export");
                 prefix-icon: @image-url("../assets/icons/download.svg");
-                clicked => { AppActions.export-markdown(); }
+                clicked => { AppActions.open-export(); }
             }
         }
     }

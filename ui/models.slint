@@ -1,6 +1,7 @@
-export enum Page { home, tracking, note, settings, project-editor, evaluation, drilldown }
+export enum Page { home, tracking, note, settings, project-editor, evaluation, drilldown, exportpage }
 export enum Range { day, week, month, year }
 export enum StatusKind { success, error }
+export enum ExportFormat { csv, markdown, json }
 
 export struct Status {
     message: string,
@@ -61,6 +62,12 @@ export struct EvaluationTasksState {
     tasks: [EvaluationTaskItem],
     total-seconds: int,
     range: Range,
+}
+
+export struct ExportState {
+    project: string,
+    all-projects: bool,
+    return-page: Page,
 }
 
 // A single mode prevents create/edit/delete states from overlapping.

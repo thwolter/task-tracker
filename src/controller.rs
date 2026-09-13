@@ -11,9 +11,10 @@ mod tests;
 mod tracking;
 
 use crate::application::Tracker;
+use crate::domain::ProjectId;
 use crate::language::Language;
 use crate::{
-    AppActions, AppWindow, Page, Status, StatusKind, UiCommand, UiCommandKind, domain, presentation,
+    domain, presentation, AppActions, AppWindow, Page, Status, StatusKind, UiCommand, UiCommandKind,
 };
 use slint::{ComponentHandle, SharedString, Timer, TimerMode, Weak};
 use std::time::Duration;
@@ -36,6 +37,12 @@ struct UiController {
     tracker: Tracker,
     language: Language,
     status_timer: Timer,
+    export_context: Option<ExportContext>,
+}
+
+#[derive(Clone)]
+struct ExportContext {
+    project_id: Option<ProjectId>,
 }
 
 impl UiController {
@@ -45,6 +52,7 @@ impl UiController {
             tracker,
             language,
             status_timer: Timer::default(),
+            export_context: None,
         }
     }
 
@@ -73,7 +81,8 @@ impl UiController {
             UiCommandKind::ArchiveProject => self.archive_project(&ui, command.id),
             UiCommandKind::UnarchiveProject => self.unarchive_project(&ui, command.id),
             UiCommandKind::DeleteProject => self.delete_project(&ui, command.id),
-            UiCommandKind::ExportMarkdown => self.export_markdown(&ui),
+            UiCommandKind::OpenExport => self.open_export(&ui),
+            UiCommandKind::ExportReport => self.export_report(&ui, command.export_format),
             UiCommandKind::OpenDrilldown => self.open_drilldown(&ui, command.id),
         }
     }

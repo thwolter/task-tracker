@@ -1,6 +1,7 @@
 import {
     EvaluationState,
     EvaluationTasksState,
+    ExportState,
     HomeState,
     Page,
     ProjectSettingsState,
@@ -21,6 +22,7 @@ import { EvaluationView } from "views/evaluation.slint";
 import { Theme } from "theme.slint";
 import { StatusText } from "components/status-text.slint";
 import { DrilldownView } from "views/drilldown.slint";
+import { ExportView } from "views/export.slint";
 
 export component AppWindow inherits Window {
     title: tracking.active-task + " · " + (tracking.paused ? @tr("paused") : tracking.elapsed);
@@ -36,6 +38,7 @@ export component AppWindow inherits Window {
     in property <TrackingState> tracking;
     in property <EvaluationState> evaluation;
     in property <EvaluationTasksState> evaluation-drilldown;
+    in property <ExportState> export-state;
     in property <Status> transient-status: { message: "", kind: StatusKind.success };
 
     Timer {
@@ -71,6 +74,9 @@ export component AppWindow inherits Window {
             }
             if root.current-page == Page.drilldown: DrilldownView {
                 state: root.evaluation-drilldown;
+            }
+            if root.current-page == Page.exportpage: ExportView {
+                state: root.export-state;
             }
         }
     }

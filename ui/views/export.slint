@@ -1,0 +1,60 @@
+import { AppButton, AppButtonIntent, AppButtonVariant } from "../components/app-button.slint";
+import { BackLink } from "../components/back-link.slint";
+import { BodyText, ViewHeader } from "../components/typography.slint";
+import { AppActions } from "../actions.slint";
+import { ExportFormat, ExportState } from "../models.slint";
+import { Theme } from "../theme.slint";
+
+export component ExportView inherits Rectangle {
+    in property <ExportState> state;
+	
+	VerticalLayout {
+		padding: 20px;
+		alignment: space-between;
+
+        VerticalLayout {
+	        spacing: 20px;
+
+	        BackLink {
+	            text: @tr("Evaluation");
+	            clicked => { AppActions.navigate(root.state.return-page); }
+	        }
+
+	        ViewHeader {
+	            text: @tr("Export");
+	        }
+
+	        BodyText {
+	            text: root.state.all-projects
+	                ? @tr("All projects")
+	                : @tr("Project: {}", root.state.project);
+	            wrap: word-wrap;
+	        }
+
+	        AppButton {
+	            width: parent.width;
+	            label: @tr("CSV");
+	            intent: AppButtonIntent.primary;
+	            variant: AppButtonVariant.filled;
+	            clicked => { AppActions.export-report(ExportFormat.csv); }
+	        }
+
+	        AppButton {
+	            width: parent.width;
+	            label: @tr("Markdown");
+	            intent: AppButtonIntent.primary;
+	            variant: AppButtonVariant.filled;
+	            clicked => { AppActions.export-report(ExportFormat.markdown); }
+	        }
+
+	        AppButton {
+	            width: parent.width;
+	            label: @tr("JSON");
+	            intent: AppButtonIntent.primary;
+	            variant: AppButtonVariant.filled;
+	            clicked => { AppActions.export-report(ExportFormat.json); }
+	        }
+	    }
+        Rectangle {}
+    }
+}

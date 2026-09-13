@@ -1,7 +1,7 @@
 use super::bind;
 use crate::{
-    AppActions, AppWindow, Page, Range, TrackingState, application::Tracker, domain,
-    language::Language,
+    application::Tracker, domain, language::Language, AppActions, AppWindow, Page, Range,
+    TrackingState,
 };
 use slint::{ComponentHandle, Model};
 use std::{path::PathBuf, thread, time::Duration};
@@ -112,6 +112,38 @@ fn evaluation_commands_change_range_update_and_delete_tasks() {
 
     actions.invoke_delete_evaluation_task(task_id.into());
     assert_eq!(ui.get_evaluation_drilldown().tasks.row_count(), 0);
+
+    std::fs::remove_file(path).unwrap();
+}
+
+#[test]
+fn export_commands_capture_the_evaluation_scope_and_return_page() {
+    i_slint_backend_testing::init_no_event_loop();
+    let path = test_path("export-scope");
+    let ui = AppWindow::new().unwrap();
+    let mut tracker = Tracker::at(path.clone());
+    let now = domain::now();
+    tracker.start_tracking("project-1".into(), now - 2).unwrap();
+    tracker.end_tracking(now - 1).unwrap();
+    bind(&ui, tracker, Language::English);
+    let actions = ui.global::<AppActions>();
+
+    actions.invoke_navigate(Page::Evaluation);
+    actions.invoke_open_export();
+    assert_eq!(ui.get_current_page(), Page::Exportpage);
+    assert!(ui.get_export_state().all_projects);
+    assert_eq!(ui.get_export_state().return_page, Page::Evaluation);
+    actions.invoke_navigate(ui.get_export_state().return_page);
+    assert_eq!(ui.get_current_page(), Page::Evaluation);
+
+    actions.invoke_open_drilldown("project-1".into());
+    actions.invoke_open_export();
+    assert_eq!(ui.get_current_page(), Page::Exportpage);
+    assert!(!ui.get_export_state().all_projects);
+    assert_eq!(ui.get_export_state().project, "Project Atlas");
+    assert_eq!(ui.get_export_state().return_page, Page::Drilldown);
+    actions.invoke_navigate(ui.get_export_state().return_page);
+    assert_eq!(ui.get_current_page(), Page::Drilldown);
 
     std::fs::remove_file(path).unwrap();
 }

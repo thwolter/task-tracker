@@ -1,4 +1,4 @@
-import { Page, Range } from "models.slint";
+import { ExportFormat, Page, Range } from "models.slint";
 
 export enum UiCommandKind {
     tick,
@@ -20,7 +20,8 @@ export enum UiCommandKind {
     unarchive-project,
     delete-project,
 
-    export-markdown,
+    open-export,
+    export-report,
     open-drilldown
 }
 
@@ -30,6 +31,7 @@ export struct UiCommand {
     id: string,
     text: string,
     range: Range,
+    export-format: ExportFormat,
 }
 
 export global AppActions {
@@ -54,7 +56,8 @@ export global AppActions {
     callback unarchive-project(string);
     callback delete-project(string);
 
-    callback export-markdown();
+    callback open-export();
+    callback export-report(ExportFormat);
     callback open-drilldown(string);
 
     tick => { dispatch({ kind: UiCommandKind.tick }); }
@@ -79,6 +82,7 @@ export global AppActions {
     unarchive-project(id) => { dispatch({ kind: UiCommandKind.unarchive-project, id: id }); }
     delete-project(id) => { dispatch({ kind: UiCommandKind.delete-project, id: id }); }
 
-    export-markdown => { dispatch({ kind: UiCommandKind.export-markdown }); }
+    open-export => { dispatch({ kind: UiCommandKind.open-export }); }
+    export-report(format) => { dispatch({ kind: UiCommandKind.export-report, export-format: format }); }
     open-drilldown(id) => { dispatch({ kind: UiCommandKind.open-drilldown, id: id }); }
 }

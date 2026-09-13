@@ -8,7 +8,7 @@ use crate::{
     domain::{ActiveTask, Data, Project, ProjectId, Task, TaskId},
     error::Result,
 };
-use rusqlite::{Connection, OptionalExtension, params};
+use rusqlite::{params, Connection, OptionalExtension};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -232,9 +232,9 @@ impl SqliteStore {
     }
 }
 
-/// Writes an already-rendered Markdown report to `path`.
-pub(crate) fn export_markdown(path: &Path, report: &str) -> Result<()> {
-    fs::write(path, report)?;
+/// Writes already-rendered export content to `path`.
+pub(crate) fn export_report(path: &Path, contents: &str) -> Result<()> {
+    fs::write(path, contents)?;
     Ok(())
 }
 

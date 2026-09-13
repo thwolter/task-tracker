@@ -183,9 +183,17 @@ impl Tracker {
         Ok(())
     }
 
-    /// Renders the selected range as a localized Markdown report without saving.
-    pub(crate) fn report(&self, timestamp: i64, language: Language) -> String {
-        report::markdown(&self.data, self.range, timestamp, language)
+    /// Renders the selected range and optional project scope without saving.
+    pub(crate) fn export_report(
+        &self,
+        project_id: Option<&ProjectId>,
+        timestamp: i64,
+        language: Language,
+        format: report::Format,
+    ) -> std::result::Result<String, String> {
+        report::render(
+            &self.data, self.range, project_id, timestamp, language, format,
+        )
     }
 }
 

@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-09-13 06:29+0000\n"
+"POT-Creation-Date: 2026-09-13 07:57+0000\n"
 "PO-Revision-Date: 2026-09-06 16:00+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # ui/app-window.slint: 22
-#: ui/app-window.slint:26
+#: ui/app-window.slint:28
 msgctxt "AppWindow"
 msgid "paused"
 msgstr "pausiert"
@@ -22,6 +22,11 @@ msgstr "pausiert"
 msgctxt "AppButton"
 msgid "Button"
 msgstr "Schaltfläche"
+
+#: ui/components/project-card.slint:7
+msgctxt "ProjectCard"
+msgid "Start a timer for {}"
+msgstr ""
 
 #: ui/components/back-link.slint:4
 msgctxt "BackLink"
@@ -125,90 +130,100 @@ msgctxt "TrackingView"
 msgid "Pause"
 msgstr "Pausieren"
 
-#: ui/views/project-editor.slint:44
+#: ui/views/project-editor.slint:20
+msgctxt "ProjectEditor"
+msgid "Hide this project from Home. Its recorded time stays available."
+msgstr ""
+
+#: ui/views/project-editor.slint:21
+msgctxt "ProjectEditor"
+msgid "Enter a project name to create it"
+msgstr ""
+
+#: ui/views/project-editor.slint:46
 msgctxt "ProjectEditor"
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: ui/views/project-editor.slint:51
+#: ui/views/project-editor.slint:53
 msgctxt "ProjectEditor"
 msgid "Delete project?"
 msgstr "Projekt löschen?"
 
-#: ui/views/project-editor.slint:52 ui/views/project-editor.slint:91
+#: ui/views/project-editor.slint:54 ui/views/project-editor.slint:93
 msgctxt "ProjectEditor"
 msgid "Add project"
 msgstr "Projekt hinzufügen"
 
-#: ui/views/project-editor.slint:53
+#: ui/views/project-editor.slint:55
 msgctxt "ProjectEditor"
 msgid "Archived project"
 msgstr "Archiviertes Projekt"
 
-#: ui/views/project-editor.slint:53
+#: ui/views/project-editor.slint:55
 msgctxt "ProjectEditor"
 msgid "Edit project"
 msgstr "Projekt bearbeiten"
 
-#: ui/views/project-editor.slint:63
+#: ui/views/project-editor.slint:65
 msgctxt "ProjectEditor"
 msgid ""
 "This permanently deletes the project and all its recorded work. This cannot "
 "be undone."
 msgstr "Das Projekt und alle erfassten Zeiten werden unwiderruflich gelöscht."
 
-#: ui/views/project-editor.slint:69
+#: ui/views/project-editor.slint:71
 msgctxt "ProjectEditor"
 msgid "Project name"
 msgstr "Projektname"
 
-#: ui/views/project-editor.slint:79
+#: ui/views/project-editor.slint:81
 msgctxt "ProjectEditor"
 msgid "Hidden from Home. Past time entries remain in Evaluation."
 msgstr ""
 "Auf der Startseite ausgeblendet. Bisherige Zeiten bleiben in der Auswertung."
 
-#: ui/views/project-editor.slint:91
+#: ui/views/project-editor.slint:93
 msgctxt "ProjectEditor"
 msgid "Save"
 msgstr "Speichern"
 
-#: ui/views/project-editor.slint:97 ui/views/project-editor.slint:147
+#: ui/views/project-editor.slint:102 ui/views/project-editor.slint:153
 msgctxt "ProjectEditor"
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: ui/views/project-editor.slint:112
+#: ui/views/project-editor.slint:117
 msgctxt "ProjectEditor"
 msgid "Archiving hides this project from Home and keeps its recorded work."
 msgstr ""
 "Archivieren blendet das Projekt auf der Startseite aus. Erfasste Zeiten "
 "bleiben erhalten."
 
-#: ui/views/project-editor.slint:118
+#: ui/views/project-editor.slint:123
 msgctxt "ProjectEditor"
 msgid "Archive project"
 msgstr "Projekt archivieren"
 
-#: ui/views/project-editor.slint:128
+#: ui/views/project-editor.slint:134
 msgctxt "ProjectEditor"
 msgid "Restore project"
 msgstr "Projekt wiederherstellen"
 
-#: ui/views/project-editor.slint:134 ui/views/project-editor.slint:155
+#: ui/views/project-editor.slint:140 ui/views/project-editor.slint:161
 msgctxt "ProjectEditor"
 msgid "Delete permanently"
 msgstr "Endgültig löschen"
 
 #: ui/views/home.slint:15
 msgctxt "HomeHeader"
-msgid "Evaluation"
-msgstr "Auswertung"
+msgid "View activity and time reports"
+msgstr ""
 
 #: ui/views/home.slint:16
 msgctxt "HomeHeader"
-msgid "Manage projects"
-msgstr "Projekte verwalten"
+msgid "Manage projects and settings"
+msgstr ""
 
 #: ui/views/home.slint:19
 msgctxt "HomeHeader"
@@ -217,8 +232,8 @@ msgstr "Was steht an?"
 
 #: ui/views/home.slint:76
 msgctxt "LastTaskCard"
-msgid "Add a task"
-msgstr "Aufgabe hinzufügen"
+msgid "Add a note to your last {} session"
+msgstr ""
 
 #: ui/views/home.slint:94
 msgctxt "LastTaskCard"
@@ -255,6 +270,41 @@ msgctxt "HomeView"
 msgid "A quiet place to keep your day moving."
 msgstr "Ein ruhiger Ort, um voranzukommen."
 
+#: ui/views/export.slint:15
+msgctxt "ExportView"
+msgid "Back"
+msgstr "Zurück"
+
+#: ui/views/export.slint:20
+msgctxt "ExportView"
+msgid "Export"
+msgstr "Exportieren"
+
+#: ui/views/export.slint:25
+msgctxt "ExportView"
+msgid "All projects"
+msgstr "Alle Projekte"
+
+#: ui/views/export.slint:26
+msgctxt "ExportView"
+msgid "Project: {}"
+msgstr "Projekt: {}"
+
+#: ui/views/export.slint:32
+msgctxt "ExportView"
+msgid "CSV"
+msgstr "CSV"
+
+#: ui/views/export.slint:40
+msgctxt "ExportView"
+msgid "Markdown"
+msgstr "Markdown"
+
+#: ui/views/export.slint:48
+msgctxt "ExportView"
+msgid "JSON"
+msgstr "JSON"
+
 #: ui/views/note.slint:30
 msgctxt "NoteView"
 msgid "Home"
@@ -285,39 +335,44 @@ msgctxt "NoteView"
 msgid "Skip for now"
 msgstr "Vorerst überspringen"
 
-#: ui/views/settings.slint:48
+#: ui/views/settings.slint:19
+msgctxt "ProjectRow"
+msgid "Edit {} project"
+msgstr ""
+
+#: ui/views/settings.slint:49
 msgctxt "ProjectRow"
 msgid "Archived"
 msgstr "Archiviert"
 
-#: ui/views/settings.slint:85
+#: ui/views/settings.slint:86
 msgctxt "SettingsView"
 msgid "Home"
 msgstr "Startseite"
 
-#: ui/views/settings.slint:90
+#: ui/views/settings.slint:91
 msgctxt "SettingsView"
 msgid "Manage projects"
 msgstr "Projekte verwalten"
 
-#: ui/views/settings.slint:98
+#: ui/views/settings.slint:99
 msgctxt "SettingsView"
 msgid "Active"
 msgstr "Aktiv"
 
-#: ui/views/settings.slint:102
+#: ui/views/settings.slint:103
 msgctxt "SettingsView"
 msgid "No active projects. Add a project or restore one from the archive."
 msgstr ""
 "Keine aktiven Projekte. Füge ein Projekt hinzu oder stelle eines aus dem "
 "Archiv wieder her."
 
-#: ui/views/settings.slint:115
+#: ui/views/settings.slint:116
 msgctxt "SettingsView"
 msgid "Archived ({})"
 msgstr "Archiviert ({})"
 
-#: ui/views/settings.slint:135
+#: ui/views/settings.slint:139
 msgctxt "SettingsView"
 msgid "Add project"
 msgstr "Projekt hinzufügen"
@@ -342,10 +397,10 @@ msgctxt "EvaluationView"
 msgid "Evaluation"
 msgstr "Auswertung"
 
-#: ui/views/evaluation.slint:115
+#: ui/views/evaluation.slint:116
 msgctxt "EvaluationView"
-msgid "Export Markdown"
-msgstr "Markdown exportieren"
+msgid "Export"
+msgstr "Exportieren"
 
 #: ui/views/drilldown.slint:54
 msgctxt "TaskEditor"
@@ -391,3 +446,19 @@ msgstr "Exportieren"
 msgctxt "DrilldownView"
 msgid "Delete permanently?"
 msgstr "Endgültig löschen?"
+
+#~ msgctxt "HomeHeader"
+#~ msgid "Evaluation"
+#~ msgstr "Auswertung"
+
+#~ msgctxt "HomeHeader"
+#~ msgid "Manage projects"
+#~ msgstr "Projekte verwalten"
+
+#~ msgctxt "LastTaskCard"
+#~ msgid "Add a task"
+#~ msgstr "Aufgabe hinzufügen"
+
+#~ msgctxt "EvaluationView"
+#~ msgid "Export Markdown"
+#~ msgstr "Markdown exportieren"
