@@ -44,6 +44,7 @@
         --action-danger: #9b3f33;
         --action-danger-hover: #873529;
         --action-danger-pressed: #702b22;
+        --action-danger-outline-pressed: #f3d6d0;
 
         --content-link: #296e45;
         --content-link-hover: #245f3d;
@@ -73,7 +74,7 @@
 
       :root[data-theme="dark"] {
         color-scheme: dark;
-        /* Proposed dark values for review; ui/theme.slint remains unchanged. */
+        /* System-following dark colors mirrored from ui/theme.slint. */
         --surface-canvas: #121b15;
         --surface-card: #1d2b21;
         --surface-input: #283a2d;
@@ -104,6 +105,7 @@
         --action-danger: #e8968c;
         --action-danger-hover: #f0aaa0;
         --action-danger-pressed: #d78177;
+        --action-danger-outline-pressed: #593532;
 
         --content-link: #91dfaa;
         --content-link-hover: #aaf0bf;
@@ -276,7 +278,7 @@
       <div class="eyebrow">Tempo · color system</div>
       <div class="page-heading"><h1>Tempo palette</h1><div class="theme-switch" role="group" aria-label="Preview color mode"><button type="button" data-theme-choice="light" aria-pressed="true">Light</button><button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button></div></div>
       <p class="lede">The app's semantic colors and typography, shown as individual roles and together in familiar screens. The screen previews use Tempo's 280 px window width and 460 px preferred height.</p>
-      <div class="notice"><strong>Theme reference.</strong> <span class="light-only">Light colors and type styles mirror <code>ui/theme.slint</code>.</span><span class="dark-only">Dark colors are a proposal for review; they are not yet in the app.</span> On macOS the system font is SF Pro. Single- and multi-line fields share <code>surface-input</code>; icon controls share the secondary action ramp.</div>
+      <div class="notice"><strong>Theme reference.</strong> Both color schemes and type styles mirror <code>ui/theme.slint</code>. Tempo follows the system appearance; this switch lets you compare the palettes. On macOS the system font is SF Pro. Single- and multi-line fields share <code>surface-input</code>; icon controls share the secondary action ramp.</div>
 
       <section aria-labelledby="typography-heading">
         <h2 id="typography-heading">Typography</h2>

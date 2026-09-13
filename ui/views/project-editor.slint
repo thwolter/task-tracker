@@ -17,6 +17,8 @@ export component ProjectEditor inherits Rectangle {
     private property <bool> creating: state.mode == ProjectEditorMode.create;
     private property <bool> confirming-delete: state.mode == ProjectEditorMode.confirm-delete;
     private property <bool> can-save: state.draft-name != "";
+    private property <string> archive-tooltip: @tr("Hide this project from Home. Its recorded time stays available.");
+	private property <string> add-button-tooltip: @tr("Enter a project name to create it");
 
     function cancel() {
         if root.confirming-delete {
@@ -91,6 +93,9 @@ export component ProjectEditor inherits Rectangle {
                         label: root.creating ? @tr("Add project") : @tr("Save");
                         enabled: root.can-save;
                         clicked => { root.save(); }
+                        if root.creating: Tooltip {
+			                text: @markdown("\{root.add-button-tooltip}");
+			            }
                     }
                     AppButton {
                         width: root.width - 2 * root.content-padding;
@@ -119,6 +124,7 @@ export component ProjectEditor inherits Rectangle {
                         intent: AppButtonIntent.secondary;
                         variant: AppButtonVariant.outline;
                         clicked => { AppActions.archive-project(root.state.project.id); }
+                        Tooltip { text: @markdown("\{root.archive-tooltip}"); }
                     }
                 }
                 if !root.confirming-delete && root.state.project.archived: VerticalLayout {

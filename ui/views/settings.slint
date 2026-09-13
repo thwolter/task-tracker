@@ -16,6 +16,7 @@ import { ScrollableColumn } from "../components/scrollable-column.slint";
 
 export component ProjectRow inherits Rectangle {
     in property <ProjectItem> project;
+    private property <string> tooltip: @tr("Edit {} project", root.project.name);
 
     callback clicked();
 
@@ -66,7 +67,7 @@ export component ProjectRow inherits Rectangle {
     }
 
     Tooltip {
-        text: @markdown("\{root.project.name}");
+        text: @markdown("\{root.tooltip}");
     }
 }
 
@@ -117,6 +118,9 @@ export component SettingsView inherits Rectangle {
                     suffix-icon: root.archived-expanded ? @image-url("../assets/icons/chevron-down.svg")
                         : @image-url("../assets/icons/chevron-right.svg");
                     clicked => { root.archived-expanded = !root.archived-expanded; }
+                    Tooltip {
+                        text: @markdown("Show archived projects");
+                    }
                 }
 
                 if root.archived-expanded: VerticalLayout {

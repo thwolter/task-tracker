@@ -1,3 +1,4 @@
+import { Palette } from "std-widgets.slint";
 
 export struct Font {
     size: length,
@@ -31,9 +32,12 @@ export struct Shadow {
 }
 
 export global Theme {
-    // Private foundation tokens establish the default light scheme. Components
-    // consume only the semantic roles below, so a future resolver can replace
-    // the complete scheme without changing component code.
+    // The system palette updates when the operating system changes appearance.
+    // Unknown resolves to the existing light scheme.
+    private property <bool> dark-mode: Palette.color-scheme == ColorScheme.dark;
+
+    // Private foundation tokens retain the established light values. Components
+    // consume only the semantic roles below.
     private property <color> sage-canvas: #f6f8f6;
     private property <color> sage-card: #fffffc;
     private property <color> sage-subtle: #e0f0de;
@@ -55,48 +59,48 @@ export global Theme {
     private property <color> border-divider-color: #cbd8c9;
 
     // Surface roles
-    in-out property <color> surface-canvas: sage-canvas;
-    in-out property <color> surface-card: sage-card;
-    in-out property <color> surface-input: sage-input;
-    in-out property <color> surface-subtle: sage-subtle;
-    in-out property <color> surface-archived: neutral-archived;
-    in-out property <color> surface-disabled: neutral-disabled;
-    in-out property <color> surface-danger: red-danger-surface;
+    in-out property <color> surface-canvas: dark-mode ? #121b15 : sage-canvas;
+    in-out property <color> surface-card: dark-mode ? #1d2b21 : sage-card;
+    in-out property <color> surface-input: dark-mode ? #283a2d : sage-input;
+    in-out property <color> surface-subtle: dark-mode ? #294331 : sage-subtle;
+    in-out property <color> surface-archived: dark-mode ? #344138 : neutral-archived;
+    in-out property <color> surface-disabled: dark-mode ? #2b372f : neutral-disabled;
+    in-out property <color> surface-danger: dark-mode ? #432b29 : red-danger-surface;
 
     // Content and structural roles
-    in-out property <color> content-primary: ink-primary;
-    in-out property <color> content-secondary: ink-secondary;
-    in-out property <color> content-muted: ink-muted;
-    in-out property <color> content-disabled: ink-disabled;
-    in-out property <color> content-on-accent: ink-on-accent;
-    in-out property <color> content-on-primary-hover: ink-on-accent;
-    in-out property <color> content-on-primary-pressed: ink-on-accent;
-    in-out property <color> action-primary: green-primary;
-    in-out property <color> action-danger: red-danger;
-    in-out property <color> action-danger-hover: #873529;
-    in-out property <color> action-danger-pressed: #702b22;
-    in-out property <color> action-danger-outline-pressed: #f3d6d0;
-    in-out property <color> border-default: border-default-color;
-    in-out property <color> border-subtle: border-subtle-color;
-    in-out property <color> border-divider: border-divider-color;
-    in-out property <color> border-focus: green-focus;
-    in-out property <color> timer-ring: green-timer;
+    in-out property <color> content-primary: dark-mode ? #f1f7ef : ink-primary;
+    in-out property <color> content-secondary: dark-mode ? #c0d1bf : ink-secondary;
+    in-out property <color> content-muted: dark-mode ? #a9bda9 : ink-muted;
+    in-out property <color> content-disabled: dark-mode ? #a2b4a3 : ink-disabled;
+    in-out property <color> content-on-accent: dark-mode ? #102218 : ink-on-accent;
+    in-out property <color> content-on-primary-hover: dark-mode ? #102218 : ink-on-accent;
+    in-out property <color> content-on-primary-pressed: dark-mode ? #102218 : ink-on-accent;
+    in-out property <color> action-primary: dark-mode ? #78ce98 : green-primary;
+    in-out property <color> action-danger: dark-mode ? #e8968c : red-danger;
+    in-out property <color> action-danger-hover: dark-mode ? #f0aaa0 : #873529;
+    in-out property <color> action-danger-pressed: dark-mode ? #d78177 : #702b22;
+    in-out property <color> action-danger-outline-pressed: dark-mode ? #593532 : #f3d6d0;
+    in-out property <color> border-default: dark-mode ? #4c6351 : border-default-color;
+    in-out property <color> border-subtle: dark-mode ? #3e5444 : border-subtle-color;
+    in-out property <color> border-divider: dark-mode ? #435a49 : border-divider-color;
+    in-out property <color> border-focus: dark-mode ? #a7eab5 : green-focus;
+    in-out property <color> timer-ring: dark-mode ? #3b6548 : green-timer;
 
     // Opaque interaction colors keep the same contrast on every surface.
-    in-out property <color> action-primary-hover: #245f3d;
-    in-out property <color> action-primary-pressed: #1f5134;
-    in-out property <color> action-secondary: sage-subtle;
-    in-out property <color> action-secondary-hover: #d4e8d1;
-    in-out property <color> action-secondary-pressed: #c8dec5;
-    in-out property <color> action-icon: sage-subtle;
-    in-out property <color> action-icon-hover: #d4e8d1;
-    in-out property <color> action-icon-pressed: #c8dec5;
-    in-out property <color> action-card-hover: sage-input;
-    in-out property <color> action-card-pressed: sage-subtle;
-    in-out property <color> content-link: green-primary;
-    in-out property <color> content-link-hover: #245f3d;
-    in-out property <color> content-link-pressed: #1f5134;
-    in-out property <color> dialog-backdrop: #14241a80;
+    in-out property <color> action-primary-hover: dark-mode ? #8ddca9 : #245f3d;
+    in-out property <color> action-primary-pressed: dark-mode ? #62bb83 : #1f5134;
+    in-out property <color> action-secondary: dark-mode ? #345c40 : sage-subtle;
+    in-out property <color> action-secondary-hover: dark-mode ? #40704d : #d4e8d1;
+    in-out property <color> action-secondary-pressed: dark-mode ? #2c5138 : #c8dec5;
+    in-out property <color> action-icon: dark-mode ? #345c40 : sage-subtle;
+    in-out property <color> action-icon-hover: dark-mode ? #40704d : #d4e8d1;
+    in-out property <color> action-icon-pressed: dark-mode ? #2c5138 : #c8dec5;
+    in-out property <color> action-card-hover: dark-mode ? #293e30 : sage-input;
+    in-out property <color> action-card-pressed: dark-mode ? #34513c : sage-subtle;
+    in-out property <color> content-link: dark-mode ? #91dfaa : green-primary;
+    in-out property <color> content-link-hover: dark-mode ? #aaf0bf : #245f3d;
+    in-out property <color> content-link-pressed: dark-mode ? #7dcc98 : #1f5134;
+    in-out property <color> dialog-backdrop: dark-mode ? #080f0bd9 : #14241a80;
 
     in property <Typo> typography: {
         heading: { size: 20px, weight: 700, letter-spacing: 0px },
@@ -117,7 +121,7 @@ export global Theme {
     in property <Shadow> dialog-shadow: {
         offset-x: 0px,
         offset-y: 4px,
-        blur: 6px,
-        color: #14241a1a,
+        blur: dark-mode ? 12px : 6px,
+        color: dark-mode ? #050b0770 : #14241a1a,
     };
 }
