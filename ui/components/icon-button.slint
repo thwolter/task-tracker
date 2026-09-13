@@ -1,28 +1,68 @@
 import { Theme } from "../theme.slint";
 
+export enum IconButtonIntent { primary, secondary, danger }
+export enum IconButtonSize { small, medium, large }
+
+struct IconButtonMetrics {
+    frame-size: length,
+    icon-size: length,
+}
+
 export component IconButton inherits Rectangle {
     in property <image> icon;
-    in property <color> icon-color: Theme.content-secondary;
+    in property <IconButtonIntent> intent: IconButtonIntent.secondary;
+    in property <IconButtonSize> size: IconButtonSize.medium;
+    in property <bool> has-background: true;
+
+    private property <IconButtonMetrics> small-metrics: { frame-size: 24px, icon-size: 13px };
+    private property <IconButtonMetrics> medium-metrics: { frame-size: 28px, icon-size: 15px };
+    private property <IconButtonMetrics> large-metrics: { frame-size: 50px, icon-size: 19px };
+    private property <IconButtonMetrics> metrics: select-metrics();
+    private property <color> current-icon-color: resolve-icon-color();
 
     callback clicked();
+
+    function select-metrics() -> IconButtonMetrics {
+        if (root.size == IconButtonSize.small) { return root.small-metrics; }
+        if (root.size == IconButtonSize.large) { return root.large-metrics; }
+        return root.medium-metrics;
+    }
+
+    function resolve-icon-color() -> color {
+        if (root.intent == IconButtonIntent.primary) {
+            if (touch.pressed) { return Theme.action-primary-pressed; }
+            if (touch.has-hover) { return Theme.action-primary-hover; }
+            return Theme.action-primary;
+        }
+        if (root.intent == IconButtonIntent.danger) {
+            if (touch.pressed) { return Theme.action-danger-pressed; }
+            if (touch.has-hover) { return Theme.action-danger-hover; }
+            return Theme.action-danger;
+        }
+        if (touch.pressed || touch.has-hover) { return Theme.content-primary; }
+        return Theme.content-secondary;
+    }
 
     touch := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
 
-    background: touch.pressed ? Theme.action-icon-pressed
+    background: !root.has-background ? #00000000
+        : touch.pressed ? Theme.action-icon-pressed
         : touch.has-hover ? Theme.action-icon-hover
         : Theme.action-icon;
-    border-radius: 5px;
-    width: 20px;
-    height: 20px;
+    border-radius: Theme.border.radius;
+    width: root.metrics.frame-size;
+    height: root.metrics.frame-size;
 
     Image {
-        width: parent.width - 4px;
-        height: parent.height - 4px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        width: root.metrics.icon-size;
+        height: root.metrics.icon-size;
         source: root.icon;
-        colorize: root.icon-color;
+        colorize: root.current-icon-color;
         horizontal-alignment: center;
         vertical-alignment: center;
     }

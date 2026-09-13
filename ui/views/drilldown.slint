@@ -12,7 +12,7 @@ import { ScrollableColumn } from "../components/scrollable-column.slint";
 import { DurationLabel } from "../components/duration-label.slint";
 import { EvaluationSummary } from "../components/evaluation-summary.slint";
 import { RangeList } from "../components/range-list.slint";
-import { IconButton } from "../components/icon-button.slint";
+import { IconButton, IconButtonIntent } from "../components/icon-button.slint";
 import { DeleteConfirmation } from "../components/delete-confirmation.slint";
 import { ScrollView, HorizontalBox } from "std-widgets.slint";
 import { TextEdit } from "../components/text-edit.slint";
@@ -61,8 +61,8 @@ component TaskEditor inherits HorizontalLayout {
 
             IconButton {
                 icon: @image-url("../assets/icons/delete.svg");
-                icon-color: Theme.action-danger;
-                background: transparent;
+                intent: IconButtonIntent.danger;
+                has-background: false;
                 clicked => { root.delete(root.entry); }
             }
             HorizontalLayout {
@@ -136,7 +136,7 @@ export component TaskCard inherits Rectangle {
                         }
                         HorizontalLayout {
                             alignment: space-between;
-                            cross-axis-alignment: start;
+                            cross-axis-alignment: center;
 
                             description := Text {
                                 text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
@@ -150,7 +150,8 @@ export component TaskCard inherits Rectangle {
                             }
                             IconButton {
                                 icon: @image-url("../assets/icons/edit.svg");
-                                background: transparent;
+                                has-background: false;
+                                clicked => { root.editing = true; }
                             }
                         }
 			        }
