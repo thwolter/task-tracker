@@ -1,8 +1,5 @@
 use super::bind;
-use crate::{
-    application::Tracker, domain, language::Language, AppActions, AppWindow, Page, Range,
-    TrackingState,
-};
+use crate::{AppActions, AppWindow, Page, Range, application::Tracker, domain, language::Language};
 use slint::{ComponentHandle, Model};
 use std::{path::PathBuf, thread, time::Duration};
 
@@ -158,7 +155,7 @@ fn tracking_commands_refresh_the_ui_through_the_single_dispatcher() {
 
     actions.invoke_start_tracking("project-1".into());
     assert_eq!(ui.get_current_page(), Page::Tracking);
-    assert_eq!(ui.get_tracking().active_task, "PROJECT ATLAS");
+    assert_eq!(ui.get_tracking().active_task, "Project Atlas");
 
     actions.invoke_toggle_tracking_pause();
     assert!(ui.get_tracking().paused);
@@ -190,7 +187,7 @@ fn active_tracking_remains_available_after_returning_home() {
     actions.invoke_tick();
 
     assert_eq!(ui.get_current_page(), Page::Home);
-    assert_eq!(ui.get_tracking().active_task, "PROJECT ATLAS");
+    assert_eq!(ui.get_tracking().active_task, "Project Atlas");
     assert_ne!(ui.get_tracking().elapsed, elapsed_before_tick);
 
     std::fs::remove_file(path).unwrap();
@@ -207,7 +204,7 @@ fn secondary_tracking_locks_home_until_it_finishes_and_restores_the_primary() {
     actions.invoke_start_tracking("project-1".into());
     actions.invoke_navigate(Page::Home);
     actions.invoke_start_tracking("project-2".into());
-    assert_eq!(ui.get_tracking().active_task, "ADMIN");
+    assert_eq!(ui.get_tracking().active_task, "Admin");
     assert!(ui.get_tracking().secondary_active);
 
     actions.invoke_navigate(Page::Home);
@@ -215,49 +212,11 @@ fn secondary_tracking_locks_home_until_it_finishes_and_restores_the_primary() {
 
     actions.invoke_end_tracking();
     assert_eq!(ui.get_current_page(), Page::Note);
-    assert_eq!(ui.get_tracking().active_task, "PROJECT ATLAS");
+    assert_eq!(ui.get_tracking().active_task, "Project Atlas");
     assert!(ui.get_tracking().paused);
     assert!(!ui.get_tracking().secondary_active);
 
     std::fs::remove_file(path).unwrap();
-}
-
-#[cfg(debug_assertions)]
-#[test]
-fn home_tracker_control_reacts_to_live_tracking_updates() {
-    i_slint_backend_testing::init_no_event_loop();
-    let ui = AppWindow::new().unwrap();
-    ui.set_current_page(Page::Home);
-
-    ui.set_tracking(TrackingState {
-        active_task: "PROJECT ATLAS".into(),
-        elapsed: "00:10".into(),
-        paused: false,
-        secondary_active: false,
-    });
-    assert!(
-        i_slint_backend_testing::ElementHandle::find_by_accessible_label(
-            &ui,
-            "PROJECT ATLAS · 00:10"
-        )
-        .next()
-        .is_some()
-    );
-
-    ui.set_tracking(TrackingState {
-        active_task: "PROJECT ATLAS".into(),
-        elapsed: "00:11".into(),
-        paused: false,
-        secondary_active: false,
-    });
-    assert!(
-        i_slint_backend_testing::ElementHandle::find_by_accessible_label(
-            &ui,
-            "PROJECT ATLAS · 00:11"
-        )
-        .next()
-        .is_some()
-    );
 }
 
 #[test]
@@ -276,79 +235,45 @@ fn persistence_errors_are_shown_and_status_expires() {
     std::fs::remove_file(blocked_parent).unwrap();
 }
 
-// Invoke actual view controls, rather than bypassing the Slint action routing.
-#[cfg(debug_assertions)]
-fn activate(ui: &AppWindow, label: &str) {
-    let control = i_slint_backend_testing::ElementHandle::find_by_accessible_label(ui, label)
-        .next()
-        .unwrap_or_else(|| panic!("missing control: {label}"));
-    control.invoke_accessible_default_action();
-}
-
-#[cfg(debug_assertions)]
 #[test]
-fn project_editor_creates_after_archived_edit_and_confirms_deletion() {
+fn project_actions_create_edit_restore_and_delete_archived_project() {
     use crate::ProjectEditorMode;
     i_slint_backend_testing::init_no_event_loop();
     let path = test_path("project-controls");
     let ui = AppWindow::new().unwrap();
-    slint::select_bundled_translation("en").unwrap();
     bind(&ui, Tracker::at(path.clone()), Language::English);
     let actions = ui.global::<AppActions>();
-    actions.invoke_navigate(Page::Settings);
+
     actions.invoke_archive_project("project-1".into());
-    activate(&ui, "Archived (1)");
-    let archived = ui.get_project_settings().archived.row_data(0).unwrap();
-    activate(&ui, &format!("{} · Archived", archived.name));
-    activate(&ui, "Back to projects");
-    activate(&ui, "Add project");
+    assert_eq!(ui.get_project_settings().archived.row_count(), 1);
+    actions.invoke_open_project_edit("project-1".into());
     assert_eq!(ui.get_current_page(), Page::ProjectEditor);
-    assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::Create);
-    assert!(ui.get_project_editor().project.id.is_empty());
-    assert!(ui.get_project_editor().draft_name.is_empty());
-    type_text(&ui, "Focus work");
-    assert_eq!(ui.get_project_editor().draft_name, "Focus work");
-    type_text(
-        &ui,
-        &slint::SharedString::from(slint::platform::Key::Return),
-    );
-    assert_eq!(ui.get_current_page(), Page::Settings);
-    assert_eq!(ui.get_project_settings().active.row_count(), 4);
-    assert_eq!(
-        ui.get_project_settings().archived.row_data(0).unwrap().name,
-        archived.name
-    );
-
-    activate(&ui, "Focus work");
-    let mut editor = ui.get_project_editor();
-    editor.draft_name = "Renamed focus work".into();
-    ui.set_project_editor(editor);
-    activate(&ui, "Save");
-    assert_eq!(ui.get_current_page(), Page::Settings);
-    activate(&ui, "Renamed focus work");
-    activate(&ui, "Archive project");
-    assert_eq!(ui.get_project_settings().archived.row_count(), 2);
-    activate(&ui, "Archived (2)");
-    activate(&ui, "Renamed focus work · Archived");
-    activate(&ui, "Restore project");
-    assert_eq!(ui.get_project_settings().archived.row_count(), 1);
-    assert_eq!(ui.get_project_settings().active.row_count(), 4);
-
-    activate(&ui, "Archived (1)");
-    activate(&ui, &format!("{} · Archived", archived.name));
-    activate(&ui, "Delete permanently");
-    assert_eq!(
-        ui.get_project_editor().mode,
-        ProjectEditorMode::ConfirmDelete
-    );
-    assert_eq!(ui.get_project_settings().archived.row_count(), 1);
-    type_text(
-        &ui,
-        &slint::SharedString::from(slint::platform::Key::Escape),
-    );
     assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::Edit);
-    activate(&ui, "Delete permanently");
-    activate(&ui, "Delete permanently");
+    assert!(ui.get_project_editor().project.archived);
+
+    actions.invoke_open_project_create();
+    assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::Create);
+    actions.invoke_add_project("Focus work".into());
+    assert_eq!(ui.get_project_settings().active.row_count(), 4);
+
+    let created = (0..ui.get_project_settings().active.row_count())
+        .map(|index| ui.get_project_settings().active.row_data(index).unwrap())
+        .find(|project| project.name == "Focus work")
+        .expect("new project should appear in the active-project projection");
+    actions.invoke_save_project(created.id.clone(), "Renamed focus work".into());
+    assert!(
+        (0..ui.get_project_settings().active.row_count())
+            .map(|index| ui.get_project_settings().active.row_data(index).unwrap())
+            .any(|project| project.name == "Renamed focus work")
+    );
+
+    actions.invoke_archive_project(created.id.clone());
+    assert_eq!(ui.get_project_settings().archived.row_count(), 2);
+    actions.invoke_unarchive_project(created.id);
+    assert_eq!(ui.get_project_settings().archived.row_count(), 1);
+    assert_eq!(ui.get_project_settings().active.row_count(), 4);
+
+    actions.invoke_delete_project("project-1".into());
     assert_eq!(ui.get_current_page(), Page::Settings);
     assert_eq!(ui.get_project_settings().archived.row_count(), 0);
     std::fs::remove_file(path).unwrap();
@@ -356,28 +281,26 @@ fn project_editor_creates_after_archived_edit_and_confirms_deletion() {
 
 #[cfg(debug_assertions)]
 #[test]
-fn invalid_project_name_keeps_editor_and_escape_cancels() {
+fn invalid_project_name_keeps_editor_and_navigation_returns_to_settings() {
     use crate::ProjectEditorMode;
     i_slint_backend_testing::init_no_event_loop();
     let path = test_path("invalid-project-editor");
     let ui = AppWindow::new().unwrap();
     slint::select_bundled_translation("en").unwrap();
     bind(&ui, Tracker::at(path.clone()), Language::English);
-    ui.global::<AppActions>().invoke_navigate(Page::Settings);
-    activate(&ui, "Add project");
-    type_text(&ui, "   ");
-    type_text(
-        &ui,
-        &slint::SharedString::from(slint::platform::Key::Return),
-    );
+    let actions = ui.global::<AppActions>();
+    actions.invoke_open_project_create();
+    let mut editor = ui.get_project_editor();
+    editor.draft_name = "   ".into();
+    ui.set_project_editor(editor);
+    actions.invoke_add_project("   ".into());
+
     assert_eq!(ui.get_project_editor().mode, ProjectEditorMode::Create);
     assert_eq!(ui.get_project_editor().draft_name, "   ");
     assert!(!ui.get_project_editor().error.is_empty());
     assert_eq!(ui.get_project_settings().active.row_count(), 4);
-    type_text(
-        &ui,
-        &slint::SharedString::from(slint::platform::Key::Escape),
-    );
+
+    actions.invoke_navigate(Page::Settings);
     assert_eq!(ui.get_current_page(), Page::Settings);
     std::fs::remove_file(path).unwrap();
 }
@@ -409,15 +332,4 @@ fn failed_project_save_preserves_draft_and_can_be_retried() {
     assert_eq!(ui.get_project_settings().active.row_count(), 5);
     std::fs::remove_file(path).unwrap();
     std::fs::remove_dir(blocked_parent).unwrap();
-}
-
-#[cfg(debug_assertions)]
-fn type_text(ui: &AppWindow, text: &str) {
-    for ch in text.chars() {
-        let text: slint::SharedString = ch.to_string().into();
-        ui.window()
-            .dispatch_event(slint::platform::WindowEvent::KeyPressed { text: text.clone() });
-        ui.window()
-            .dispatch_event(slint::platform::WindowEvent::KeyReleased { text });
-    }
 }

@@ -67,7 +67,7 @@ should not expand the local-first scope until the first release is stable.
 - [ ] Confirm destructive actions before deleting a session or permanently
   deleting a project and its sessions.
 - [ ] Provide a short Undo action after deletion where practical.
-- [ ] Add a complete raw-data export format (CSV and/or JSON), not only the
+- [x] Add a complete raw-data export format (CSV and/or JSON), not only the
   formatted Markdown report.
 - [ ] Add backup, restore, and a clearly explained “Delete all local data”
   action.
