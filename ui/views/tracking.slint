@@ -25,7 +25,7 @@ export component TrackingView inherits Rectangle {
             cross-axis-alignment: center;
             alignment: space-between;
 
-            VerticalLayout {
+            if (!root.state.secondary-active): VerticalLayout {
                 Text {
                     text: @tr("Need to step away?");
                     color: Theme.content-primary;
@@ -40,6 +40,7 @@ export component TrackingView inherits Rectangle {
                     color: Theme.content-primary;
                 }
             }
+            if (root.state.secondary-active): Rectangle {}
 
             TimerDisplay {
                 task: root.state.active-task;
