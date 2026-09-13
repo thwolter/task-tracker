@@ -7,6 +7,7 @@ import { Theme } from "../theme.slint";
 import { ViewHeader } from "../components/typography.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
 import { DurationLabel } from "../components/duration-label.slint";
+import { CommonStrings } from "../common-strings.slint";
 
 component HomeHeader inherits HorizontalLayout {
     alignment: stretch;
@@ -158,7 +159,7 @@ component ResumeCard inherits Rectangle {
             alignment: space-between;
             AppButton {
                 width: parent.width / 2 - 8px;
-                label: "Resume";
+                label: CommonStrings.resume;
                 clicked => {
                     AppActions.toggle-tracking-pause();
                     AppActions.navigate(Page.tracking);

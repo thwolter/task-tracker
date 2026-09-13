@@ -16,6 +16,7 @@ import { IconButton } from "../components/icon-button.slint";
 import { DeleteConfirmation } from "../components/delete-confirmation.slint";
 import { ScrollView, HorizontalBox } from "std-widgets.slint";
 import { TextEdit } from "../components/text-edit.slint";
+import { CommonStrings } from "../common-strings.slint";
 
 component TaskTimelineMarker inherits Rectangle {
     in property <length> line-height;
@@ -69,14 +70,14 @@ component TaskEditor inherits HorizontalLayout {
                 spacing: 10px;
 
                 AppButton {
-                    label: @tr("Cancel");
+                    label: CommonStrings.cancel;
                     intent: AppButtonIntent.secondary;
                     variant: AppButtonVariant.outline;
                     clicked => { cancel(); }
                 }
                 AppButton {
                     prefix-icon: @image-url("../assets/icons/check.svg");
-                    label: @tr("Save");
+                    label: CommonStrings.save;
                     clicked => { root.save(root.entry.id, root.draft-note); }
                 }
             }

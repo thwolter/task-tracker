@@ -10,6 +10,7 @@ import {
     LabelText,
 } from "../components/typography.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
+import { CommonStrings } from "../common-strings.slint";
 
 export component ProjectEditor inherits Rectangle {
     private property <length> content-padding: 20px;
@@ -88,13 +89,13 @@ export component ProjectEditor inherits Rectangle {
                     spacing: 8px;
                     AppButton {
                         width: root.width - 2 * root.content-padding;
-                        label: root.creating ? @tr("Add project") : @tr("Save");
+                        label: root.creating ? @tr("Add project") : CommonStrings.save;
                         enabled: root.can-save;
                         clicked => { root.save(); }
                     }
                     AppButton {
                         width: root.width - 2 * root.content-padding;
-                        label: @tr("Cancel");
+                        label: CommonStrings.cancel;
                         intent: AppButtonIntent.secondary;
                         variant: AppButtonVariant.outline;
                         clicked => { root.cancel(); }
@@ -144,7 +145,7 @@ export component ProjectEditor inherits Rectangle {
                     spacing: 12px;
                     AppButton {
                         width: root.width - 2 * root.content-padding;
-                        label: @tr("Cancel");
+                        label: CommonStrings.cancel;
                         intent: AppButtonIntent.secondary;
                         variant: AppButtonVariant.outline;
                         clicked => { root.cancel(); }

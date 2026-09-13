@@ -50,6 +50,20 @@
         --timer-ring: #d6f0d6;
         --dialog-backdrop: #14241a80;
         --dialog-shadow: 0 4px 6px #14241a1a;
+
+        /* Sizes, weights, and tracking mirror ui/theme.slint; CSS line heights approximate Slint. */
+        --font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        --font-heading: 700 20px/1.4 var(--font-family);
+        --font-title: 700 18px/1.4 var(--font-family);
+        --font-body: 400 15px/1.45 var(--font-family);
+        --font-body-strong: 600 15px/1.45 var(--font-family);
+        --font-body-link: 500 15px/1.45 var(--font-family);
+        --font-supporting: 500 14px/1.4 var(--font-family);
+        --font-label: 600 13px/1.4 var(--font-family);
+        --font-small-label: 600 12px/1.4 var(--font-family);
+        --font-small-label-spacing: .4px;
+        --font-caption: 500 12px/1.4 var(--font-family);
+        --font-timer: 700 32px/1.4 var(--font-family);
       }
 
       * { box-sizing: border-box; }
@@ -57,7 +71,7 @@
         margin: 0;
         background: var(--surface-canvas);
         color: var(--content-primary);
-        font: 15px/1.45 system-ui, sans-serif;
+        font: var(--font-body);
       }
       main { width: min(1100px, calc(100% - 40px)); margin: 0 auto; padding: 40px 0 72px; }
       h1 { margin: 0; font-size: clamp(26px, 4vw, 36px); letter-spacing: -.03em; }
@@ -134,50 +148,64 @@
       .link-default { color: var(--content-link); }
       .link-hover { color: var(--content-link-hover); text-decoration: underline; }
       .link-pressed { color: var(--content-link-pressed); text-decoration: underline; }
-      .preview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(265px, 1fr)); gap: 16px; align-items: stretch; }
-      .window { min-height: 400px; overflow: hidden; border: 1px solid var(--border-default); border-radius: 16px; background: var(--surface-card); box-shadow: var(--dialog-shadow); }
+      .preview-grid { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 16px; }
+      .window { flex: 0 1 280px; width: 280px; max-width: 100%; min-height: 460px; overflow: hidden; border: 1px solid var(--border-default); border-radius: 16px; background: var(--surface-card); box-shadow: var(--dialog-shadow); }
       .window-bar { height: 26px; display: flex; align-items: center; gap: 5px; padding: 0 10px; background: #262626; color: #a8aba8; font-size: 11px; }
       .dot { width: 9px; height: 9px; border-radius: 50%; background: #ff5f56; }
       .dot:nth-child(2) { background: #ffbd2e; }
       .dot:nth-child(3) { background: #27c93f; }
       .bar-title { margin-left: 10px; font-weight: 700; }
-      .window-body { min-height: 374px; display: flex; flex-direction: column; gap: 15px; padding: 18px 20px 20px; }
-      .window-body h3 { font-size: 20px; }
-      .mini-label { color: var(--content-muted); font-size: 12px; font-weight: 700; }
+      .window-body { min-height: 432px; display: flex; flex-direction: column; gap: 15px; padding: 18px 20px 20px; }
+      .window-body h3 { font: var(--font-heading); }
+      .mini-label { color: var(--content-muted); font: var(--font-label); }
       .last-session { padding: 10px; border-radius: 10px; background: var(--surface-subtle); }
-      .last-session .mini-label { color: var(--action-primary); font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+      .last-session .mini-label { color: var(--action-primary); font: var(--font-caption); text-transform: uppercase; }
       .last-session strong, .last-session span { display: block; }
-      .last-session span { color: var(--content-secondary); font-size: 12px; font-weight: 600; }
+      .last-session strong { font: var(--font-body-strong); }
+      .last-session span { color: var(--content-secondary); font: var(--font-label); }
       .mini-buttons { display: grid; gap: 7px; }
-      .mini-button { width: 100%; min-height: 38px; border: 1px solid var(--border-default); border-radius: 8px; background: var(--surface-card); color: var(--action-primary); font-size: 13px; font-weight: 700; }
+      .mini-button { width: 100%; min-height: 38px; border: 1px solid var(--border-default); border-radius: 8px; background: var(--surface-card); color: var(--action-primary); font: var(--font-label); }
       .mini-button.primary { border: 0; background: var(--action-primary); color: var(--content-on-accent); }
       .mini-button.disabled { border-color: var(--surface-disabled); background: var(--surface-disabled); color: var(--content-disabled); }
       .mini-button.secondary { border: 0; background: var(--action-secondary); color: var(--content-primary); }
       .spacer { flex: 1; }
-      .window-foot { color: var(--content-muted); font-size: 12px; font-weight: 600; }
-      .back { color: var(--content-link); font-size: 12px; font-weight: 600; }
+      .window-foot { color: var(--content-muted); font: var(--font-supporting); }
+      .back { color: var(--content-link); font: var(--font-supporting); }
       .timer-circle { width: 150px; height: 150px; display: grid; place-content: center; justify-items: center; align-self: center; margin: 8px 0 6px; border: 8px solid var(--timer-ring); border-radius: 50%; }
-      .timer-circle small { color: var(--action-primary); font-size: 11px; font-weight: 700; letter-spacing: .12em; }
-      .timer-circle strong { font-size: 29px; }
+      .timer-circle small { color: var(--action-primary); font: var(--font-small-label); letter-spacing: var(--font-small-label-spacing); }
+      .timer-circle strong { font: var(--font-timer); }
       .periods { display: flex; flex-wrap: wrap; gap: 5px; }
-      .period { padding: 6px 10px; border: 1px solid var(--border-default); border-radius: 18px; background: var(--surface-card); color: var(--content-muted); font-size: 11px; font-weight: 700; }
+      .period { padding: 6px 10px; border: 1px solid var(--border-default); border-radius: 18px; background: var(--surface-card); color: var(--content-muted); font: var(--font-label); }
       .period.selected { border-color: var(--action-primary); background: var(--action-primary); color: var(--content-on-accent); }
-      .summary { padding: 10px; border-radius: 10px; background: var(--surface-subtle); font-size: 12px; font-weight: 700; }
-      .project-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--surface-card); font-size: 12px; }
-      .project-row strong { display: block; font-size: 14px; }
-      .project-row span { color: var(--content-muted); font-weight: 600; }
-      .project-row b { color: var(--action-primary); font-size: 11px; white-space: nowrap; }
+      .summary { padding: 10px; border-radius: 10px; background: var(--surface-subtle); font: var(--font-supporting); }
+      .project-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--surface-card); font: var(--font-supporting); }
+      .project-row strong { display: block; font: var(--font-body-strong); }
+      .project-row span { color: var(--content-muted); font: var(--font-label); }
+      .project-row b { color: var(--action-primary); font: var(--font-supporting); white-space: nowrap; }
       .project-row.hover { background: var(--action-card-hover); }
-      .input-label { display: block; margin-bottom: 5px; color: var(--content-secondary); font-size: 12px; font-weight: 700; }
+      .input-label { display: block; margin-bottom: 5px; color: var(--content-secondary); font: var(--font-label); }
       .field { width: 100%; padding: 10px; border: 1px solid var(--border-subtle); border-radius: 8px; background: var(--surface-input); color: var(--content-primary); resize: none; }
       .field:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
-      .danger-note { padding: 9px 10px; border: 1px solid #e8c9c2; border-radius: 8px; background: var(--surface-danger); color: var(--action-danger); font-size: 12px; }
+      .danger-note { padding: 9px 10px; border: 1px solid #e8c9c2; border-radius: 8px; background: var(--surface-danger); color: var(--action-danger); font: var(--font-supporting); }
       .compare { width: 100%; border-collapse: collapse; background: var(--surface-card); border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden; }
       .compare th, .compare td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); text-align: left; vertical-align: top; font-size: 13px; }
       .compare th { background: var(--surface-input); color: var(--content-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
       .compare tr:last-child td { border-bottom: 0; }
       .compare code { font: 12px ui-monospace, monospace; }
       .check { color: var(--content-muted); font-size: 13px; }
+      .font-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 12px; }
+      .font-sample { display: grid; align-content: space-between; gap: 12px; min-height: 100px; padding: 14px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--surface-card); }
+      .font-sample small { color: var(--content-muted); font: 500 12px/1.3 var(--font-family); }
+      .type-heading { font: var(--font-heading); }
+      .type-title { font: var(--font-title); }
+      .type-body { font: var(--font-body); }
+      .type-body-strong { font: var(--font-body-strong); }
+      .type-body-link { color: var(--content-link); font: var(--font-body-link); }
+      .type-supporting { font: var(--font-supporting); }
+      .type-label { font: var(--font-label); }
+      .type-small-label { font: var(--font-small-label); letter-spacing: var(--font-small-label-spacing); }
+      .type-caption { font: var(--font-caption); }
+      .type-timer { font: var(--font-timer); }
       @media (max-width: 600px) { main { width: min(100% - 28px, 1100px); padding-top: 26px; } .compare { display: block; overflow-x: auto; white-space: nowrap; } }
     </style>
   </head>
@@ -185,12 +213,29 @@
     <main>
       <div class="eyebrow">Tempo · color system</div>
       <h1>Tempo palette</h1>
-      <p class="lede">The app's semantic colors, shown both as individual roles and together in familiar screens. Green actions deepen on interaction; supporting text and inactive surfaces keep their own hierarchy.</p>
-      <div class="notice"><strong>Theme reference.</strong> These colors mirror <code>ui/theme.slint</code>. Single- and multi-line fields share <code>surface-input</code>; icon controls share the secondary action ramp.</div>
+      <p class="lede">The app's semantic colors and typography, shown as individual roles and together in familiar screens. The screen previews use Tempo's 280 px window width and 460 px preferred height.</p>
+      <div class="notice"><strong>Theme reference.</strong> Colors and type styles mirror <code>ui/theme.slint</code>. On macOS the system font is SF Pro. Single- and multi-line fields share <code>surface-input</code>; icon controls share the secondary action ramp.</div>
+
+      <section aria-labelledby="typography-heading">
+        <h2 id="typography-heading">Typography</h2>
+        <p class="section-intro">Tempo uses the platform system typeface. Body text stays at 15 px; the smallest supporting and caption roles are easier to read in the narrow app window.</p>
+        <div class="font-grid">
+          <div class="font-sample"><span class="type-heading">What next?</span><small>Heading · 20 px / 700</small></div>
+          <div class="font-sample"><span class="type-title">Evaluation</span><small>Title · 18 px / 700</small></div>
+          <div class="font-sample"><span class="type-body">Need to step away?</span><small>Body · 15 px / 400</small></div>
+          <div class="font-sample"><span class="type-body-strong">Admin · 11 min</span><small>Body strong · 15 px / 600</small></div>
+          <div class="font-sample"><span class="type-body-link">Add a note</span><small>Body link · 15 px / 500</small></div>
+          <div class="font-sample"><span class="type-supporting">You can resume anytime.</span><small>Supporting · 14 px / 500</small></div>
+          <div class="font-sample"><span class="type-label">Start a timer</span><small>Label · 13 px / 600</small></div>
+          <div class="font-sample"><span class="type-small-label">Admin</span><small>Small label · 12 px / 600 / +0.4 px</small></div>
+          <div class="font-sample"><span class="type-caption">LAST SESSION · TAP TO ADD A NOTE</span><small>Caption · 12 px / 500</small></div>
+          <div class="font-sample"><span class="type-timer">25:00</span><small>Timer · 32 px / 700</small></div>
+        </div>
+      </section>
 
       <section aria-labelledby="preview-heading">
         <h2 id="preview-heading">In context</h2>
-        <p class="section-intro">These compact examples combine the fills, text, borders, and controls used across the app. They show color relationships rather than exact layout recreations.</p>
+        <p class="section-intro">Each example uses the app's 280 px width and 460 px preferred height. Content can make a window taller, as it can in the app.</p>
         <div class="preview-grid">
           <div class="window">
             <div class="window-bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="bar-title">· 00:00</span></div>
@@ -206,7 +251,7 @@
             <div class="window-bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="bar-title">Admin · 00:01</span></div>
             <div class="window-body">
               <div class="back">‹ Home</div>
-              <div><strong style="font-size: 13px">Need to step away?</strong><div class="secondary-text" style="font-size: 12px">Going home pauses this task. You can resume it anytime.</div></div>
+              <div><strong class="type-supporting">Need to step away?</strong><div class="secondary-text type-supporting">Going home pauses this task. You can resume it anytime.</div></div>
               <div class="timer-circle"><small>Admin</small><strong>00:01</strong><span style="color: var(--timer-ring)">Ⅱ</span></div>
               <div class="spacer"></div>
               <div class="mini-buttons"><button class="mini-button primary">End task</button><button class="mini-button disabled" disabled>Pause</button></div>
@@ -228,7 +273,7 @@
               <div class="back">‹ Evaluation</div><h3>Admin</h3>
               <div class="periods"><span class="period selected">Day</span><span class="period">Week</span><span class="period">Month</span><span class="period">Year</span></div>
               <div class="summary">Today · 1 h 2 min</div>
-              <div class="muted-text" style="font-size: 11px">14 completed tasks</div>
+              <div class="muted-text type-caption">14 completed tasks</div>
               <div><label class="input-label" for="note-preview">SAT, 12 SEP</label><textarea class="field" id="note-preview" rows="3">e.g. prepared the Q4 project brief</textarea></div>
               <div class="mini-buttons" style="grid-template-columns: 1fr 1fr"><button class="mini-button secondary">Cancel</button><button class="mini-button primary">✓ Save</button></div>
               <div class="spacer"></div><button class="mini-button primary">↓ &nbsp;Export</button>

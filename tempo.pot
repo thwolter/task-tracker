@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-09-07 09:01+0000\n"
+"POT-Creation-Date: 2026-09-12 18:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,89 +12,164 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ui/app-window.slint:22
+#: ui/app-window.slint:26
 msgctxt "AppWindow"
 msgid "paused"
 msgstr ""
 
-#: ui/components/app-button.slint:5
+#: ui/components/app-button.slint:30
 msgctxt "AppButton"
 msgid "Button"
 msgstr ""
 
-#: ui/components/back-link.slint:5
+#: ui/components/back-link.slint:4
 msgctxt "BackLink"
 msgid "Back"
 msgstr ""
 
-#: ui/components/duration-label.slint:4
+#: ui/components/evaluation-summary.slint:10
+msgctxt "EvaluationSummary"
+msgid "Today"
+msgstr ""
+
+#: ui/components/evaluation-summary.slint:12
+msgctxt "EvaluationSummary"
+msgid "This week"
+msgstr ""
+
+#: ui/components/evaluation-summary.slint:14
+msgctxt "EvaluationSummary"
+msgid "This month"
+msgstr ""
+
+#: ui/components/evaluation-summary.slint:15
+msgctxt "EvaluationSummary"
+msgid "This year"
+msgstr ""
+
+#: ui/components/evaluation-summary.slint:23
+msgctxt "EvaluationSummary"
+msgid "{} · {}"
+msgstr ""
+
+#: ui/components/range-list.slint:48
+msgctxt "RangeList"
+msgid "Day"
+msgstr ""
+
+#: ui/components/range-list.slint:49
+msgctxt "RangeList"
+msgid "Week"
+msgstr ""
+
+#: ui/components/range-list.slint:50
+msgctxt "RangeList"
+msgid "Month"
+msgstr ""
+
+#: ui/components/range-list.slint:51
+msgctxt "RangeList"
+msgid "Year"
+msgstr ""
+
+#: ui/components/duration-label.slint:7
 msgctxt "DurationLabel"
 msgid "{} h {} min"
 msgstr ""
 
-#: ui/components/duration-label.slint:5
+#: ui/components/duration-label.slint:8
 msgctxt "DurationLabel"
 msgid "{} min"
 msgstr ""
 
-#: ui/views/project-dialog.slint:16
-msgctxt "ProjectSettingBox"
-msgid "New project"
+#: ui/views/tracking.slint:17
+msgctxt "TrackingView"
+msgid "Home"
 msgstr ""
 
-#: ui/views/project-dialog.slint:20
-msgctxt "ProjectSettingBox"
-msgid "Keep the name clear and easy to spot in your timer."
+#: ui/views/tracking.slint:31
+msgctxt "TrackingView"
+msgid "Need to step away?"
 msgstr ""
 
-#: ui/views/project-dialog.slint:50
-msgctxt "ProjectSettingBox"
-msgid "Save name"
+#: ui/views/tracking.slint:37
+msgctxt "TrackingView"
+msgid "Going home pauses this task. You can resume it anytime"
 msgstr ""
 
-#: ui/views/project-dialog.slint:75 ui/views/project-dialog.slint:90
-msgctxt "ArchiveBox"
-msgid "Archive project"
-msgstr ""
-
-#: ui/views/project-dialog.slint:79
-msgctxt "ArchiveBox"
-msgid ""
-"Removes it from your task list. Your past time entries stay in Evaluation."
-msgstr ""
-
-#: ui/views/project-dialog.slint:113
-msgctxt "UnarchiveBox"
-msgid ""
-"This project is hidden from Home. Its past time entries remain in Evaluation."
-msgstr ""
-
-#: ui/views/project-dialog.slint:120
-msgctxt "UnarchiveBox"
-msgid "Unarchive"
-msgstr ""
-
-#: ui/views/project-dialog.slint:129
-msgctxt "UnarchiveBox"
-msgid "Delete finally"
-msgstr ""
-
-#: ui/views/project-dialog.slint:161
-msgctxt "ProjectDialog"
-msgid "Project settings"
-msgstr ""
-
-#: ui/views/tracking.slint:28
+#: ui/views/tracking.slint:59
 msgctxt "TrackingView"
 msgid "End task"
 msgstr ""
 
-#: ui/views/home.slint:13
+#: ui/views/project-editor.slint:45
+msgctxt "ProjectEditor"
+msgid "Settings"
+msgstr ""
+
+#: ui/views/project-editor.slint:52
+msgctxt "ProjectEditor"
+msgid "Delete project?"
+msgstr ""
+
+#: ui/views/project-editor.slint:53 ui/views/project-editor.slint:92
+msgctxt "ProjectEditor"
+msgid "Add project"
+msgstr ""
+
+#: ui/views/project-editor.slint:54
+msgctxt "ProjectEditor"
+msgid "Archived project"
+msgstr ""
+
+#: ui/views/project-editor.slint:54
+msgctxt "ProjectEditor"
+msgid "Edit project"
+msgstr ""
+
+#: ui/views/project-editor.slint:64
+msgctxt "ProjectEditor"
+msgid ""
+"This permanently deletes the project and all its recorded work. This cannot "
+"be undone."
+msgstr ""
+
+#: ui/views/project-editor.slint:70
+msgctxt "ProjectEditor"
+msgid "Project name"
+msgstr ""
+
+#: ui/views/project-editor.slint:80
+msgctxt "ProjectEditor"
+msgid "Hidden from Home. Past time entries remain in Evaluation."
+msgstr ""
+
+#: ui/views/project-editor.slint:113
+msgctxt "ProjectEditor"
+msgid "Archiving hides this project from Home and keeps its recorded work."
+msgstr ""
+
+#: ui/views/project-editor.slint:119
+msgctxt "ProjectEditor"
+msgid "Archive project"
+msgstr ""
+
+#: ui/views/project-editor.slint:129
+msgctxt "ProjectEditor"
+msgid "Restore project"
+msgstr ""
+
+#: ui/views/project-editor.slint:135 ui/views/project-editor.slint:156
+msgctxt "ProjectEditor"
+msgid "Delete permanently"
+msgstr ""
+
+#: ui/views/home.slint:16
 msgctxt "HomeHeader"
 msgid "Evaluation"
 msgstr ""
 
-#: ui/views/home.slint:14
+#: ui/views/home.slint:17
 msgctxt "HomeHeader"
 msgid "Manage projects"
 msgstr ""
@@ -104,164 +179,187 @@ msgctxt "HomeHeader"
 msgid "What next?"
 msgstr ""
 
-#: ui/views/home.slint:73
+#: ui/views/home.slint:77
 msgctxt "LastTaskCard"
 msgid "Add a task"
 msgstr ""
 
-#: ui/views/home.slint:89
+#: ui/views/home.slint:95
 msgctxt "LastTaskCard"
 msgid "LAST SESSION · TAP TO ADD A NOTE"
 msgstr ""
 
-#: ui/views/home.slint:162
+#: ui/views/home.slint:109
+msgctxt "LastTaskCard"
+msgid "[No task description]"
+msgstr ""
+
+#: ui/views/home.slint:141
+msgctxt "ResumeCard"
+msgid "PAUSED"
+msgstr ""
+
+#: ui/views/home.slint:153
+msgctxt "ResumeCard"
+msgid "Timer stopped until you resume."
+msgstr ""
+
+#: ui/views/home.slint:224
 msgctxt "HomeView"
 msgid "Start a timer"
 msgstr ""
 
-#: ui/views/home.slint:182
+#: ui/views/home.slint:244
 msgctxt "HomeView"
 msgid "A quiet place to keep your day moving."
 msgstr ""
 
-#: ui/views/drilldown.slint:85
-msgctxt "TaskDetails"
-msgid "No details added"
-msgstr ""
-
-#: ui/views/drilldown.slint:204
-msgctxt "DrilldownView"
-msgid "Projects"
-msgstr ""
-
-#: ui/views/drilldown.slint:225
-msgctxt "DrilldownView"
-msgid "1 completed task"
-msgstr ""
-
-#: ui/views/drilldown.slint:226
-msgctxt "DrilldownView"
-msgid "completed tasks"
-msgstr ""
-
-#: ui/views/drilldown.slint:244
-msgctxt "DrilldownView"
-msgid "Export Markdown"
-msgstr ""
-
-#: ui/views/note.slint:34
-msgctxt "NoteEditor"
-msgid "e.g. prepared the Q4 project brief"
-msgstr ""
-
-#: ui/views/note.slint:57
+#: ui/views/note.slint:30
 msgctxt "NoteView"
 msgid "Home"
 msgstr ""
 
-#: ui/views/note.slint:64
+#: ui/views/note.slint:38
 msgctxt "NoteView"
 msgid "What did you get done?"
 msgstr ""
 
-#: ui/views/note.slint:83
+#: ui/views/note.slint:61
 msgctxt "NoteView"
 msgid "Add a brief note for your activity log."
 msgstr ""
 
-#: ui/views/note.slint:101
+#: ui/views/note.slint:66
+msgctxt "NoteView"
+msgid "e.g. prepared the Q4 project brief"
+msgstr ""
+
+#: ui/views/note.slint:75
 msgctxt "NoteView"
 msgid "Save note"
 msgstr ""
 
-#: ui/views/note.slint:109
+#: ui/views/note.slint:85
 msgctxt "NoteView"
 msgid "Skip for now"
 msgstr ""
 
-#: ui/views/settings.slint:61
+#: ui/views/settings.slint:48
+msgctxt "ProjectRow"
+msgid "Archived"
+msgstr ""
+
+#: ui/views/settings.slint:85
 msgctxt "SettingsView"
 msgid "Home"
 msgstr ""
 
-#: ui/views/settings.slint:66
+#: ui/views/settings.slint:90
 msgctxt "SettingsView"
-msgid "Project settings"
+msgid "Manage projects"
 msgstr ""
 
-#: ui/views/settings.slint:78
+#: ui/views/settings.slint:98
 msgctxt "SettingsView"
-msgid "Add"
+msgid "Active"
 msgstr ""
 
-#: ui/views/evaluation.slint:21
-msgctxt "EvaluationSummary"
-msgid "Today"
+#: ui/views/settings.slint:102
+msgctxt "SettingsView"
+msgid "No active projects. Add a project or restore one from the archive."
 msgstr ""
 
-#: ui/views/evaluation.slint:23
-msgctxt "EvaluationSummary"
-msgid "This week"
+#: ui/views/settings.slint:115
+msgctxt "SettingsView"
+msgid "Archived ({})"
 msgstr ""
 
-#: ui/views/evaluation.slint:25
-msgctxt "EvaluationSummary"
-msgid "This month"
+#: ui/views/settings.slint:135
+msgctxt "SettingsView"
+msgid "Add project"
 msgstr ""
 
-#: ui/views/evaluation.slint:26
-msgctxt "EvaluationSummary"
-msgid "This year"
+#: ui/views/evaluation.slint:56
+msgctxt "ProjectRow"
+msgid "1 task"
 msgstr ""
 
-#: ui/views/evaluation.slint:34
-msgctxt "EvaluationSummary"
-msgid "{} · {}"
+#: ui/views/evaluation.slint:57
+msgctxt "ProjectRow"
+msgid "tasks"
 msgstr ""
 
-#: ui/views/evaluation.slint:67
-msgctxt "TaskCard"
-msgid "No details added"
-msgstr ""
-
-#: ui/views/evaluation.slint:115
-msgctxt "ProjectCard"
-msgid "{n} task"
-msgid_plural "{n} tasks"
-msgstr[0] ""
-msgstr[1] ""
-
-#: ui/views/evaluation.slint:148
+#: ui/views/evaluation.slint:88
 msgctxt "EvaluationView"
 msgid "Home"
 msgstr ""
 
-#: ui/views/evaluation.slint:153
+#: ui/views/evaluation.slint:93
 msgctxt "EvaluationView"
 msgid "Evaluation"
 msgstr ""
 
-#: ui/views/evaluation.slint:159
-msgctxt "EvaluationView"
-msgid "Day"
-msgstr ""
-
-#: ui/views/evaluation.slint:160
-msgctxt "EvaluationView"
-msgid "Week"
-msgstr ""
-
-#: ui/views/evaluation.slint:161
-msgctxt "EvaluationView"
-msgid "Month"
-msgstr ""
-
-#: ui/views/evaluation.slint:162
-msgctxt "EvaluationView"
-msgid "Year"
-msgstr ""
-
-#: ui/views/evaluation.slint:184
+#: ui/views/evaluation.slint:115
 msgctxt "EvaluationView"
 msgid "Export Markdown"
+msgstr ""
+
+#: ui/views/drilldown.slint:55
+msgctxt "TaskEditor"
+msgid "e.g. prepared the Q4 project brief"
+msgstr ""
+
+#: ui/views/drilldown.slint:143
+msgctxt "TaskCard"
+msgid "No details added"
+msgstr ""
+
+#: ui/views/drilldown.slint:216
+msgctxt "DrilldownView"
+msgid "Evaluation"
+msgstr ""
+
+#: ui/views/drilldown.slint:237
+msgctxt "DrilldownView"
+msgid "1 completed task"
+msgstr ""
+
+#: ui/views/drilldown.slint:238
+msgctxt "DrilldownView"
+msgid "completed tasks"
+msgstr ""
+
+#: ui/views/drilldown.slint:273
+msgctxt "DrilldownView"
+msgid "Export"
+msgstr ""
+
+#: ui/views/drilldown.slint:284
+msgctxt "DrilldownView"
+msgid "Delete permanently?"
+msgstr ""
+
+#: ui/common-strings.slint:4
+msgctxt "CommonStrings"
+msgid "Pause"
+msgstr ""
+
+#: ui/common-strings.slint:5
+msgctxt "CommonStrings"
+msgid "Resume"
+msgstr ""
+
+#: ui/common-strings.slint:6
+msgctxt "CommonStrings"
+msgid "Cancel"
+msgstr ""
+
+#: ui/common-strings.slint:7
+msgctxt "CommonStrings"
+msgid "Save"
+msgstr ""
+
+#: ui/common-strings.slint:8
+msgctxt "CommonStrings"
+msgid "Delete"
 msgstr ""
