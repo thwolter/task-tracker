@@ -22,7 +22,10 @@ export enum UiCommandKind {
 
     open-export,
     export-report,
-    open-drilldown
+    open-drilldown,
+    backup-data,
+    restore-data,
+    poll-native-menu
 }
 
 export struct UiCommand {
@@ -59,6 +62,9 @@ export global AppActions {
     callback open-export();
     callback export-report(ExportFormat);
     callback open-drilldown(string);
+    callback backup-data();
+    callback restore-data();
+    callback poll-native-menu();
 
     tick => { dispatch({ kind: UiCommandKind.tick }); }
     navigate(page) => { dispatch({ kind: UiCommandKind.navigate, page: page }); }
@@ -85,4 +91,7 @@ export global AppActions {
     open-export => { dispatch({ kind: UiCommandKind.open-export }); }
     export-report(format) => { dispatch({ kind: UiCommandKind.export-report, export-format: format }); }
     open-drilldown(id) => { dispatch({ kind: UiCommandKind.open-drilldown, id: id }); }
+    backup-data => { dispatch({ kind: UiCommandKind.backup-data }); }
+    restore-data => { dispatch({ kind: UiCommandKind.restore-data }); }
+    poll-native-menu => { dispatch({ kind: UiCommandKind.poll-native-menu }); }
 }

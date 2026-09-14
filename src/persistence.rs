@@ -6,12 +6,13 @@
 
 use crate::{
     domain::{ActiveTask, Data, Project, ProjectId, Task, TaskId},
-    error::Result,
+    error::{Result, TrackerError},
 };
-use rusqlite::{params, Connection, OptionalExtension};
+use rusqlite::{params, Connection, OpenFlags, OptionalExtension, MAIN_DB};
 use std::{
-    fs,
+    fs::{self, OpenOptions},
     path::{Path, PathBuf},
+    time::{SystemTime, UNIX_EPOCH},
 };
 
 /// Stores tracker data in one SQLite database at a fixed filesystem path.
@@ -88,6 +89,34 @@ impl SqliteStore {
         Ok(connection)
     }
 
+    /// Creates a consistent SQLite snapshot at the selected destination.
+    pub(crate) fn backup_to(&self, destination: &Path) -> Result<()> {
+        self.connection()?.backup(MAIN_DB, destination, None)?;
+        Ok(())
+    }
+
+    /// Reads a user-provided backup without initializing or modifying it.
+    pub(crate) fn load_backup(path: &Path) -> Result<Data> {
+        let connection = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY)
+            .map_err(|_| TrackerError::InvalidBackup)?;
+        Self::validate_backup_schema(&connection).map_err(|_| TrackerError::InvalidBackup)?;
+        Self::load_from_connection(&connection, true).map_err(|_| TrackerError::InvalidBackup)
+    }
+
+    /// Atomically replaces the live database with a fully validated aggregate.
+    ///
+    /// The replacement is written to a sibling file first, so failures leave the
+    /// current database untouched until the final rename.
+    pub(crate) fn replace_with(&self, data: &Data) -> Result<()> {
+        let staged = StagedDatabase::new(&self.path)?;
+        let staged_store = Self::at(staged.path().to_owned());
+        staged_store.save(data)?;
+        Self::load_backup(staged.path())?;
+        fs::rename(staged.path(), &self.path)?;
+        staged.commit();
+        Ok(())
+    }
+
     /// Loads saved data, returning defaults when the database is empty or unreadable.
     ///
     /// Errors from opening, initializing, or reading the database are
@@ -98,6 +127,10 @@ impl SqliteStore {
 
     fn load(&self) -> Result<Data> {
         let connection = self.connection()?;
+        Self::load_from_connection(&connection, false)
+    }
+
+    fn load_from_connection(connection: &Connection, require_projects: bool) -> Result<Data> {
         let mut statement =
             connection.prepare("SELECT id, name, archived FROM projects ORDER BY rowid")?;
         let projects = statement
@@ -111,8 +144,11 @@ impl SqliteStore {
             .collect::<std::result::Result<Vec<_>, _>>()?;
         drop(statement);
 
-        if projects.is_empty() {
+        if projects.is_empty() && !require_projects {
             return Ok(Data::defaults());
+        }
+        if projects.is_empty() {
+            return Err(TrackerError::InvalidBackup);
         }
 
         let mut statement = connection.prepare(
@@ -169,6 +205,39 @@ impl SqliteStore {
             active_task,
             interrupted_task,
         ))
+    }
+
+    fn validate_backup_schema(connection: &Connection) -> Result<()> {
+        for table in ["projects", "tasks", "active_task", "interrupted_task"] {
+            let exists = connection.query_row(
+                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?1)",
+                [table],
+                |row| row.get::<_, i64>(0),
+            )?;
+            if exists == 0 {
+                return Err(TrackerError::InvalidBackup);
+            }
+        }
+
+        for table in ["tasks", "active_task", "interrupted_task"] {
+            let mut statement = connection.prepare(&format!("PRAGMA foreign_key_list({table})"))?;
+            let mut rows = statement.query([])?;
+            let mut references_projects = false;
+            while let Some(row) = rows.next()? {
+                if row.get::<_, String>(2)? == "projects" {
+                    references_projects = true;
+                }
+            }
+            if !references_projects {
+                return Err(TrackerError::InvalidBackup);
+            }
+        }
+
+        let mut statement = connection.prepare("PRAGMA foreign_key_check")?;
+        if statement.query([])?.next()?.is_some() {
+            return Err(TrackerError::InvalidBackup);
+        }
+        Ok(())
     }
 
     /// Replaces the stored tracker state in one transaction.
@@ -232,6 +301,67 @@ impl SqliteStore {
     }
 }
 
+struct StagedDatabase {
+    path: PathBuf,
+    committed: bool,
+}
+
+impl StagedDatabase {
+    fn new(live_path: &Path) -> Result<Self> {
+        let parent = live_path
+            .parent()
+            .filter(|path| !path.as_os_str().is_empty())
+            .unwrap_or_else(|| Path::new("."));
+        fs::create_dir_all(parent)?;
+        let timestamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("the system clock is after the Unix epoch")
+            .as_nanos();
+        let stem = live_path
+            .file_stem()
+            .and_then(|stem| stem.to_str())
+            .unwrap_or("tempo");
+
+        for attempt in 0..100 {
+            let path = parent.join(format!(
+                ".{stem}.restore-{}-{timestamp}-{attempt}.sqlite",
+                std::process::id()
+            ));
+            match OpenOptions::new().write(true).create_new(true).open(&path) {
+                Ok(_) => {
+                    return Ok(Self {
+                        path,
+                        committed: false,
+                    });
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+                Err(error) => return Err(error.into()),
+            }
+        }
+        Err(std::io::Error::new(
+            std::io::ErrorKind::AlreadyExists,
+            "could not reserve a temporary restore database",
+        )
+        .into())
+    }
+
+    fn path(&self) -> &Path {
+        &self.path
+    }
+
+    fn commit(mut self) {
+        self.committed = true;
+    }
+}
+
+impl Drop for StagedDatabase {
+    fn drop(&mut self) {
+        if !self.committed {
+            let _ = fs::remove_file(&self.path);
+        }
+    }
+}
+
 /// Writes already-rendered export content to `path`.
 pub(crate) fn export_report(path: &Path, contents: &str) -> Result<()> {
     fs::write(path, contents)?;
@@ -241,6 +371,14 @@ pub(crate) fn export_report(path: &Path, contents: &str) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn test_path(name: &str) -> PathBuf {
+        std::env::temp_dir().join(format!(
+            "tempo-{name}-{}-{}.sqlite",
+            std::process::id(),
+            crate::domain::now()
+        ))
+    }
 
     #[test]
     fn load_falls_back_and_saved_database_round_trips() {
@@ -280,6 +418,75 @@ mod tests {
         );
         assert!(path.exists());
 
+        fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn backup_round_trips_a_consistent_sqlite_snapshot() {
+        let path = test_path("backup-source");
+        let backup = test_path("backup-destination");
+        let store = SqliteStore::at(path.clone());
+        let mut data = Data::defaults();
+        data.start_tracking(ProjectId::from("project-1".to_owned()), 10)
+            .unwrap();
+        assert!(data.end_tracking(40));
+        data.save_task_note("Planning".into());
+        store.save(&data).unwrap();
+
+        store.backup_to(&backup).unwrap();
+        let restored = SqliteStore::load_backup(&backup).unwrap();
+        assert_eq!(restored.tasks()[0].note(), "Planning");
+
+        fs::remove_file(path).unwrap();
+        fs::remove_file(backup).unwrap();
+    }
+
+    #[test]
+    fn invalid_backup_is_rejected_without_changing_live_data() {
+        let path = test_path("invalid-live");
+        let invalid = test_path("invalid-source");
+        let store = SqliteStore::at(path.clone());
+        let mut data = Data::defaults();
+        data.start_tracking(ProjectId::from("project-1".to_owned()), 10)
+            .unwrap();
+        assert!(data.end_tracking(40));
+        data.save_task_note("Keep me".into());
+        store.save(&data).unwrap();
+        fs::write(&invalid, "not a SQLite database").unwrap();
+
+        assert!(matches!(
+            SqliteStore::load_backup(&invalid),
+            Err(TrackerError::InvalidBackup)
+        ));
+        assert_eq!(store.load_or_default().tasks()[0].note(), "Keep me");
+
+        fs::remove_file(path).unwrap();
+        fs::remove_file(invalid).unwrap();
+    }
+
+    #[test]
+    fn backup_with_broken_foreign_keys_is_rejected() {
+        let path = test_path("broken-foreign-key");
+        let connection = Connection::open(&path).unwrap();
+        connection
+            .execute_batch(
+                "
+                PRAGMA foreign_keys = OFF;
+                CREATE TABLE projects (id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, archived INTEGER NOT NULL);
+                CREATE TABLE tasks (id TEXT PRIMARY KEY NOT NULL, project_id TEXT NOT NULL REFERENCES projects(id), name TEXT, started INTEGER NOT NULL, ended INTEGER NOT NULL, note TEXT NOT NULL);
+                CREATE TABLE active_task (singleton INTEGER PRIMARY KEY, id TEXT NOT NULL, project_id TEXT NOT NULL REFERENCES projects(id), started INTEGER NOT NULL, checkpoint INTEGER NOT NULL, paused INTEGER NOT NULL);
+                CREATE TABLE interrupted_task (singleton INTEGER PRIMARY KEY, id TEXT NOT NULL, project_id TEXT NOT NULL REFERENCES projects(id), started INTEGER NOT NULL, checkpoint INTEGER NOT NULL, paused INTEGER NOT NULL);
+                INSERT INTO projects (id, name, archived) VALUES ('project-1', 'Planning', 0);
+                INSERT INTO tasks (id, project_id, name, started, ended, note) VALUES ('task-1', 'missing-project', NULL, 10, 20, 'Broken');
+                ",
+            )
+            .unwrap();
+        drop(connection);
+
+        assert!(matches!(
+            SqliteStore::load_backup(&path),
+            Err(TrackerError::InvalidBackup)
+        ));
         fs::remove_file(path).unwrap();
     }
 }

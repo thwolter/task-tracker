@@ -18,6 +18,91 @@ msgctxt "AppWindow"
 msgid "paused"
 msgstr "pausiert"
 
+#: ui/app-window.slint
+msgctxt "AppWindow"
+msgid "Tempo backup"
+msgstr "Tempo-Sicherung"
+
+msgctxt "AppWindow"
+msgid "Back Up Tempo Data"
+msgstr "Tempo-Daten sichern"
+
+msgctxt "AppWindow"
+msgid "Restore Tempo Data"
+msgstr "Tempo-Daten wiederherstellen"
+
+msgctxt "AppWindow"
+msgid "Restore Tempo Data?"
+msgstr "Tempo-Daten wiederherstellen?"
+
+msgctxt "AppWindow"
+msgid ""
+"This replaces all current Tempo data with the selected backup. This cannot "
+"be undone."
+msgstr ""
+"Dadurch werden alle aktuellen Tempo-Daten durch die ausgewählte Sicherung "
+"ersetzt. Dies kann nicht rückgängig gemacht werden."
+
+msgctxt "AppWindow"
+msgid "Data backup completed"
+msgstr "Datensicherung abgeschlossen"
+
+msgctxt "AppWindow"
+msgid "Data restored"
+msgstr "Daten wiederhergestellt"
+
+msgctxt "AppWindow"
+msgid "Could not back up data"
+msgstr "Daten konnten nicht gesichert werden"
+
+msgctxt "AppWindow"
+msgid "Could not restore data"
+msgstr "Daten konnten nicht wiederhergestellt werden"
+
+msgctxt "NativeMenuStrings"
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgctxt "NativeMenuStrings"
+msgid "File"
+msgstr "Ablage"
+
+msgctxt "NativeMenuStrings"
+msgid "Back Up Data…"
+msgstr "Daten sichern…"
+
+msgctxt "NativeMenuStrings"
+msgid "Restore Data…"
+msgstr "Daten wiederherstellen…"
+
+msgctxt "NativeMenuStrings"
+msgid "View"
+msgstr "Darstellung"
+
+msgctxt "NativeMenuStrings"
+msgid "Home"
+msgstr "Startseite"
+
+msgctxt "NativeMenuStrings"
+msgid "Evaluation"
+msgstr "Auswertung"
+
+msgctxt "NativeMenuStrings"
+msgid "Projects"
+msgstr "Projekte"
+
+msgctxt "NativeMenuStrings"
+msgid "Help"
+msgstr "Hilfe"
+
+msgctxt "NativeMenuStrings"
+msgid "Keyboard Shortcuts"
+msgstr "Tastaturkurzbefehle"
+
+msgctxt "NativeMenuStrings"
+msgid "⌘,  Settings\n⌘B  Back Up Data\n⇧⌘R  Restore Data\n⌘E  Evaluation\n⌘1–⌘9  Start projects 1–9\n⌘Q  Quit Tempo"
+msgstr "⌘,  Einstellungen\n⌘B  Daten sichern\n⇧⌘R  Daten wiederherstellen\n⌘E  Auswertung\n⌘1–⌘9  Projekte 1–9 starten\n⌘Q  Tempo beenden"
+
 #: ui/components/app-button.slint:30
 msgctxt "AppButton"
 msgid "Button"

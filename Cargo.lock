@@ -3,6 +3,26 @@
 version = 4
 
 [[package]]
+name = "Tempo"
+version = "0.2.0"
+dependencies = [
+ "chrono",
+ "csv",
+ "i-slint-backend-testing",
+ "i-slint-backend-winit",
+ "muda",
+ "rfd",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "slint",
+ "slint-build",
+ "sys-locale",
+ "thiserror 2.0.20",
+ "winres",
+]
+
+[[package]]
 name = "ab_glyph"
 version = "0.2.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4966,24 +4986,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2972044a9e5e448a506a7ff6f0d03b566d8ef4cd6918a58fc59835a0f8666626"
 dependencies = [
  "pin-project-lite",
-]
-
-[[package]]
-name = "task-tracker"
-version = "0.2.0"
-dependencies = [
- "chrono",
- "csv",
- "i-slint-backend-testing",
- "rfd",
- "rusqlite",
- "serde",
- "serde_json",
- "slint",
- "slint-build",
- "sys-locale",
- "thiserror 2.0.20",
- "winres",
 ]
 
 [[package]]

@@ -1,0 +1,16 @@
+// Native-menu copy lives independently of AppWindow because macOS owns the
+// menu bar. Rust reads this global while constructing the platform menu.
+export global NativeMenuStrings {
+    out property <string> application: "Tempo";
+    out property <string> settings: @tr("Settings");
+    out property <string> file: @tr("File");
+    out property <string> backup: @tr("Back Up Data…");
+    out property <string> restore: @tr("Restore Data…");
+    out property <string> view: @tr("View");
+    out property <string> home: @tr("Home");
+    out property <string> evaluation: @tr("Evaluation");
+    out property <string> projects: @tr("Projects");
+    out property <string> help: @tr("Help");
+    out property <string> keyboard-shortcuts: @tr("Keyboard Shortcuts");
+    out property <string> keyboard-shortcuts-description: @tr("⌘,  Settings\n⌘B  Back Up Data\n⇧⌘R  Restore Data\n⌘E  Evaluation\n⌘1–⌘9  Start projects 1–9\n⌘Q  Quit Tempo");
+}

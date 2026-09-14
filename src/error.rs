@@ -8,6 +8,9 @@ pub enum TrackerError {
     #[error("Finish the interrupted task before starting another one")]
     SecondaryTaskAlreadyActive,
 
+    #[error("The selected file is not a valid Tempo backup")]
+    InvalidBackup,
+
     #[error(transparent)]
     Sqlite(#[from] rusqlite::Error),
 

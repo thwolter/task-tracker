@@ -5,6 +5,8 @@ mod controller;
 mod domain;
 mod error;
 mod language;
+#[cfg(all(target_os = "macos", not(test)))]
+mod macos_menu;
 mod persistence;
 mod presentation;
 mod report;
@@ -12,6 +14,9 @@ mod report;
 slint::include_modules!();
 
 fn main() -> Result<(), slint::PlatformError> {
+    #[cfg(target_os = "macos")]
+    install_native_menu_platform()?;
+
     // The live preview has no bundled translation catalog, so its visible UI
     // remains English. Keep Rust-projected strings, such as completion dates,
     // in the same language.
@@ -32,4 +37,16 @@ fn main() -> Result<(), slint::PlatformError> {
     controller::bind(&ui, tracker, language);
 
     ui.run()
+}
+
+/// Lets Tempo install the complete macOS application menu instead of Slint's
+/// default application-only menu.
+#[cfg(target_os = "macos")]
+fn install_native_menu_platform() -> Result<(), slint::PlatformError> {
+    let backend = i_slint_backend_winit::Backend::builder()
+        .with_default_menu_bar(false)
+        .build()?;
+    slint::platform::set_platform(Box::new(backend))
+        .map_err(|error| slint::PlatformError::from(error.to_string()))?;
+    Ok(())
 }

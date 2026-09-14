@@ -17,6 +17,89 @@ msgctxt "AppWindow"
 msgid "paused"
 msgstr ""
 
+#: ui/app-window.slint
+msgctxt "AppWindow"
+msgid "Tempo backup"
+msgstr ""
+
+msgctxt "AppWindow"
+msgid "Back Up Tempo Data"
+msgstr ""
+
+msgctxt "AppWindow"
+msgid "Restore Tempo Data"
+msgstr ""
+
+msgctxt "AppWindow"
+msgid "Restore Tempo Data?"
+msgstr ""
+
+msgctxt "AppWindow"
+msgid ""
+"This replaces all current Tempo data with the selected backup. This cannot "
+"be undone."
+msgstr ""
+
+msgctxt "AppWindow"
+msgid "Data backup completed"
+msgstr ""
+
+msgctxt "AppWindow"
+msgid "Data restored"
+msgstr ""
+
+msgctxt "AppWindow"
+msgid "Could not back up data"
+msgstr ""
+
+msgctxt "AppWindow"
+msgid "Could not restore data"
+msgstr ""
+
+msgctxt "NativeMenuStrings"
+msgid "Settings"
+msgstr ""
+
+msgctxt "NativeMenuStrings"
+msgid "File"
+msgstr ""
+
+msgctxt "NativeMenuStrings"
+msgid "Back Up Data…"
+msgstr ""
+
+msgctxt "NativeMenuStrings"
+msgid "Restore Data…"
+msgstr ""
+
+msgctxt "NativeMenuStrings"
+msgid "View"
+msgstr ""
+
+msgctxt "NativeMenuStrings"
+msgid "Home"
+msgstr ""
+
+msgctxt "NativeMenuStrings"
+msgid "Evaluation"
+msgstr ""
+
+msgctxt "NativeMenuStrings"
+msgid "Projects"
+msgstr ""
+
+msgctxt "NativeMenuStrings"
+msgid "Help"
+msgstr ""
+
+msgctxt "NativeMenuStrings"
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+msgctxt "NativeMenuStrings"
+msgid "⌘,  Settings\n⌘B  Back Up Data\n⇧⌘R  Restore Data\n⌘E  Evaluation\n⌘1–⌘9  Start projects 1–9\n⌘Q  Quit Tempo"
+msgstr ""
+
 #: ui/components/app-button.slint:30
 msgctxt "AppButton"
 msgid "Button"

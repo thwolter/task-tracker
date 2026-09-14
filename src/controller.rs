@@ -4,6 +4,7 @@
 //! persistence feedback, and command dispatch. Feature-specific command handlers live in
 //! private child modules while sharing this single controller and its state.
 
+mod data;
 mod evaluation;
 mod projects;
 #[cfg(test)]
@@ -26,6 +27,12 @@ pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
     let mut controller = UiController::new(ui, tracker, language);
     controller.refresh(ui);
     controller.persist_initial(ui);
+
+    #[cfg(all(target_os = "macos", not(test)))]
+    {
+        crate::macos_menu::install(ui);
+        ui.set_native_menu_enabled(true);
+    }
 
     ui.global::<AppActions>()
         .on_dispatch(move |command| controller.handle(command));
@@ -84,6 +91,9 @@ impl UiController {
             UiCommandKind::OpenExport => self.open_export(&ui),
             UiCommandKind::ExportReport => self.export_report(&ui, command.export_format),
             UiCommandKind::OpenDrilldown => self.open_drilldown(&ui, command.id),
+            UiCommandKind::BackupData => self.backup_data(&ui),
+            UiCommandKind::RestoreData => self.restore_data(&ui),
+            UiCommandKind::PollNativeMenu => self.poll_native_menu(&ui),
         }
     }
 
@@ -99,6 +109,8 @@ impl UiController {
 
     fn refresh(&self, ui: &AppWindow) {
         presentation::refresh(ui, &self.tracker, domain::now(), self.language);
+        #[cfg(all(target_os = "macos", not(test)))]
+        crate::macos_menu::refresh(ui);
     }
 
     fn persist_initial(&self, ui: &AppWindow) {

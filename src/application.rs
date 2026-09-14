@@ -11,6 +11,7 @@ use crate::{
     persistence::SqliteStore,
     report,
 };
+use std::path::Path;
 #[cfg(test)]
 use std::path::PathBuf;
 
@@ -61,6 +62,23 @@ impl Tracker {
     /// Persists the complete current domain aggregate.
     pub(crate) fn save(&self) -> Result<()> {
         self.store.save(&self.data)
+    }
+
+    /// Creates a consistent SQLite backup of the current persisted tracker data.
+    pub(crate) fn backup_to(&self, destination: &Path) -> Result<()> {
+        self.store.backup_to(destination)
+    }
+
+    /// Replaces all tracker data with a validated backup and finalizes unfinished
+    /// work at its stored checkpoint before the replacement becomes visible.
+    pub(crate) fn restore_from(&mut self, source: &Path) -> Result<()> {
+        let mut restored = SqliteStore::load_backup(source)?;
+        restored.recover_active();
+        self.store.replace_with(&restored)?;
+        self.data = restored;
+        self.range = Range::Day;
+        self.evaluating_project = None;
+        Ok(())
     }
 
     /// Starts tracking for a project and persists the resulting active task.
@@ -217,6 +235,45 @@ mod tests {
             .unwrap();
 
         std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn restore_replaces_data_resets_ui_selection_and_recovers_active_work() {
+        let live_path = std::env::temp_dir().join(format!(
+            "tempo-application-restore-live-{}-{}.sqlite",
+            std::process::id(),
+            domain::now()
+        ));
+        let backup_path = std::env::temp_dir().join(format!(
+            "tempo-application-restore-backup-{}-{}.sqlite",
+            std::process::id(),
+            domain::now()
+        ));
+        let mut tracker = Tracker::at(live_path.clone());
+        tracker.add_project("Live only", 100).unwrap();
+        tracker.choose_range(Range::Year);
+        tracker.select_evaluation_project("project-1".into());
+
+        let backup_store = SqliteStore::at(backup_path.clone());
+        let mut backup = Data::defaults();
+        backup
+            .start_tracking(ProjectId::from("project-1".to_owned()), 10)
+            .unwrap();
+        backup_store.save(&backup).unwrap();
+
+        tracker.restore_from(&backup_path).unwrap();
+        assert_eq!(tracker.range(), Range::Day);
+        assert!(tracker.evaluating_project().is_none());
+        assert!(tracker.data().active_task().is_none());
+        assert_eq!(tracker.data().tasks().len(), 1);
+        assert!(tracker
+            .data()
+            .projects()
+            .iter()
+            .all(|project| project.name() != "Live only"));
+
+        std::fs::remove_file(live_path).unwrap();
+        std::fs::remove_file(backup_path).unwrap();
     }
 
     #[test]
