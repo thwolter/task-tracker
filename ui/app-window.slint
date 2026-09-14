@@ -42,27 +42,11 @@ export component AppWindow inherits Window {
     in property <EvaluationTasksState> evaluation-drilldown;
     in property <ExportState> export-state;
     in property <Status> transient-status: { message: "", kind: StatusKind.success };
-    in property <bool> native-menu-enabled: false;
-    out property <string> tempo-backup-label: @tr("Tempo backup");
-    out property <string> backup-dialog-title: @tr("Back Up Tempo Data");
-    out property <string> restore-dialog-title: @tr("Restore Tempo Data");
-    out property <string> restore-confirmation-title: @tr("Restore Tempo Data?");
-    out property <string> restore-confirmation-description: @tr("This replaces all current Tempo data with the selected backup. This cannot be undone.");
-    out property <string> backup-completed-message: @tr("Data backup completed");
-    out property <string> restore-completed-message: @tr("Data restored");
-    out property <string> backup-failed-message: @tr("Could not back up data");
-    out property <string> restore-failed-message: @tr("Could not restore data");
 
     Timer {
         interval: 1s;
         running: true;
         triggered() => { AppActions.tick(); }
-    }
-
-    Timer {
-        interval: 16ms;
-        running: root.native-menu-enabled;
-        triggered() => { AppActions.poll-native-menu(); }
     }
 
     VerticalLayout {

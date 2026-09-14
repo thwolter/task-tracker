@@ -15,7 +15,7 @@ use crate::application::Tracker;
 use crate::domain::ProjectId;
 use crate::language::Language;
 use crate::{
-    domain, presentation, AppActions, AppWindow, Page, Status, StatusKind, UiCommand, UiCommandKind,
+    AppActions, AppWindow, Page, Status, StatusKind, UiCommand, UiCommandKind, domain, presentation,
 };
 use slint::{ComponentHandle, SharedString, Timer, TimerMode, Weak};
 use std::time::Duration;
@@ -31,7 +31,6 @@ pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
     #[cfg(all(target_os = "macos", not(test)))]
     {
         crate::macos_menu::install(ui);
-        ui.set_native_menu_enabled(true);
     }
 
     ui.global::<AppActions>()
@@ -93,7 +92,7 @@ impl UiController {
             UiCommandKind::OpenDrilldown => self.open_drilldown(&ui, command.id),
             UiCommandKind::BackupData => self.backup_data(&ui),
             UiCommandKind::RestoreData => self.restore_data(&ui),
-            UiCommandKind::PollNativeMenu => self.poll_native_menu(&ui),
+            UiCommandKind::ShowKeyboardShortcuts => self.show_keyboard_shortcuts(&ui),
         }
     }
 

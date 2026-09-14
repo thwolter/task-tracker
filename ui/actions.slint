@@ -25,7 +25,7 @@ export enum UiCommandKind {
     open-drilldown,
     backup-data,
     restore-data,
-    poll-native-menu
+    show-keyboard-shortcuts
 }
 
 export struct UiCommand {
@@ -64,7 +64,7 @@ export global AppActions {
     callback open-drilldown(string);
     callback backup-data();
     callback restore-data();
-    callback poll-native-menu();
+    callback show-keyboard-shortcuts();
 
     tick => { dispatch({ kind: UiCommandKind.tick }); }
     navigate(page) => { dispatch({ kind: UiCommandKind.navigate, page: page }); }
@@ -93,5 +93,5 @@ export global AppActions {
     open-drilldown(id) => { dispatch({ kind: UiCommandKind.open-drilldown, id: id }); }
     backup-data => { dispatch({ kind: UiCommandKind.backup-data }); }
     restore-data => { dispatch({ kind: UiCommandKind.restore-data }); }
-    poll-native-menu => { dispatch({ kind: UiCommandKind.poll-native-menu }); }
+    show-keyboard-shortcuts => { dispatch({ kind: UiCommandKind.show-keyboard-shortcuts }); }
 }

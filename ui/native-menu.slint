@@ -1,5 +1,5 @@
-// Native-menu copy lives independently of AppWindow because macOS owns the
-// menu bar. Rust reads this global while constructing the platform menu.
+// Native platform copy lives independently of AppWindow. Rust reads this global
+// while constructing the macOS menu and showing native backup/restore dialogs.
 export global NativeMenuStrings {
     out property <string> application: "Tempo";
     out property <string> settings: @tr("Settings");
@@ -13,4 +13,13 @@ export global NativeMenuStrings {
     out property <string> help: @tr("Help");
     out property <string> keyboard-shortcuts: @tr("Keyboard Shortcuts");
     out property <string> keyboard-shortcuts-description: @tr("⌘,  Settings\n⌘B  Back Up Data\n⇧⌘R  Restore Data\n⌘E  Evaluation\n⌘1–⌘9  Start projects 1–9\n⌘Q  Quit Tempo");
+    out property <string> tempo-backup-label: @tr("Tempo backup");
+    out property <string> backup-dialog-title: @tr("Back Up Tempo Data");
+    out property <string> restore-dialog-title: @tr("Restore Tempo Data");
+    out property <string> restore-confirmation-title: @tr("Restore Tempo Data?");
+    out property <string> restore-confirmation-description: @tr("This replaces all current Tempo data with the selected backup. This cannot be undone.");
+    out property <string> backup-completed-message: @tr("Data backup completed");
+    out property <string> restore-completed-message: @tr("Data restored");
+    out property <string> backup-failed-message: @tr("Could not back up data");
+    out property <string> restore-failed-message: @tr("Could not restore data");
 }

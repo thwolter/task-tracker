@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-09-13 07:57+0000\n"
+"POT-Creation-Date: 2026-09-14 12:55+0000\n"
 "PO-Revision-Date: 2026-09-06 16:00+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13,95 +13,10 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # ui/app-window.slint: 22
-#: ui/app-window.slint:28
+#: ui/app-window.slint:30
 msgctxt "AppWindow"
 msgid "paused"
 msgstr "pausiert"
-
-#: ui/app-window.slint
-msgctxt "AppWindow"
-msgid "Tempo backup"
-msgstr "Tempo-Sicherung"
-
-msgctxt "AppWindow"
-msgid "Back Up Tempo Data"
-msgstr "Tempo-Daten sichern"
-
-msgctxt "AppWindow"
-msgid "Restore Tempo Data"
-msgstr "Tempo-Daten wiederherstellen"
-
-msgctxt "AppWindow"
-msgid "Restore Tempo Data?"
-msgstr "Tempo-Daten wiederherstellen?"
-
-msgctxt "AppWindow"
-msgid ""
-"This replaces all current Tempo data with the selected backup. This cannot "
-"be undone."
-msgstr ""
-"Dadurch werden alle aktuellen Tempo-Daten durch die ausgewählte Sicherung "
-"ersetzt. Dies kann nicht rückgängig gemacht werden."
-
-msgctxt "AppWindow"
-msgid "Data backup completed"
-msgstr "Datensicherung abgeschlossen"
-
-msgctxt "AppWindow"
-msgid "Data restored"
-msgstr "Daten wiederhergestellt"
-
-msgctxt "AppWindow"
-msgid "Could not back up data"
-msgstr "Daten konnten nicht gesichert werden"
-
-msgctxt "AppWindow"
-msgid "Could not restore data"
-msgstr "Daten konnten nicht wiederhergestellt werden"
-
-msgctxt "NativeMenuStrings"
-msgid "Settings"
-msgstr "Einstellungen"
-
-msgctxt "NativeMenuStrings"
-msgid "File"
-msgstr "Ablage"
-
-msgctxt "NativeMenuStrings"
-msgid "Back Up Data…"
-msgstr "Daten sichern…"
-
-msgctxt "NativeMenuStrings"
-msgid "Restore Data…"
-msgstr "Daten wiederherstellen…"
-
-msgctxt "NativeMenuStrings"
-msgid "View"
-msgstr "Darstellung"
-
-msgctxt "NativeMenuStrings"
-msgid "Home"
-msgstr "Startseite"
-
-msgctxt "NativeMenuStrings"
-msgid "Evaluation"
-msgstr "Auswertung"
-
-msgctxt "NativeMenuStrings"
-msgid "Projects"
-msgstr "Projekte"
-
-msgctxt "NativeMenuStrings"
-msgid "Help"
-msgstr "Hilfe"
-
-msgctxt "NativeMenuStrings"
-msgid "Keyboard Shortcuts"
-msgstr "Tastaturkurzbefehle"
-
-msgctxt "NativeMenuStrings"
-msgid "⌘,  Settings\n⌘B  Back Up Data\n⇧⌘R  Restore Data\n⌘E  Evaluation\n⌘1–⌘9  Start projects 1–9\n⌘Q  Quit Tempo"
-msgstr "⌘,  Einstellungen\n⌘B  Daten sichern\n⇧⌘R  Daten wiederherstellen\n⌘E  Auswertung\n⌘1–⌘9  Projekte 1–9 starten\n⌘Q  Tempo beenden"
 
 #: ui/components/app-button.slint:30
 msgctxt "AppButton"
@@ -183,146 +98,295 @@ msgctxt "DurationLabel"
 msgid "{} min"
 msgstr "{} Min."
 
-#: ui/views/tracking.slint
+#: ui/native-menu.slint:5
+msgctxt "NativeMenuStrings"
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: ui/native-menu.slint:6
+msgctxt "NativeMenuStrings"
+msgid "File"
+msgstr "Ablage"
+
+#: ui/native-menu.slint:7
+msgctxt "NativeMenuStrings"
+msgid "Back Up Data…"
+msgstr "Daten sichern…"
+
+#: ui/native-menu.slint:8
+msgctxt "NativeMenuStrings"
+msgid "Restore Data…"
+msgstr "Daten wiederherstellen…"
+
+#: ui/native-menu.slint:9
+msgctxt "NativeMenuStrings"
+msgid "View"
+msgstr "Darstellung"
+
+#: ui/native-menu.slint:10
+msgctxt "NativeMenuStrings"
+msgid "Home"
+msgstr "Startseite"
+
+#: ui/native-menu.slint:11
+msgctxt "NativeMenuStrings"
+msgid "Evaluation"
+msgstr "Auswertung"
+
+#: ui/native-menu.slint:12
+msgctxt "NativeMenuStrings"
+msgid "Projects"
+msgstr "Projekte"
+
+#: ui/native-menu.slint:13
+msgctxt "NativeMenuStrings"
+msgid "Help"
+msgstr "Hilfe"
+
+#: ui/native-menu.slint:14
+msgctxt "NativeMenuStrings"
+msgid "Keyboard Shortcuts"
+msgstr "Tastaturkurzbefehle"
+
+#: ui/native-menu.slint:15
+msgctxt "NativeMenuStrings"
+msgid ""
+"⌘,  Settings\n"
+"⌘B  Back Up Data\n"
+"⇧⌘R  Restore Data\n"
+"⌘E  Evaluation\n"
+"⌘1–⌘9  Start projects 1–9\n"
+"⌘Q  Quit Tempo"
+msgstr ""
+"⌘,  Einstellungen\n"
+"⌘B  Daten sichern\n"
+"⇧⌘R  Daten wiederherstellen\n"
+"⌘E  Auswertung\n"
+"⌘1–⌘9  Projekte 1–9 starten\n"
+"⌘Q  Tempo beenden"
+
+#: ui/native-menu.slint:16
+msgctxt "NativeMenuStrings"
+msgid "Tempo backup"
+msgstr "Tempo-Sicherung"
+
+#: ui/native-menu.slint:17
+msgctxt "NativeMenuStrings"
+msgid "Back Up Tempo Data"
+msgstr "Tempo-Daten sichern"
+
+#: ui/native-menu.slint:18
+msgctxt "NativeMenuStrings"
+msgid "Restore Tempo Data"
+msgstr "Tempo-Daten wiederherstellen"
+
+#: ui/native-menu.slint:19
+msgctxt "NativeMenuStrings"
+msgid "Restore Tempo Data?"
+msgstr "Tempo-Daten wiederherstellen?"
+
+#: ui/native-menu.slint:20
+msgctxt "NativeMenuStrings"
+msgid ""
+"This replaces all current Tempo data with the selected backup. This cannot "
+"be undone."
+msgstr ""
+"Dadurch werden alle aktuellen Tempo-Daten durch die ausgewählte Sicherung "
+"ersetzt. Dies kann nicht rückgängig gemacht werden."
+
+#: ui/native-menu.slint:21
+msgctxt "NativeMenuStrings"
+msgid "Data backup completed"
+msgstr "Datensicherung abgeschlossen"
+
+#: ui/native-menu.slint:22
+msgctxt "NativeMenuStrings"
+msgid "Data restored"
+msgstr "Daten wiederhergestellt"
+
+#: ui/native-menu.slint:23
+msgctxt "NativeMenuStrings"
+msgid "Could not back up data"
+msgstr "Daten konnten nicht gesichert werden"
+
+#: ui/native-menu.slint:24
+msgctxt "NativeMenuStrings"
+msgid "Could not restore data"
+msgstr "Daten konnten nicht wiederhergestellt werden"
+
+#: ui/views/tracking.slint:16
 msgctxt "TrackingView"
 msgid "Home"
 msgstr "Startseite"
 
+#: ui/views/tracking.slint:32
 msgctxt "TrackingView"
 msgid "Back to Home?"
 msgstr "Zur Startseite?"
 
+#: ui/views/tracking.slint:38
 msgctxt "TrackingView"
 msgid "Your task will be paused."
 msgstr "Aufgabe wird dabei pausiert."
 
+#: ui/views/tracking.slint:62
 msgctxt "TrackingView"
 msgid "End task"
 msgstr "Aufgabe beenden"
 
+#: ui/views/tracking.slint:72
 msgctxt "TrackingView"
 msgid "Resume"
 msgstr "Fortsetzen"
 
+#: ui/views/tracking.slint:72
 msgctxt "TrackingView"
 msgid "Pause"
 msgstr "Pausieren"
 
-msgctxt "TrackingView"
-msgid "Maximum {} characters."
-msgstr "Maximal {} Zeichen."
-
-#: ui/views/project-editor.slint
+#: ui/views/project-editor.slint:27
 msgctxt "ProjectEditor"
 msgid "Hide this project from Home. Its recorded time stays available."
 msgstr ""
 
+#: ui/views/project-editor.slint:28
 msgctxt "ProjectEditor"
 msgid "Enter a project name to create it"
 msgstr ""
 
+#: ui/views/project-editor.slint:54
 msgctxt "ProjectEditor"
 msgid "Settings"
 msgstr "Einstellungen"
 
-msgctxt "ProjectEditor"
-msgid "Delete project?"
-msgstr "Projekt löschen?"
-
+#: ui/views/project-editor.slint:62 ui/views/project-editor.slint:123
 msgctxt "ProjectEditor"
 msgid "Add project"
 msgstr "Projekt hinzufügen"
 
+#: ui/views/project-editor.slint:63
 msgctxt "ProjectEditor"
 msgid "Archived project"
 msgstr "Archiviertes Projekt"
 
+#: ui/views/project-editor.slint:63
 msgctxt "ProjectEditor"
 msgid "Edit project"
 msgstr "Projekt bearbeiten"
 
-msgctxt "ProjectEditor"
-msgid ""
-"This permanently deletes the project and all its recorded work. This cannot "
-"be undone."
-msgstr "Das Projekt und alle erfassten Zeiten werden unwiderruflich gelöscht."
-
-msgctxt "ProjectEditor"
-msgid "Project name"
-msgstr "Projektname"
-
+#: ui/views/project-editor.slint:77
 msgctxt "ProjectEditor"
 msgid "Hidden from Home. Past time entries remain in Evaluation."
 msgstr ""
 "Auf der Startseite ausgeblendet. Bisherige Zeiten bleiben in der Auswertung."
 
+#: ui/views/project-editor.slint:90
 msgctxt "ProjectEditor"
-msgid "Save"
-msgstr "Speichern"
+msgid "Project name"
+msgstr "Projektname"
 
+#: ui/views/project-editor.slint:100
+#, fuzzy
+msgctxt "ProjectEditor"
+msgid "Maximum {} characters."
+msgstr "Maximal {} Zeichen."
+
+#: ui/views/project-editor.slint:115
 msgctxt "ProjectEditor"
 msgid "Cancel"
 msgstr "Abbrechen"
 
+#: ui/views/project-editor.slint:123
+msgctxt "ProjectEditor"
+msgid "Save"
+msgstr "Speichern"
+
+#: ui/views/project-editor.slint:145
 msgctxt "ProjectEditor"
 msgid "Archiving hides this project from Home and keeps its recorded work."
 msgstr ""
 "Archivieren blendet das Projekt auf der Startseite aus. Erfasste Zeiten "
 "bleiben erhalten."
 
+#: ui/views/project-editor.slint:151
 msgctxt "ProjectEditor"
 msgid "Archive project"
 msgstr "Projekt archivieren"
 
+#: ui/views/project-editor.slint:164
 msgctxt "ProjectEditor"
 msgid "Restore project"
 msgstr "Projekt wiederherstellen"
 
+#: ui/views/project-editor.slint:170
 msgctxt "ProjectEditor"
 msgid "Delete permanently"
 msgstr "Endgültig löschen"
+
+#: ui/views/project-editor.slint:185
+#, fuzzy
+msgctxt "ProjectEditor"
+msgid "Delete permanently?"
+msgstr "Endgültig löschen?"
+
+#: ui/views/project-editor.slint:190
+msgctxt "ProjectEditor"
+msgid ""
+"This permanently deletes the project and all its recorded work. This cannot "
+"be undone."
+msgstr "Das Projekt und alle erfassten Zeiten werden unwiderruflich gelöscht."
 
 #: ui/views/home.slint:15
 msgctxt "HomeHeader"
 msgid "View activity and time reports"
 msgstr ""
 
+#: ui/views/home.slint:16
 msgctxt "HomeHeader"
 msgid "Manage projects and settings"
 msgstr ""
 
+#: ui/views/home.slint:19
 msgctxt "HomeHeader"
 msgid "What next?"
 msgstr "Was steht an?"
 
+#: ui/views/home.slint:76
 msgctxt "LastTaskCard"
 msgid "Add a note to your last {} session"
 msgstr ""
 
+#: ui/views/home.slint:94
 msgctxt "LastTaskCard"
 msgid "LAST SESSION · TAP TO ADD A NOTE"
 msgstr "LETZTE SITZUNG · NOTIZ ANLEGEN"
 
+#: ui/views/home.slint:108
 msgctxt "LastTaskCard"
 msgid "[No task description]"
 msgstr "[Keine Aufgabenbeschreibung]"
 
+#: ui/views/home.slint:140
 msgctxt "ResumeCard"
 msgid "PAUSED"
 msgstr "PAUSIERT"
 
+#: ui/views/home.slint:152
 msgctxt "ResumeCard"
 msgid "Timer stopped until you resume."
 msgstr "Timer angehalten, bis du ihn fortsetzt."
 
+#: ui/views/home.slint:161
 msgctxt "ResumeCard"
 msgid "Resume"
 msgstr "Fortsetzen"
 
+#: ui/views/home.slint:223
 msgctxt "HomeView"
 msgid "Start a timer"
 msgstr "Timer starten"
 
+#: ui/views/home.slint:243
 msgctxt "HomeView"
 msgid "A quiet place to keep your day moving."
 msgstr "Ein ruhiger Ort, um voranzukommen."
@@ -367,22 +431,27 @@ msgctxt "NoteView"
 msgid "Home"
 msgstr "Startseite"
 
+#: ui/views/note.slint:38
 msgctxt "NoteView"
 msgid "What did you get done?"
 msgstr "Was hast du erledigt?"
 
+#: ui/views/note.slint:61
 msgctxt "NoteView"
 msgid "Add a brief note for your activity log."
 msgstr "Füge eine kurze Notiz hinzu."
 
+#: ui/views/note.slint:66
 msgctxt "NoteView"
 msgid "e.g. prepared the Q4 project brief"
 msgstr "z. B. Projektbeschreibung für Q4 vorbereitet"
 
+#: ui/views/note.slint:75
 msgctxt "NoteView"
 msgid "Save note"
 msgstr "Notiz speichern"
 
+#: ui/views/note.slint:85
 msgctxt "NoteView"
 msgid "Skip for now"
 msgstr "Vorerst überspringen"
@@ -392,32 +461,39 @@ msgctxt "ProjectRow"
 msgid "Edit {} project"
 msgstr ""
 
+#: ui/views/settings.slint:49
 msgctxt "ProjectRow"
 msgid "Archived"
 msgstr "Archiviert"
 
+#: ui/views/settings.slint:86
 msgctxt "SettingsView"
 msgid "Home"
 msgstr "Startseite"
 
+#: ui/views/settings.slint:91
 msgctxt "SettingsView"
 msgid "Manage projects"
 msgstr "Projekte verwalten"
 
+#: ui/views/settings.slint:99
 msgctxt "SettingsView"
 msgid "Active"
 msgstr "Aktiv"
 
+#: ui/views/settings.slint:103
 msgctxt "SettingsView"
 msgid "No active projects. Add a project or restore one from the archive."
 msgstr ""
 "Keine aktiven Projekte. Füge ein Projekt hinzu oder stelle eines aus dem "
 "Archiv wieder her."
 
+#: ui/views/settings.slint:116
 msgctxt "SettingsView"
 msgid "Archived ({})"
 msgstr "Archiviert ({})"
 
+#: ui/views/settings.slint:139
 msgctxt "SettingsView"
 msgid "Add project"
 msgstr "Projekt hinzufügen"
@@ -427,55 +503,71 @@ msgctxt "ProjectRow"
 msgid "1 task"
 msgstr "1 Aufgabe"
 
+#: ui/views/evaluation.slint:57
 msgctxt "ProjectRow"
 msgid "tasks"
 msgstr "Aufgaben"
 
+#: ui/views/evaluation.slint:88
 msgctxt "EvaluationView"
 msgid "Home"
 msgstr "Startseite"
 
+#: ui/views/evaluation.slint:93
 msgctxt "EvaluationView"
 msgid "Evaluation"
 msgstr "Auswertung"
 
+#: ui/views/evaluation.slint:116
 msgctxt "EvaluationView"
 msgid "Export"
 msgstr "Exportieren"
 
-#: ui/views/drilldown.slint
+#: ui/views/drilldown.slint:54
 msgctxt "TaskEditor"
 msgid "e.g. prepared the Q4 project brief"
 msgstr "z. B. Projektbeschreibung für Q4 vorbereitet"
 
+#: ui/views/drilldown.slint:72
 msgctxt "TaskEditor"
 msgid "Cancel"
 msgstr "Abbrechen"
 
+#: ui/views/drilldown.slint:79
 msgctxt "TaskEditor"
 msgid "Save"
 msgstr "Speichern"
 
+#: ui/views/drilldown.slint:142
 msgctxt "TaskCard"
 msgid "No details added"
 msgstr "Keine Details hinzugefügt"
 
+#: ui/views/drilldown.slint:216
 msgctxt "DrilldownView"
 msgid "Evaluation"
 msgstr "Auswertung"
 
+#: ui/views/drilldown.slint:237
 msgctxt "DrilldownView"
 msgid "1 completed task"
 msgstr "1 erledigte Aufgabe"
 
+#: ui/views/drilldown.slint:238
 msgctxt "DrilldownView"
 msgid "completed tasks"
 msgstr "erledigte Aufgaben"
 
+#: ui/views/drilldown.slint:273
 msgctxt "DrilldownView"
 msgid "Export"
 msgstr "Exportieren"
 
+#: ui/views/drilldown.slint:284
 msgctxt "DrilldownView"
 msgid "Delete permanently?"
 msgstr "Endgültig löschen?"
+
+#~ msgctxt "ProjectEditor"
+#~ msgid "Delete project?"
+#~ msgstr "Projekt löschen?"

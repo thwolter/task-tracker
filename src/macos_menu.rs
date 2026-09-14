@@ -4,10 +4,10 @@
 //! Tempo owns the native menu instead so Settings and Quit live in one standard
 //! application menu and the View menu can mirror the current projects.
 
-use crate::{AppWindow, NativeMenuStrings, Page};
+use crate::{AppActions, AppWindow, NativeMenuStrings, Page};
 use muda::{
-    accelerator::{Accelerator, Code, Modifiers, CMD_OR_CTRL},
     Menu, MenuEvent, MenuItem, PredefinedMenuItem, Submenu,
+    accelerator::{Accelerator, CMD_OR_CTRL, Code, Modifiers},
 };
 use slint::{ComponentHandle, Model};
 use std::cell::RefCell;
@@ -24,17 +24,18 @@ thread_local! {
     static MENU: RefCell<Option<Menu>> = const { RefCell::new(None) };
 }
 
-pub(crate) enum NativeMenuAction {
-    Settings,
-    Backup,
-    Restore,
-    Navigate(Page),
-    StartProject(String),
-    KeyboardShortcuts,
-}
-
 /// Installs Tempo's single native application menu.
 pub(crate) fn install(ui: &AppWindow) {
+    let weak_ui = ui.as_weak();
+    MenuEvent::set_event_handler(Some(move |event: MenuEvent| {
+        let weak_ui = weak_ui.clone();
+        let _ = slint::invoke_from_event_loop(move || {
+            let Some(ui) = weak_ui.upgrade() else {
+                return;
+            };
+            dispatch(&ui, event.id.as_ref());
+        });
+    }));
     refresh(ui);
 }
 
@@ -45,25 +46,22 @@ pub(crate) fn refresh(ui: &AppWindow) {
     MENU.with(|stored| *stored.borrow_mut() = Some(menu));
 }
 
-/// Drains native menu events on the Slint UI thread.
-pub(crate) fn next_action() -> Option<NativeMenuAction> {
-    for event in MenuEvent::receiver().try_iter() {
-        let id = event.id.as_ref();
-        let action = match id {
-            SETTINGS => NativeMenuAction::Settings,
-            BACKUP => NativeMenuAction::Backup,
-            RESTORE => NativeMenuAction::Restore,
-            HOME => NativeMenuAction::Navigate(Page::Home),
-            EVALUATION => NativeMenuAction::Navigate(Page::Evaluation),
-            KEYBOARD_SHORTCUTS => NativeMenuAction::KeyboardShortcuts,
-            _ => match id.strip_prefix(PROJECT_PREFIX) {
-                Some(project_id) => NativeMenuAction::StartProject(project_id.to_owned()),
-                None => continue,
-            },
-        };
-        return Some(action);
+/// Forwards an event delivered by the native menu to the established UI intent boundary.
+fn dispatch(ui: &AppWindow, id: &str) {
+    let actions = ui.global::<AppActions>();
+    match id {
+        SETTINGS => actions.invoke_navigate(Page::Settings),
+        BACKUP => actions.invoke_backup_data(),
+        RESTORE => actions.invoke_restore_data(),
+        HOME => actions.invoke_navigate(Page::Home),
+        EVALUATION => actions.invoke_navigate(Page::Evaluation),
+        KEYBOARD_SHORTCUTS => actions.invoke_show_keyboard_shortcuts(),
+        _ => {
+            if let Some(project_id) = id.strip_prefix(PROJECT_PREFIX) {
+                actions.invoke_start_tracking(project_id.into());
+            }
+        }
     }
-    None
 }
 
 fn build_menu(ui: &AppWindow) -> Menu {
