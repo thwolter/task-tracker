@@ -3,6 +3,7 @@ import {
     EvaluationTasksState,
     ExportState,
     HomeState,
+    FirstRunState,
     Page,
     ProjectSettingsState,
     ProjectEditorState,
@@ -16,6 +17,7 @@ export { AppActions, UiCommand, UiCommandKind } from "actions.slint";
 import { NativeMenuStrings } from "native-menu.slint";
 export { NativeMenuStrings } from "native-menu.slint";
 import { HomeView } from "views/home.slint";
+import { FirstRunView } from "views/first-run.slint";
 import { TrackingView } from "views/tracking.slint";
 import { NoteView } from "views/note.slint";
 import { SettingsView } from "views/settings.slint";
@@ -35,6 +37,7 @@ export component AppWindow inherits Window {
 
     in property <Page> current-page: Page.home;
     in property <HomeState> home;
+    in-out property <FirstRunState> first-run;
     in property <ProjectSettingsState> project-settings;
     in-out property <ProjectEditorState> project-editor;
     in property <TrackingState> tracking;
@@ -58,6 +61,9 @@ export component AppWindow inherits Window {
             if root.current-page == Page.home: HomeView {
                 state: root.home;
                 tracker: root.tracking;
+            }
+            if root.current-page == Page.first-run: FirstRunView {
+                state <=> root.first-run;
             }
             if root.current-page == Page.tracking: TrackingView {
                 state: root.tracking;

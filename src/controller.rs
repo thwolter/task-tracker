@@ -27,6 +27,7 @@ pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
     let mut controller = UiController::new(ui, tracker, language);
     controller.refresh(ui);
     controller.persist_initial(ui);
+    controller.open_first_run_if_needed(ui);
 
     #[cfg(all(target_os = "macos", not(test)))]
     {
@@ -83,6 +84,7 @@ impl UiController {
             UiCommandKind::OpenProjectCreate => self.open_project_create(&ui),
             UiCommandKind::OpenProjectEdit => self.open_project_edit(&ui, command.id),
             UiCommandKind::AddProject => self.add_project(&ui, command.text),
+            UiCommandKind::AddFirstRunProject => self.add_first_run_project(&ui, command.text),
             UiCommandKind::SaveProject => self.save_project(&ui, command.id, command.text),
             UiCommandKind::ArchiveProject => self.archive_project(&ui, command.id),
             UiCommandKind::UnarchiveProject => self.unarchive_project(&ui, command.id),
@@ -115,6 +117,12 @@ impl UiController {
     fn persist_initial(&self, ui: &AppWindow) {
         if let Err(error) = self.tracker.save() {
             self.set_error(ui, format!("Could not save data: {error}"));
+        }
+    }
+
+    fn open_first_run_if_needed(&self, ui: &AppWindow) {
+        if self.tracker.data().projects().is_empty() {
+            ui.set_current_page(Page::FirstRun);
         }
     }
 

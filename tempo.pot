@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-09-14 12:55+0000\n"
+"POT-Creation-Date: 2026-09-14 14:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ui/app-window.slint:30
+#: ui/app-window.slint:32
 msgctxt "AppWindow"
 msgid "paused"
 msgstr ""
@@ -316,6 +316,79 @@ msgctxt "ProjectEditor"
 msgid ""
 "This permanently deletes the project and all its recorded work. This cannot "
 "be undone."
+msgstr ""
+
+#: ui/views/first-run.slint:37
+msgctxt "FirstRunView"
+msgid "Maximum {} characters."
+msgstr ""
+
+#: ui/views/first-run.slint:50
+msgctxt "FirstRunView"
+msgid "Back"
+msgstr ""
+
+#: ui/views/first-run.slint:55
+msgctxt "FirstRunView"
+msgid "First step"
+msgstr ""
+
+#: ui/views/first-run.slint:63
+msgctxt "FirstRunView"
+msgid "Create your first project"
+msgstr ""
+
+#: ui/views/first-run.slint:64 ui/views/first-run.slint:139
+msgctxt "FirstRunView"
+msgid "Add another project"
+msgstr ""
+
+#: ui/views/first-run.slint:70
+msgctxt "FirstRunView"
+msgid ""
+"Projects keep related sessions together. You can add more whenever you need."
+msgstr ""
+
+#: ui/views/first-run.slint:71
+msgctxt "FirstRunView"
+msgid "Keep projects separate when work belongs somewhere else."
+msgstr ""
+
+#: ui/views/first-run.slint:79
+msgctxt "FirstRunView"
+msgid "Project name"
+msgstr ""
+
+#: ui/views/first-run.slint:100
+msgctxt "FirstRunView"
+msgid "Create project"
+msgstr ""
+
+#: ui/views/first-run.slint:100
+msgctxt "FirstRunView"
+msgid "Add project"
+msgstr ""
+
+#: ui/views/first-run.slint:110
+msgctxt "FirstRunView"
+msgid "Project created"
+msgstr ""
+
+#: ui/views/first-run.slint:117
+msgctxt "FirstRunView"
+msgid "Your projects are ready"
+msgstr ""
+
+#: ui/views/first-run.slint:121
+msgctxt "FirstRunView"
+msgid ""
+"Start now, add another project, or return Home. You can do any of these "
+"later."
+msgstr ""
+
+#: ui/views/first-run.slint:146
+msgctxt "FirstRunView"
+msgid "Finish"
 msgstr ""
 
 #: ui/views/home.slint:15

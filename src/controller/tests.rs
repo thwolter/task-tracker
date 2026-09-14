@@ -1,5 +1,8 @@
 use super::bind;
-use crate::{AppActions, AppWindow, Page, Range, application::Tracker, domain, language::Language};
+use crate::{
+    AppActions, AppWindow, FirstRunPhase, Page, Range, application::Tracker, domain,
+    language::Language,
+};
 use slint::{ComponentHandle, Model};
 use std::{path::PathBuf, thread, time::Duration};
 
@@ -25,6 +28,68 @@ fn navigation_command_changes_the_controller_owned_page() {
     assert_eq!(ui.get_current_page(), Page::Home);
 
     std::fs::remove_file(path).unwrap();
+}
+
+#[test]
+fn first_run_creates_projects_then_starts_or_returns_home() {
+    i_slint_backend_testing::init_no_event_loop();
+    let path = test_path("first-run");
+    let ui = AppWindow::new().unwrap();
+    bind(&ui, Tracker::empty_at(path.clone()), Language::English);
+    let actions = ui.global::<AppActions>();
+
+    assert_eq!(ui.get_current_page(), Page::FirstRun);
+    actions.invoke_add_first_run_project("Studio website".into());
+    let first_run = ui.get_first_run();
+    assert_eq!(first_run.phase, FirstRunPhase::ChooseNext);
+    assert_eq!(first_run.created_projects.row_count(), 1);
+    assert_eq!(
+        first_run.created_projects.row_data(0).unwrap().name,
+        "Studio website"
+    );
+    assert_eq!(ui.get_home().projects.row_count(), 1);
+
+    let first_project_id = first_run.created_projects.row_data(0).unwrap().id;
+    let mut adding = first_run;
+    adding.phase = FirstRunPhase::AddAnother;
+    adding.draft_name = "Admin".into();
+    ui.set_first_run(adding);
+    actions.invoke_add_first_run_project("Admin".into());
+    assert_eq!(ui.get_project_settings().active.row_count(), 2);
+    let created_projects = ui.get_first_run().created_projects;
+    assert_eq!(created_projects.row_count(), 2);
+    assert_eq!(created_projects.row_data(0).unwrap().id, first_project_id);
+    assert_eq!(created_projects.row_data(1).unwrap().name, "Admin");
+
+    actions.invoke_start_tracking(first_project_id);
+    assert_eq!(ui.get_current_page(), Page::Tracking);
+    actions.invoke_navigate(Page::Home);
+    assert_eq!(ui.get_current_page(), Page::Home);
+    assert_eq!(ui.get_home().projects.row_count(), 2);
+
+    std::fs::remove_file(path).unwrap();
+}
+
+#[test]
+fn failed_first_run_save_preserves_the_draft_and_error() {
+    i_slint_backend_testing::init_no_event_loop();
+    let blocked_parent = test_path("first-run-retry-parent");
+    std::fs::write(&blocked_parent, "not a directory").unwrap();
+    let path = blocked_parent.join("tempo.sqlite");
+    let ui = AppWindow::new().unwrap();
+    bind(&ui, Tracker::empty_at(path), Language::English);
+    let actions = ui.global::<AppActions>();
+    let mut first_run = ui.get_first_run();
+    first_run.draft_name = "Retry me".into();
+    ui.set_first_run(first_run);
+
+    actions.invoke_add_first_run_project("Retry me".into());
+
+    let first_run = ui.get_first_run();
+    assert_eq!(first_run.phase, FirstRunPhase::CreateFirst);
+    assert_eq!(first_run.draft_name, "Retry me");
+    assert!(!first_run.error.is_empty());
+    std::fs::remove_file(blocked_parent).unwrap();
 }
 
 #[test]

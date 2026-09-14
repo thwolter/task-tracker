@@ -7,7 +7,7 @@
 //! state and persistence.
 
 use super::UiController;
-use crate::{AppWindow, Page, domain};
+use crate::{domain, AppWindow, Page};
 use slint::SharedString;
 
 impl UiController {

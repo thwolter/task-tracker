@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-09-14 12:55+0000\n"
+"POT-Creation-Date: 2026-09-14 14:25+0000\n"
 "PO-Revision-Date: 2026-09-06 16:00+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # ui/app-window.slint: 22
-#: ui/app-window.slint:30
+#: ui/app-window.slint:32
 msgctxt "AppWindow"
 msgid "paused"
 msgstr "pausiert"
@@ -336,6 +336,83 @@ msgid ""
 "be undone."
 msgstr "Das Projekt und alle erfassten Zeiten werden unwiderruflich gelöscht."
 
+#: ui/views/first-run.slint:37
+msgctxt "FirstRunView"
+msgid "Maximum {} characters."
+msgstr "Maximal {} Zeichen."
+
+#: ui/views/first-run.slint:50
+msgctxt "FirstRunView"
+msgid "Back"
+msgstr "Zurück"
+
+#: ui/views/first-run.slint:55
+msgctxt "FirstRunView"
+msgid "First step"
+msgstr "Erster Schritt"
+
+#: ui/views/first-run.slint:63
+msgctxt "FirstRunView"
+msgid "Create your first project"
+msgstr "Erstelle dein erstes Projekt"
+
+#: ui/views/first-run.slint:64 ui/views/first-run.slint:139
+msgctxt "FirstRunView"
+msgid "Add another project"
+msgstr "Weiteres Projekt hinzufügen"
+
+#: ui/views/first-run.slint:70
+msgctxt "FirstRunView"
+msgid ""
+"Projects keep related sessions together. You can add more whenever you need."
+msgstr ""
+"Projekte halten zusammengehörige Sitzungen zusammen. Du kannst jederzeit "
+"weitere hinzufügen."
+
+#: ui/views/first-run.slint:71
+msgctxt "FirstRunView"
+msgid "Keep projects separate when work belongs somewhere else."
+msgstr "Trenne Projekte, wenn die Arbeit zu etwas anderem gehört."
+
+#: ui/views/first-run.slint:79
+msgctxt "FirstRunView"
+msgid "Project name"
+msgstr "Projektname"
+
+#: ui/views/first-run.slint:100
+msgctxt "FirstRunView"
+msgid "Create project"
+msgstr "Projekt erstellen"
+
+#: ui/views/first-run.slint:100
+msgctxt "FirstRunView"
+msgid "Add project"
+msgstr "Projekt hinzufügen"
+
+#: ui/views/first-run.slint:110
+msgctxt "FirstRunView"
+msgid "Project created"
+msgstr "Projekt erstellt"
+
+#: ui/views/first-run.slint:117
+msgctxt "FirstRunView"
+msgid "Your projects are ready"
+msgstr "Deine Projekte sind bereit"
+
+#: ui/views/first-run.slint:121
+msgctxt "FirstRunView"
+msgid ""
+"Start now, add another project, or return Home. You can do any of these "
+"later."
+msgstr ""
+"Starte jetzt, füge ein weiteres Projekt hinzu oder gehe zur Startseite. Das "
+"alles kannst du auch später tun."
+
+#: ui/views/first-run.slint:146
+msgctxt "FirstRunView"
+msgid "Finish"
+msgstr "Fertig"
+
 #: ui/views/home.slint:15
 msgctxt "HomeHeader"
 msgid "View activity and time reports"
@@ -571,3 +648,11 @@ msgstr "Endgültig löschen?"
 #~ msgctxt "ProjectEditor"
 #~ msgid "Delete project?"
 #~ msgstr "Projekt löschen?"
+
+#~ msgctxt "FirstRunView"
+#~ msgid "Start first session"
+#~ msgstr "Erste Sitzung starten"
+
+#~ msgctxt "FirstRunView"
+#~ msgid "Go to Home"
+#~ msgstr "Zur Startseite"

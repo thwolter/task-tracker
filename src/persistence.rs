@@ -122,12 +122,12 @@ impl SqliteStore {
         Ok(())
     }
 
-    /// Loads saved data, returning defaults when the database is empty or unreadable.
+    /// Loads saved data, returning an empty tracker when the database is empty or unreadable.
     ///
     /// Errors from opening, initializing, or reading the database are
     /// intentionally not surfaced through this startup-oriented operation.
     pub(crate) fn load_or_default(&self) -> Data {
-        self.load().unwrap_or_else(|_| Data::defaults())
+        self.load().unwrap_or_else(|_| Data::empty())
     }
 
     fn load(&self) -> Result<Data> {
@@ -150,7 +150,7 @@ impl SqliteStore {
         drop(statement);
 
         if projects.is_empty() && !require_projects {
-            return Ok(Data::defaults());
+            return Ok(Data::empty());
         }
         if projects.is_empty() {
             return Err(TrackerError::InvalidBackup);
@@ -394,8 +394,8 @@ mod tests {
         ));
         let store = SqliteStore::at(path.clone());
 
-        assert_eq!(store.load_or_default().projects().len(), 4);
-        let mut data = Data::defaults();
+        assert!(store.load_or_default().projects().is_empty());
+        let mut data = Data::sample();
         data.start_tracking(ProjectId::from("project-1".to_owned()), 10)
             .unwrap();
         assert!(data.end_tracking(40));
@@ -431,7 +431,7 @@ mod tests {
         let path = test_path("backup-source");
         let backup = test_path("backup-destination");
         let store = SqliteStore::at(path.clone());
-        let mut data = Data::defaults();
+        let mut data = Data::sample();
         data.start_tracking(ProjectId::from("project-1".to_owned()), 10)
             .unwrap();
         assert!(data.end_tracking(40));
@@ -451,7 +451,7 @@ mod tests {
         let path = test_path("invalid-live");
         let invalid = test_path("invalid-source");
         let store = SqliteStore::at(path.clone());
-        let mut data = Data::defaults();
+        let mut data = Data::sample();
         data.start_tracking(ProjectId::from("project-1".to_owned()), 10)
             .unwrap();
         assert!(data.end_tracking(40));

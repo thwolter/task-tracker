@@ -9,6 +9,7 @@ export component ProjectCard inherits Rectangle {
     callback clicked(string);
 
     touch := TouchArea {
+        mouse-cursor: pointer;
         clicked => { root.clicked(root.project.id); }
     }
 

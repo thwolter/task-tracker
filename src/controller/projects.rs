@@ -1,6 +1,8 @@
 use super::UiController;
-use crate::{AppWindow, Page, ProjectEditorMode, ProjectEditorState, ProjectItem, domain};
-use slint::SharedString;
+use crate::{
+    domain, AppWindow, FirstRunPhase, Page, ProjectEditorMode, ProjectEditorState, ProjectItem,
+};
+use slint::{Model, ModelRc, SharedString, VecModel};
 
 impl UiController {
     pub(super) fn open_project_create(&mut self, ui: &AppWindow) {
@@ -38,8 +40,50 @@ impl UiController {
     }
 
     pub(super) fn add_project(&mut self, ui: &AppWindow, name: SharedString) {
-        let result = self.tracker.add_project(name.as_str(), domain::now());
+        let result = self.create_project(name).map(|_| ());
         self.finish_project_action(ui, result);
+    }
+
+    /// Persists one onboarding project and adds it to the list available for tracking.
+    pub(super) fn add_first_run_project(&mut self, ui: &AppWindow, name: SharedString) {
+        match self.create_project(name) {
+            Ok(project) => {
+                let mut first_run = ui.get_first_run();
+                let mut created_projects = (0..first_run.created_projects.row_count())
+                    .filter_map(|index| first_run.created_projects.row_data(index))
+                    .collect::<Vec<_>>();
+                created_projects.push(project);
+                first_run.created_projects = ModelRc::new(VecModel::from(created_projects));
+                first_run.draft_name = SharedString::new();
+                first_run.error = SharedString::new();
+                first_run.phase = FirstRunPhase::ChooseNext;
+                ui.set_first_run(first_run);
+                self.refresh(ui);
+            }
+            Err(error) => {
+                let mut first_run = ui.get_first_run();
+                first_run.error = error.to_string().into();
+                ui.set_first_run(first_run);
+            }
+        }
+    }
+
+    /// Creates and persists a project, returning the UI item identified by its generated ID.
+    fn create_project(&mut self, name: SharedString) -> crate::error::Result<ProjectItem> {
+        let project_id = self.tracker.add_project(name.as_str(), domain::now())?;
+        let project = self
+            .tracker
+            .data()
+            .projects()
+            .iter()
+            .find(|project| project.id() == &project_id)
+            .expect("a newly persisted project remains in the tracker");
+        Ok(ProjectItem {
+            id: project.id().as_str().into(),
+            name: project.name().into(),
+            completed: false,
+            archived: project.archived(),
+        })
     }
 
     pub(super) fn save_project(&mut self, ui: &AppWindow, id: SharedString, name: SharedString) {

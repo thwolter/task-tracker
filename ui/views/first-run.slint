@@ -1,0 +1,162 @@
+import { AppButton, AppButtonIntent, AppButtonVariant, AppButtonSize } from "../components/app-button.slint";
+import { BackLink } from "../components/back-link.slint";
+import { LineEdit } from "../components/line-edit.slint";
+import { BodyText, LabelText, TitleText, ViewHeader } from "../components/typography.slint";
+import { FirstRunPhase, FirstRunState, Page, ProjectItem } from "../models.slint";
+import { AppActions } from "../actions.slint";
+import { Theme } from "../theme.slint";
+import { ProjectCard } from "../components/project-card.slint";
+import { ScrollableColumn } from "../components/scrollable-column.slint";
+
+export component FirstRunView inherits Rectangle {
+    in-out property <FirstRunState> state;
+
+    private property <int> max-name-length: 16;
+    private property <bool> can-submit: root.state.draft-name != "" && root.state.error == "";
+    private property <bool> creating-first: root.state.phase == FirstRunPhase.create-first;
+    private property <bool> adding-another: root.state.phase == FirstRunPhase.add-another;
+
+    function reset-draft() {
+        root.state.draft-name = "";
+        root.state.error = "";
+    }
+
+    function show-add-another() {
+        root.reset-draft();
+        root.state.phase = FirstRunPhase.add-another;
+    }
+
+    function show-next-actions() {
+        root.reset-draft();
+        root.state.phase = FirstRunPhase.choose-next;
+    }
+
+    function validate-draft() {
+        if (root.state.draft-name.character-count <= root.max-name-length) {
+            root.state.error = "";
+        } else {
+            root.state.error = @tr("Maximum {} characters.", root.max-name-length);
+        }
+    }
+
+    VerticalLayout {
+        padding: 20px;
+        spacing: 16px;
+        height: root.height;
+        alignment: space-between;
+
+        if (root.creating-first || root.adding-another): VerticalLayout {
+            spacing: 16px;
+
+            if root.adding-another: BackLink {
+                text: @tr("Back");
+                clicked => { root.show-next-actions(); }
+            }
+
+			if (root.creating-first): Text {
+				text: @tr("First step");
+				font-size: Theme.typography.caption.size;
+				font-weight: Theme.typography.caption.weight;
+				color: Theme.action-primary;
+			}
+
+            ViewHeader {
+                text: root.creating-first
+                    ? @tr("Create your first project")
+                    : @tr("Add another project");
+                wrap: word-wrap;
+            }
+
+            BodyText {
+                text: root.creating-first
+                    ? @tr("Projects keep related sessions together. You can add more whenever you need.")
+                    : @tr("Keep projects separate when work belongs somewhere else.");
+                wrap: word-wrap;
+            }
+
+            VerticalLayout {
+                spacing: 8px;
+
+                LabelText {
+                    text: @tr("Project name");
+                }
+
+                LineEdit {
+                    text <=> root.state.draft-name;
+                    accepted => {
+                        root.validate-draft();
+                        if root.can-submit { AppActions.add-first-run-project(root.state.draft-name); }
+                    }
+                    edited => { root.validate-draft(); }
+                }
+
+                if root.state.error != "": BodyText {
+                    text: root.state.error;
+                    color: Theme.action-danger;
+                    wrap: word-wrap;
+                }
+            }
+
+            AppButton {
+                width: parent.width;
+                label: root.creating-first ? @tr("Create project") : @tr("Add project");
+                enabled: root.can-submit;
+                clicked => { AppActions.add-first-run-project(root.state.draft-name); }
+            }
+        }
+
+        if root.state.phase == FirstRunPhase.choose-next: VerticalLayout {
+            spacing: 16px;
+            // The action group is part of this bounded layout, while only the
+            // project list may shrink and scroll.
+            height: root.height - 40px;
+
+			Text {
+				text: @tr("Project created");
+				font-size: Theme.typography.caption.size;
+				font-weight: Theme.typography.caption.weight;
+				color: Theme.action-primary;
+			}
+
+            ViewHeader {
+                text: @tr("Your projects are ready");
+            }
+
+            BodyText {
+                text: @tr("Start now, add another project, or return Home. You can do any of these later.");
+                wrap: word-wrap;
+            }
+
+            ScrollableColumn {
+                spacing: 8px;
+                min-height: 0px;
+
+                for project in root.state.created-projects: ProjectCard {
+                    project: project;
+                    clicked(id) => { AppActions.start-tracking(id); }
+                }
+            }
+
+            VerticalLayout {
+                padding-top: 10px;
+                spacing: 10px;
+
+                AppButton {
+                    width: parent.width;
+                    label: @tr("Add another project");
+                    intent: AppButtonIntent.primary;
+                    clicked => { root.show-add-another(); }
+                }
+
+                AppButton {
+                    width: parent.width;
+                    label: @tr("Finish");
+                    intent: AppButtonIntent.secondary;
+                    variant: AppButtonVariant.outline;
+                    clicked => { AppActions.navigate(Page.home); }
+                }
+            }
+        }
+
+    }
+}

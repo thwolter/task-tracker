@@ -45,7 +45,17 @@ impl Tracker {
     #[cfg(test)]
     pub(crate) fn at(path: PathBuf) -> Self {
         Self {
-            data: Data::defaults(),
+            data: Data::sample(),
+            store: SqliteStore::at(path),
+            range: Range::Day,
+            evaluating_project: None,
+        }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn empty_at(path: PathBuf) -> Self {
+        Self {
+            data: Data::empty(),
             store: SqliteStore::at(path),
             range: Range::Day,
             evaluating_project: None,
@@ -169,11 +179,34 @@ impl Tracker {
         self.update_projects(|data| data.rename_project(&ProjectId::from(id), name))
     }
 
-    pub(crate) fn add_project(&mut self, name: &str, timestamp: i64) -> Result<()> {
+    pub(crate) fn add_project(&mut self, name: &str, timestamp: i64) -> Result<ProjectId> {
         let name = domain::validate_project_name(name)?;
+        let id = self.next_project_id(timestamp);
         self.update_projects(|data| {
-            data.add_project(ProjectId::from(format!("project-{timestamp}")), name);
-        })
+            data.add_project(id.clone(), name);
+        })?;
+        Ok(id)
+    }
+
+    fn next_project_id(&self, timestamp: i64) -> ProjectId {
+        let base = format!("project-{timestamp}");
+        let mut suffix = 1;
+        loop {
+            let candidate = if suffix == 1 {
+                base.clone()
+            } else {
+                format!("{base}-{suffix}")
+            };
+            if self
+                .data
+                .projects()
+                .iter()
+                .all(|project| project.id().as_str() != candidate)
+            {
+                return ProjectId::from(candidate);
+            }
+            suffix += 1;
+        }
     }
 
     /// Archives a project while retaining its recorded work, then saves.
@@ -255,7 +288,7 @@ mod tests {
         tracker.select_evaluation_project("project-1".into());
 
         let backup_store = SqliteStore::at(backup_path.clone());
-        let mut backup = Data::defaults();
+        let mut backup = Data::sample();
         backup
             .start_tracking(ProjectId::from("project-1".to_owned()), 10)
             .unwrap();

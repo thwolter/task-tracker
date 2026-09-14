@@ -1,4 +1,4 @@
-export enum Page { home, tracking, note, settings, project-editor, evaluation, drilldown, exportpage }
+export enum Page { home, first-run, tracking, note, settings, project-editor, evaluation, drilldown, exportpage }
 export enum Range { day, week, month, year }
 export enum StatusKind { success, error }
 export enum ExportFormat { csv, markdown, json }
@@ -81,4 +81,15 @@ export struct ProjectEditorState {
 export struct ProjectSettingsState {
     active: [ProjectItem],
     archived: [ProjectItem],
+}
+
+// The onboarding owns only transient UI state. The controller owns the
+// persisted project and decides when navigation can advance.
+export enum FirstRunPhase { create-first, choose-next, add-another }
+
+export struct FirstRunState {
+    phase: FirstRunPhase,
+    draft-name: string,
+    created-projects: [ProjectItem],
+    error: string,
 }

@@ -35,8 +35,19 @@ impl Data {
         }
     }
 
-    /// Creates the initial set of projects with no recorded or active work.
-    pub(crate) fn defaults() -> Self {
+    /// Creates an empty tracker for a new Tempo database.
+    pub(crate) fn empty() -> Self {
+        Self {
+            projects: Vec::new(),
+            tasks: Vec::new(),
+            active_task: None,
+            interrupted_task: None,
+        }
+    }
+
+    /// Creates representative projects for tests that need populated data.
+    #[cfg(test)]
+    pub(crate) fn sample() -> Self {
         Self {
             projects: ["Project Atlas", "Admin", "Writing", "Personal"]
                 .into_iter()
@@ -245,7 +256,7 @@ mod tests {
 
     #[test]
     fn tracking_creates_tasks_under_projects() {
-        let mut data = Data::defaults();
+        let mut data = Data::sample();
         data.start_tracking(ProjectId::new("project-2"), 10)
             .unwrap();
         assert!(data.checkpoint_active(40));
@@ -269,7 +280,7 @@ mod tests {
 
     #[test]
     fn paused_tracking_excludes_the_paused_interval() {
-        let mut data = Data::defaults();
+        let mut data = Data::sample();
         data.start_tracking(ProjectId::new("project-1"), 10)
             .unwrap();
         assert!(data.toggle_pause(70));
@@ -283,7 +294,7 @@ mod tests {
 
     #[test]
     fn secondary_task_pauses_and_then_restores_the_primary_task() {
-        let mut data = Data::defaults();
+        let mut data = Data::sample();
         data.start_tracking(ProjectId::new("project-1"), 10)
             .unwrap();
         assert!(data.checkpoint_active(40));
@@ -315,7 +326,7 @@ mod tests {
 
     #[test]
     fn recovery_finishes_both_tasks_without_resuming_them() {
-        let mut data = Data::defaults();
+        let mut data = Data::sample();
         data.start_tracking(ProjectId::new("project-1"), 10)
             .unwrap();
         assert!(data.checkpoint_active(40));
@@ -336,7 +347,7 @@ mod tests {
 
     #[test]
     fn project_names_are_validated_and_projects_can_be_renamed() {
-        let mut data = Data::defaults();
+        let mut data = Data::sample();
         assert!(matches!(
             validate_project_name("  "),
             Err(TrackerError::EmptyProjectName)
@@ -354,7 +365,7 @@ mod tests {
 
     #[test]
     fn projects_can_be_archived_without_removing_their_history() {
-        let mut data = Data::defaults();
+        let mut data = Data::sample();
         let project_id = ProjectId::new("project-1");
         data.start_tracking(project_id.clone(), 10).unwrap();
         assert!(data.end_tracking(70));
@@ -370,7 +381,7 @@ mod tests {
 
     #[test]
     fn deleting_a_project_removes_its_sessions() {
-        let mut data = Data::defaults();
+        let mut data = Data::sample();
         let project_id = ProjectId::new("project-1");
         data.start_tracking(project_id.clone(), 10).unwrap();
         assert!(data.end_tracking(70));

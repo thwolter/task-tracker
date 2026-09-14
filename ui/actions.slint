@@ -15,6 +15,7 @@ export enum UiCommandKind {
     open-project-create,
     open-project-edit,
     add-project,
+    add-first-run-project,
     save-project,
     archive-project,
     unarchive-project,
@@ -54,6 +55,7 @@ export global AppActions {
     callback open-project-create();
     callback open-project-edit(string);
     callback add-project(string);
+    callback add-first-run-project(string);
     callback save-project(string, string);
     callback archive-project(string);
     callback unarchive-project(string);
@@ -83,6 +85,7 @@ export global AppActions {
     open-project-create => { dispatch({ kind: UiCommandKind.open-project-create }); }
     open-project-edit(id) => { dispatch({ kind: UiCommandKind.open-project-edit, id: id }); }
     add-project(name) => { dispatch({ kind: UiCommandKind.add-project, text: name }); }
+    add-first-run-project(name) => { dispatch({ kind: UiCommandKind.add-first-run-project, text: name }); }
     save-project(id, name) => { dispatch({ kind: UiCommandKind.save-project, id: id, text: name }); }
     archive-project(id) => { dispatch({ kind: UiCommandKind.archive-project, id: id }); }
     unarchive-project(id) => { dispatch({ kind: UiCommandKind.unarchive-project, id: id }); }
