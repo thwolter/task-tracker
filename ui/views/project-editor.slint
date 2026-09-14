@@ -2,14 +2,21 @@ import { LineEdit } from "../components/line-edit.slint";
 import { Page, ProjectEditorState, ProjectEditorMode } from "../models.slint";
 import { AppActions } from "../actions.slint";
 import { Theme } from "../theme.slint";
-import { AppButton, AppButtonIntent, AppButtonVariant } from "../components/app-button.slint";
+import {
+    AppButton,
+    AppButtonIntent,
+    AppButtonVariant,
+} from "../components/app-button.slint";
 import { BackLink } from "../components/back-link.slint";
 import {
     ViewHeader,
     BodyText,
     LabelText,
+    TitleText,
 } from "../components/typography.slint";
 import { ScrollableColumn } from "../components/scrollable-column.slint";
+import { DeleteConfirmation } from "../components/delete-confirmation.slint";
+
 
 export component ProjectEditor inherits Rectangle {
     private property <length> content-padding: 20px;
@@ -18,7 +25,7 @@ export component ProjectEditor inherits Rectangle {
     private property <bool> confirming-delete: state.mode == ProjectEditorMode.confirm-delete;
     private property <bool> can-save: state.draft-name != "";
     private property <string> archive-tooltip: @tr("Hide this project from Home. Its recorded time stays available.");
-	private property <string> add-button-tooltip: @tr("Enter a project name to create it");
+    private property <string> add-button-tooltip: @tr("Enter a project name to create it");
 
     function cancel() {
         if root.confirming-delete {
@@ -47,122 +54,121 @@ export component ProjectEditor inherits Rectangle {
             clicked => { root.cancel(); }
         }
 
-            ScrollableColumn {
-                spacing: 16px;
-                ViewHeader {
-                    text: root.confirming-delete ? @tr("Delete project?")
-                        : root.creating ? @tr("Add project")
-                        : root.state.project.archived ? @tr("Archived project") : @tr("Edit project");
+        ScrollableColumn {
+            spacing: 16px;
+            ViewHeader {
+                text: root.creating
+                    ? @tr("Add project")
+                    : root.state.project.archived ? @tr("Archived project") : @tr("Edit project");
+                wrap: word-wrap;
+            }
+
+            if root.state.project.archived: VerticalLayout {
+                padding-bottom: 40px;
+                spacing: 20px;
+	            BodyText {
+	                text: root.state.project.name;
+	                color: Theme.content-primary;
+	                wrap: word-wrap;
+	            }
+
+	            BodyText {
+	                text: @tr("Hidden from Home. Past time entries remain in Evaluation.");
+	                wrap: word-wrap;
+	            }
+            }
+            if root.state.error != "": BodyText {
+                text: root.state.error;
+                color: Theme.action-danger;
+                wrap: word-wrap;
+            }
+            if !root.state.project.archived: VerticalLayout {
+                spacing: 8px;
+                AppButton {
+                    width: root.width - 2 * root.content-padding;
+                    label: root.creating ? @tr("Add project") : @tr("Save");
+                    enabled: root.can-save;
+                    clicked => { root.save(); }
+                    if root.creating: Tooltip {
+                        text: @markdown("\{root.add-button-tooltip}");
+                    }
+                }
+
+                AppButton {
+                    width: root.width - 2 * root.content-padding;
+                    label: @tr("Cancel");
+                    intent: AppButtonIntent.secondary;
+                    variant: AppButtonVariant.outline;
+                    clicked => { root.cancel(); }
+                }
+            }
+            if !root.creating && !root.state.project.archived: VerticalLayout {
+                padding-top: 8px;
+                spacing: 12px;
+                Rectangle {
+                    height: 1px;
+                    background: Theme.border-divider;
+                }
+
+                BodyText {
+                    text: @tr("Archiving hides this project from Home and keeps its recorded work.");
                     wrap: word-wrap;
                 }
 
-                if root.confirming-delete || root.state.project.archived: BodyText {
-                    text: root.state.project.name;
-                    color: Theme.content-primary;
-                    wrap: word-wrap;
-                }
-                if root.confirming-delete: BodyText {
-                    text: @tr("This permanently deletes the project and all its recorded work. This cannot be undone.");
-                    wrap: word-wrap;
-                }
-                if !root.confirming-delete && !root.state.project.archived: VerticalLayout {
-                    spacing: 8px;
-                    LabelText {
-                        text: @tr("Project name");
+                AppButton {
+                    width: root.width - 2 * root.content-padding;
+                    label: @tr("Archive project");
+                    intent: AppButtonIntent.secondary;
+                    variant: AppButtonVariant.outline;
+                    clicked => { AppActions.archive-project(root.state.project.id); }
+                    Tooltip {
+                        text: @markdown("\{root.archive-tooltip}");
                     }
+                }
+            }
+            if root.state.project.archived: VerticalLayout {
+                spacing: 12px;
+                AppButton {
+                    width: root.width - 2 * root.content-padding;
+                    label: @tr("Restore project");
+                    clicked => { AppActions.unarchive-project(root.state.project.id); }
+                }
 
-                    name-input := LineEdit {
-                        text <=> root.state.draft-name;
-                        accepted => { root.save(); }
-                        edited => { root.state.error = ""; }
+                AppButton {
+                    width: root.width - 2 * root.content-padding;
+                    label: @tr("Delete permanently");
+                    intent: AppButtonIntent.danger;
+                    variant: AppButtonVariant.outline;
+                    clicked => {
+                        root.state.error = "";
+                        root.state.mode = ProjectEditorMode.confirm-delete;
                     }
                 }
-                if !root.confirming-delete && root.state.project.archived: BodyText {
-                    text: @tr("Hidden from Home. Past time entries remain in Evaluation.");
-                    wrap: word-wrap;
-                }
-                if root.state.error != "": BodyText {
-                    text: root.state.error;
-                    color: Theme.action-danger;
-                    wrap: word-wrap;
-                }
-                if !root.confirming-delete && !root.state.project.archived: VerticalLayout {
-                    spacing: 8px;
-                    AppButton {
-                        width: root.width - 2 * root.content-padding;
-                        label: root.creating ? @tr("Add project") : @tr("Save");
-                        enabled: root.can-save;
-                        clicked => { root.save(); }
-                        if root.creating: Tooltip {
-			                text: @markdown("\{root.add-button-tooltip}");
-			            }
-                    }
-                    AppButton {
-                        width: root.width - 2 * root.content-padding;
-                        label: @tr("Cancel");
-                        intent: AppButtonIntent.secondary;
-                        variant: AppButtonVariant.outline;
-                        clicked => { root.cancel(); }
-                    }
-                }
-                if !root.creating && !root.confirming-delete && !root.state.project.archived: VerticalLayout {
-                    padding-top: 8px;
-                    spacing: 12px;
-                    Rectangle {
-                        height: 1px;
-                        background: Theme.border-divider;
-                    }
-
-                    BodyText {
-                        text: @tr("Archiving hides this project from Home and keeps its recorded work.");
-                        wrap: word-wrap;
-                    }
-
-                    AppButton {
-                        width: root.width - 2 * root.content-padding;
-                        label: @tr("Archive project");
-                        intent: AppButtonIntent.secondary;
-                        variant: AppButtonVariant.outline;
-                        clicked => { AppActions.archive-project(root.state.project.id); }
-                        Tooltip { text: @markdown("\{root.archive-tooltip}"); }
-                    }
-                }
-                if !root.confirming-delete && root.state.project.archived: VerticalLayout {
-                    spacing: 12px;
-                    AppButton {
-                        width: root.width - 2 * root.content-padding;
-                        label: @tr("Restore project");
-                        clicked => { AppActions.unarchive-project(root.state.project.id); }
-                    }
-
-                    AppButton {
-                        width: root.width - 2 * root.content-padding;
-                        label: @tr("Delete permanently");
-                        intent: AppButtonIntent.danger;
-                        variant: AppButtonVariant.outline;
-                        clicked => {
-                            root.state.error = "";
-                            root.state.mode = ProjectEditorMode.confirm-delete;
-                        }
-                    }
-                }
-                if root.confirming-delete: VerticalLayout {
-                    spacing: 12px;
-                    AppButton {
-                        width: root.width - 2 * root.content-padding;
-                        label: @tr("Cancel");
-                        intent: AppButtonIntent.secondary;
-                        variant: AppButtonVariant.outline;
-                        clicked => { root.cancel(); }
-                    }
-
-                    AppButton {
-                        width: root.width - 2 * root.content-padding;
-                        label: @tr("Delete permanently");
-                        intent: AppButtonIntent.danger;
-                        clicked => { AppActions.delete-project(root.state.project.id); }
-                    }
-                }
+            }
         }
+    }
+
+    if root.confirming-delete: DeleteConfirmation {
+        width: 100%;
+        TitleText {
+            text: @tr("Delete permanently?");
+            color: Theme.action-danger;
+        }
+
+        BodyText {
+            text: @tr("This permanently deletes the project and all its recorded work. This cannot be undone.");
+            wrap: word-wrap;
+        }
+
+        HorizontalLayout {
+            padding-top: 10px;
+            alignment: center;
+            Text {
+                text: root.state.project.name;
+            }
+        }
+
+        canceled => { root.cancel(); }
+        confirmed => { AppActions.delete-project(root.state.project.id); }
     }
 }
