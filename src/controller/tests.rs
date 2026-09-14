@@ -78,7 +78,7 @@ fn project_name_check_returns_whether_the_name_is_already_used() {
     bind(&ui, Tracker::at(path.clone()), Language::English);
     let actions = ui.global::<AppActions>();
 
-    assert!(actions.invoke_project_name_exists("Planning".into()));
+    assert!(actions.invoke_project_name_exists("Project Atlas".into()));
     assert!(!actions.invoke_project_name_exists("Fresh project".into()));
 
     std::fs::remove_file(path).unwrap();
