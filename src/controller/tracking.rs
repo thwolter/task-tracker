@@ -1,3 +1,11 @@
+//! Tracking-specific UI command handlers.
+//!
+//! This private controller module translates tracking actions from Slint into
+//! [`Tracker`](crate::application::Tracker) operations, then keeps the active
+//! session and related view projections synchronized. It owns the workflow
+//! transitions between Home, Tracking, and Note, while the tracker owns domain
+//! state and persistence.
+
 use super::UiController;
 use crate::{AppWindow, Page, domain};
 use slint::SharedString;
