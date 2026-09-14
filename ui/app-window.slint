@@ -25,7 +25,7 @@ import { DrilldownView } from "views/drilldown.slint";
 import { ExportView } from "views/export.slint";
 
 export component AppWindow inherits Window {
-    title: tracking.active-task + " · " + (tracking.paused ? @tr("paused") : tracking.elapsed);
+    title: tracking.paused ? tracking.active-task + " · " + @tr("paused") : "Tempo";
     width: 280px;
     preferred-height: 460px;
     min-height: 400px;
