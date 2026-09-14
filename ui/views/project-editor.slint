@@ -23,9 +23,10 @@ export component ProjectEditor inherits Rectangle {
     in-out property <ProjectEditorState> state;
     private property <bool> creating: state.mode == ProjectEditorMode.create;
     private property <bool> confirming-delete: state.mode == ProjectEditorMode.confirm-delete;
-    private property <bool> can-save: state.draft-name != "";
+    private property <bool> can-save: state.draft-name != "" && state.error == "";
     private property <string> archive-tooltip: @tr("Hide this project from Home. Its recorded time stays available.");
     private property <string> add-button-tooltip: @tr("Enter a project name to create it");
+	private property <int> max-name-length: 16;
 
     function cancel() {
         if root.confirming-delete {
@@ -77,11 +78,6 @@ export component ProjectEditor inherits Rectangle {
 	                wrap: word-wrap;
 	            }
             }
-            if root.state.error != "": BodyText {
-                text: root.state.error;
-                color: Theme.action-danger;
-                wrap: word-wrap;
-            }
 
             // Edit project
             if !root.state.project.archived: VerticalLayout {
@@ -97,8 +93,19 @@ export component ProjectEditor inherits Rectangle {
 	                name-input := LineEdit {
 	                    text <=> root.state.draft-name;
 	                    accepted => { root.save(); }
-	                    edited => { root.state.error = ""; }
+	                    edited => {
+	                        if (root.state.draft-name.character-count <= root.max-name-length) {
+					            root.state.error = "";
+					        } else {
+					            root.state.error = @tr("Maximum {} characters.", root.max-name-length);
+					        }
+	                    }
 	                }
+	                if root.state.error != "": BodyText {
+		                text: root.state.error;
+		                color: Theme.action-danger;
+		                wrap: word-wrap;
+		            }
 	            }
 				HorizontalLayout {
 					alignment: space-between;
