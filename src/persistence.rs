@@ -31,6 +31,11 @@ impl SqliteStore {
     /// Falls back to the system temporary directory when no suitable data-home
     /// environment variable is available.
     pub(crate) fn default_path() -> PathBuf {
+        Self::default_data_dir().join("tempo.sqlite")
+    }
+
+    /// Returns the platform-appropriate directory for Tempo's local state.
+    pub(crate) fn default_data_dir() -> PathBuf {
         let base = if cfg!(target_os = "windows") {
             std::env::var_os("APPDATA").map(PathBuf::from)
         } else if cfg!(target_os = "macos") {
@@ -44,7 +49,7 @@ impl SqliteStore {
                 })
         }
         .unwrap_or_else(std::env::temp_dir);
-        base.join("Tempo").join("tempo.sqlite")
+        base.join("Tempo")
     }
 
     fn connection(&self) -> Result<Connection> {
