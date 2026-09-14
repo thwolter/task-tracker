@@ -242,31 +242,37 @@ msgctxt "HomeView"
 msgid "A quiet place to keep your day moving."
 msgstr "Ein ruhiger Ort, um voranzukommen."
 
-#: ui/views/export.slint:15
+#: ui/views/export.slint:19
 msgctxt "ExportView"
-msgid "Back"
-msgstr "Zurück"
+msgid "Evaluation"
+msgstr "Auswertung"
 
+#: ui/views/export.slint:24
 msgctxt "ExportView"
 msgid "Export"
 msgstr "Exportieren"
 
+#: ui/views/export.slint:29
 msgctxt "ExportView"
 msgid "All projects"
 msgstr "Alle Projekte"
 
+#: ui/views/export.slint:30
 msgctxt "ExportView"
 msgid "Project: {}"
 msgstr "Projekt: {}"
 
+#: ui/views/export.slint:36
 msgctxt "ExportView"
 msgid "CSV"
 msgstr "CSV"
 
+#: ui/views/export.slint:44
 msgctxt "ExportView"
 msgid "Markdown"
 msgstr "Markdown"
 
+#: ui/views/export.slint:52
 msgctxt "ExportView"
 msgid "JSON"
 msgstr "JSON"
