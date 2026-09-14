@@ -47,6 +47,19 @@ export component ProjectEditor inherits Rectangle {
         }
     }
 
+    function validate-draft() {
+        if (root.state.draft-name.character-count > root.max-name-length) {
+            root.state.error = @tr(
+                "Maximum {} characters.",
+                root.max-name-length
+            );
+        } else if (AppActions.project-name-exists(root.state.draft-name)) {
+            root.state.error = @tr("Project name already exists.");
+        } else {
+            root.state.error = "";
+        }
+    }
+
     VerticalLayout {
         padding: root.content-padding;
         spacing: 16px;
@@ -92,14 +105,11 @@ export component ProjectEditor inherits Rectangle {
 
 	                name-input := LineEdit {
 	                    text <=> root.state.draft-name;
-	                    accepted => { root.save(); }
-	                    edited => {
-	                        if (root.state.draft-name.character-count <= root.max-name-length) {
-					            root.state.error = "";
-					        } else {
-					            root.state.error = @tr("Maximum {} characters.", root.max-name-length);
-					        }
+	                    accepted => {
+	                        root.validate-draft();
+	                        root.save();
 	                    }
+	                    edited => { root.validate-draft(); }
 	                }
 	                if root.state.error != "": BodyText {
 		                text: root.state.error;

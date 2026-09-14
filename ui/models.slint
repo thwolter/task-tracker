@@ -86,7 +86,6 @@ export struct ProjectSettingsState {
 // The onboarding owns only transient UI state. The controller owns the
 // persisted project and decides when navigation can advance.
 export enum FirstRunPhase { create-first, choose-next, add-another }
-
 export struct FirstRunState {
     phase: FirstRunPhase,
     draft-name: string,

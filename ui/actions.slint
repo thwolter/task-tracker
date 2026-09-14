@@ -55,6 +55,7 @@ export global AppActions {
     callback open-project-create();
     callback open-project-edit(string);
     callback add-project(string);
+    callback project-name-exists(string) -> bool;
     callback add-first-run-project(string);
     callback save-project(string, string);
     callback archive-project(string);

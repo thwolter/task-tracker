@@ -44,6 +44,14 @@ impl UiController {
         self.finish_project_action(ui, result);
     }
 
+    pub(super) fn project_name_exists(&self, name: SharedString) -> bool {
+        self.tracker
+            .data()
+            .projects()
+            .iter()
+            .any(|project| project.name() == name.as_str())
+    }
+
     /// Persists one onboarding project and adds it to the list available for tracking.
     pub(super) fn add_first_run_project(&mut self, ui: &AppWindow, name: SharedString) {
         match self.create_project(name) {

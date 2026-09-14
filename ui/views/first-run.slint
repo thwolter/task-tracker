@@ -32,10 +32,15 @@ export component FirstRunView inherits Rectangle {
     }
 
     function validate-draft() {
-        if (root.state.draft-name.character-count <= root.max-name-length) {
-            root.state.error = "";
+        if (root.state.draft-name.character-count > root.max-name-length) {
+            root.state.error = @tr(
+                "Maximum {} characters.",
+                root.max-name-length
+            );
+        } else if (AppActions.project-name-exists(root.state.draft-name)) {
+            root.state.error = @tr("Project name already exists.");
         } else {
-            root.state.error = @tr("Maximum {} characters.", root.max-name-length);
+            root.state.error = "";
         }
     }
 
@@ -81,19 +86,23 @@ export component FirstRunView inherits Rectangle {
                     text: @tr("Project name");
                 }
 
-                LineEdit {
-                    text <=> root.state.draft-name;
-                    accepted => {
-                        root.validate-draft();
-                        if root.can-submit { AppActions.add-first-run-project(root.state.draft-name); }
-                    }
-                    edited => { root.validate-draft(); }
-                }
+                VerticalLayout {
+                    spacing: 10px;
 
-                if root.state.error != "": BodyText {
-                    text: root.state.error;
-                    color: Theme.action-danger;
-                    wrap: word-wrap;
+	                LineEdit {
+	                    text <=> root.state.draft-name;
+	                    accepted => {
+	                        root.validate-draft();
+	                        if root.can-submit { AppActions.add-first-run-project(root.state.draft-name); }
+	                    }
+	                    edited => { root.validate-draft(); }
+	                }
+
+	                if root.state.error != "": BodyText {
+	                    text: root.state.error;
+	                    color: Theme.action-danger;
+	                    wrap: word-wrap;
+	                }
                 }
             }
 

@@ -18,24 +18,26 @@ use crate::{
     AppActions, AppWindow, Page, Status, StatusKind, UiCommand, UiCommandKind, domain, presentation,
 };
 use slint::{ComponentHandle, SharedString, Timer, TimerMode, Weak};
-use std::time::Duration;
+use std::{cell::RefCell, rc::Rc, time::Duration};
 
 const STATUS_DURATION: Duration = Duration::from_secs(3);
 
 /// Connects the Slint UI to the application tracker and begins dispatching commands.
 pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
-    let mut controller = UiController::new(ui, tracker, language);
-    controller.refresh(ui);
-    controller.persist_initial(ui);
-    controller.open_first_run_if_needed(ui);
+    let controller = Rc::new(RefCell::new(UiController::new(ui, tracker, language)));
+    controller.borrow().refresh(ui);
+    controller.borrow().persist_initial(ui);
+    controller.borrow().open_first_run_if_needed(ui);
 
     #[cfg(all(target_os = "macos", not(test)))]
     {
         crate::macos_menu::install(ui);
     }
 
-    ui.global::<AppActions>()
-        .on_dispatch(move |command| controller.handle(command));
+    let actions = ui.global::<AppActions>();
+    let dispatch_controller = controller.clone();
+    actions.on_dispatch(move |command| dispatch_controller.borrow_mut().handle(command));
+    actions.on_project_name_exists(move |name| controller.borrow().project_name_exists(name));
 }
 
 /// State holder and coordinator for Slint UI events and presentation projections.

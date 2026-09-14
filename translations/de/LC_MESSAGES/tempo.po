@@ -254,6 +254,10 @@ msgctxt "ProjectEditor"
 msgid "Enter a project name to create it"
 msgstr ""
 
+msgctxt "ProjectEditor"
+msgid "Project name already exists."
+msgstr "Projektname bereits vergeben."
+
 #: ui/views/project-editor.slint:54
 msgctxt "ProjectEditor"
 msgid "Settings"
@@ -341,6 +345,10 @@ msgctxt "FirstRunView"
 msgid "Maximum {} characters."
 msgstr "Maximal {} Zeichen."
 
+msgctxt "FirstRunView"
+msgid "Project name already exists."
+msgstr "Projektname bereits vergeben."
+
 #: ui/views/first-run.slint:50
 msgctxt "FirstRunView"
 msgid "Back"
@@ -397,7 +405,7 @@ msgstr "Projekt erstellt"
 #: ui/views/first-run.slint:117
 msgctxt "FirstRunView"
 msgid "Your projects are ready"
-msgstr "Deine Projekte sind bereit"
+msgstr "Projekte sind bereit"
 
 #: ui/views/first-run.slint:121
 msgctxt "FirstRunView"
