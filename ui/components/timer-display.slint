@@ -26,7 +26,7 @@ export component TimerDisplay inherits Rectangle {
 
         Text {
             y: 40px;
-            text: root.task;
+            text: root.task.to-uppercase();
             color: Theme.action-primary;
             font-size: Theme.typography.small-label.size;
             font-weight: Theme.typography.small-label.weight;

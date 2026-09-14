@@ -105,15 +105,14 @@ msgstr "Startseite"
 
 #: ui/views/tracking.slint:30
 msgctxt "TrackingView"
-msgid "Need to step away?"
-msgstr "Musst du kurz weg?"
+msgid "Back to Home?"
+msgstr "Zur Startseite?"
 
 #: ui/views/tracking.slint:36
 msgctxt "TrackingView"
-msgid "Going home pauses this task. You can resume it anytime"
+msgid "Your task will be paused."
 msgstr ""
-"Zur Startseite zurückzukehren pausiert diese Aufgabe. Du kannst sie "
-"jederzeit fortsetzen."
+"Aufgabe wird dabei pausiert."
 
 #: ui/views/tracking.slint:59
 msgctxt "TrackingView"
@@ -238,7 +237,7 @@ msgstr ""
 #: ui/views/home.slint:94
 msgctxt "LastTaskCard"
 msgid "LAST SESSION · TAP TO ADD A NOTE"
-msgstr "LETZTE SITZUNG · NOTIZ HINZUFÜGEN"
+msgstr "LETZTE SITZUNG · NOTIZ ANLEGEN"
 
 #: ui/views/home.slint:108
 msgctxt "LastTaskCard"

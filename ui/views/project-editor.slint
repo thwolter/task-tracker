@@ -82,29 +82,53 @@ export component ProjectEditor inherits Rectangle {
                 color: Theme.action-danger;
                 wrap: word-wrap;
             }
-            if !root.state.project.archived: VerticalLayout {
-                spacing: 8px;
-                AppButton {
-                    width: root.width - 2 * root.content-padding;
-                    label: root.creating ? @tr("Add project") : @tr("Save");
-                    enabled: root.can-save;
-                    clicked => { root.save(); }
-                    if root.creating: Tooltip {
-                        text: @markdown("\{root.add-button-tooltip}");
-                    }
-                }
 
-                AppButton {
-                    width: root.width - 2 * root.content-padding;
-                    label: @tr("Cancel");
-                    intent: AppButtonIntent.secondary;
-                    variant: AppButtonVariant.outline;
-                    clicked => { root.cancel(); }
+            // Edit project
+            if !root.state.project.archived: VerticalLayout {
+                width: 100%;
+                spacing: 20px;
+
+                VerticalLayout {
+	                spacing: 8px;
+	                LabelText {
+	                    text: @tr("Project name");
+	                }
+
+	                name-input := LineEdit {
+	                    text <=> root.state.draft-name;
+	                    accepted => { root.save(); }
+	                    edited => { root.state.error = ""; }
+	                }
+	            }
+				HorizontalLayout {
+					alignment: space-between;
+
+					AppButton {
+	                    width: (root.width - 2 * root.content-padding) / 2 - 8px;
+	                    label: @tr("Cancel");
+	                    intent: AppButtonIntent.secondary;
+	                    variant: AppButtonVariant.outline;
+	                    clicked => { root.cancel(); }
+	                }
+
+	                AppButton {
+	                    width: (root.width - 2 * root.content-padding) / 2 - 8px;
+	                    label: root.creating ? @tr("Add project") : @tr("Save");
+	                    enabled: root.can-save;
+	                    clicked => { root.save(); }
+	                    if root.creating: Tooltip {
+	                        text: @markdown("\{root.add-button-tooltip}");
+	                    }
+	                }
+
+
                 }
             }
+
             if !root.creating && !root.state.project.archived: VerticalLayout {
-                padding-top: 8px;
+                padding-top: 20px;
                 spacing: 12px;
+
                 Rectangle {
                     height: 1px;
                     background: Theme.border-divider;

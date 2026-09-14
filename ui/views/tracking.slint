@@ -26,18 +26,20 @@ export component TrackingView inherits Rectangle {
             alignment: space-between;
 
             if (!root.state.secondary-active): VerticalLayout {
+                cross-axis-alignment: center;
+                spacing: 2px;
                 Text {
-                    text: @tr("Need to step away?");
-                    color: Theme.content-primary;
-                    font-size: Theme.typography.supporting.size;
-                    font-weight: Theme.typography.supporting.weight;
+                    text: @tr("Back to Home?");
+                    color: Theme.content-muted;
+                    font-size: Theme.typography.small-label.size;
+                    font-weight: Theme.typography.small-label.weight;
                 }
                 Text {
-                    text: @tr("Going home pauses this task. You can resume it anytime");
+                    text: @tr("Your task will be paused.");
                     wrap: word-wrap;
-                    font-size: Theme.typography.supporting.size;
-                    font-weight: Theme.typography.supporting.weight;
-                    color: Theme.content-primary;
+                    font-size: Theme.typography.small-label.size;
+                    font-weight: Theme.typography.small-label.weight;
+                    color: Theme.content-muted;
                 }
             }
             if (root.state.secondary-active): Rectangle {}
