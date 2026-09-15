@@ -14,6 +14,8 @@ export component TextEdit inherits Rectangle {
     border-width: Theme.border.width;
     border-color: Theme.border-subtle;
 
+    forward-focus: input;
+
     HorizontalLayout {
         padding: 10px;
         input := TextInput {

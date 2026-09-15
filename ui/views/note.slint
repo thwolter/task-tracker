@@ -19,6 +19,10 @@ export component NoteView inherits Rectangle {
     in property <TaskItem> last-task;
     property <string> note-draft: last-task.note;
 
+    init => {
+        note.focus();
+    }
+
     VerticalLayout {
         padding: 20px;
         spacing: 20px;
@@ -61,7 +65,7 @@ export component NoteView inherits Rectangle {
 	                text: @tr("Add a brief note for your activity log.");
 	            }
 
-	            TextEdit {
+	            note := TextEdit {
 	                text <=> root.note-draft;
 	                placeholder: @tr("e.g. prepared the Q4 project brief");
 	            }
