@@ -10,7 +10,7 @@ homepage = "https://github.com/thwolter/task-tracker"
 live-preview = ["slint/live-preview"]
 
 [dependencies]
-slint = "1.17.1"
+slint = "1.18.0"
 sys-locale = "0.3.2"
 chrono = { version = "0.4", default-features = true }
 csv = "1.3"
