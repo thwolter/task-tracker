@@ -3,7 +3,7 @@ import { ScrollView, HorizontalBox } from "std-widgets.slint";
 export component ScrollableColumn inherits ScrollView {
     in property <length> spacing: 7px;
 
-	out property <bool> has-scrollbar: self.viewport-height > self.visible-height;
+	out property <bool> has-scrollbar: self.content-height > self.visible-height;
 
     vertical-stretch: 1;
     vertical-scrollbar-policy: as-needed;
