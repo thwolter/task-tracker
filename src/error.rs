@@ -16,6 +16,12 @@ pub enum TrackerError {
 
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
+
+    #[error(transparent)]
+    SingleInstance(#[from] single_instance::error::SingleInstanceError),
+
+    #[error(transparent)]
+    Platform(#[from] slint::PlatformError),
 }
 
 pub type Result<T> = std::result::Result<T, TrackerError>;

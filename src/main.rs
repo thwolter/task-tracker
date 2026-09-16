@@ -4,6 +4,7 @@ mod tracker;
 mod controller;
 mod domain;
 mod error;
+mod instance_lock;
 mod language;
 #[cfg(all(target_os = "macos", not(test)))]
 mod macos_menu;
@@ -16,21 +17,25 @@ mod persistence;
 mod presentation;
 mod report;
 mod window_state;
+use crate::language::Language;
 
 slint::include_modules!();
 
-fn main() -> Result<(), slint::PlatformError> {
-    #[cfg(target_os = "macos")]
-    install_native_menu_platform()?;
-
-    // The live preview has no bundled translation catalog, so its visible UI
-    // remains English. Keep Rust-projected strings, such as completion dates,
-    // in the same language.
-    let language = if cfg!(feature = "live-preview") {
-        language::Language::English
-    } else {
-        language::Language::system()
+fn main() -> error::Result<()> {
+    let Some(_instance_lock) = instance_lock::acquire()? else {
+        return Ok(());
     };
+
+    run_app()
+}
+
+fn run_app() -> error::Result<()> {
+    #[cfg(target_os = "macos")]
+    {
+        install_native_menu_platform()?;
+    }
+
+    let language = language();
     let ui = AppWindow::new()?;
     window_state::restore(&ui);
     window_state::save_on_close(&ui);
@@ -44,7 +49,20 @@ fn main() -> Result<(), slint::PlatformError> {
     let tracker = tracker::Tracker::load_default();
     controller::bind(&ui, tracker, language);
 
-    ui.run()
+    ui.run()?;
+    Ok(())
+}
+
+fn language() -> Language {
+    // The live preview has no bundled translation catalog, so its visible UI
+    // remains English. Keep Rust-projected strings, such as completion dates,
+    // in the same language.
+    let language = if cfg!(feature = "live-preview") {
+        language::Language::English
+    } else {
+        language::Language::system()
+    };
+    language
 }
 
 /// Lets Tempo install the complete macOS application menu instead of Slint's
