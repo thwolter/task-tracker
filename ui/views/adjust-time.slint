@@ -1,0 +1,133 @@
+import { AppActions } from "../actions.slint";
+import { AdjustTimeState, Page } from "../models.slint";
+import {
+    AppButton,
+    AppButtonIntent,
+    AppButtonVariant,
+    AppButtonSize,
+} from "../components/app-button.slint";
+import { BackLink } from "../components/back-link.slint";
+import { LineEdit } from "../components/line-edit.slint";
+import { BodyText, LabelText, ViewHeader } from "../components/typography.slint";
+import { Theme } from "../theme.slint";
+
+export component AdjustTimeView inherits Rectangle {
+    in-out property <AdjustTimeState> state;
+    in property <int> focus-request;
+    private property <string> duration: AppActions.adjusted-duration(
+        root.state.task-id,
+        root.state.started-time,
+        root.state.finished-time,
+    );
+    private property <bool> can-save: root.duration != "";
+
+    changed focus-request => { started-input.focus(); }
+
+    function clear-error() {
+        if (root.state.error != "") {
+            root.state.error = "";
+        }
+    }
+
+    VerticalLayout {
+        padding: 20px;
+        spacing: 16px;
+
+        BackLink {
+            text: @tr("Activity note");
+            clicked => { AppActions.navigate(Page.note); }
+        }
+
+        VerticalLayout {
+            spacing: 8px;
+
+            ViewHeader { text: @tr("Adjust time"); }
+            BodyText { text: root.state.project + " · " + root.state.day-label; }
+            BodyText {
+                text: @tr("Set when work actually started and finished.");
+                wrap: word-wrap;
+            }
+        }
+
+        VerticalLayout {
+            spacing: 12px;
+
+            VerticalLayout {
+                spacing: 6px;
+                LabelText { text: @tr("Started"); }
+                started-input := LineEdit {
+                    text <=> root.state.started-time;
+                    accepted => { if (root.can-save) { AppActions.save-adjusted-time(root.state.task-id, root.state.started-time, root.state.finished-time); } }
+                    edited => { root.clear-error(); }
+                }
+            }
+
+            VerticalLayout {
+                spacing: 6px;
+                LabelText { text: @tr("Finished"); }
+                LineEdit {
+                    text <=> root.state.finished-time;
+                    accepted => { if (root.can-save) { AppActions.save-adjusted-time(root.state.task-id, root.state.started-time, root.state.finished-time); } }
+                    edited => { root.clear-error(); }
+                }
+            }
+        }
+
+        if (!root.can-save): BodyText {
+            text: @tr("Enter a valid time");
+            color: Theme.action-danger;
+        }
+
+        Rectangle {
+            background: Theme.surface-subtle;
+            border-radius: Theme.border.radius;
+            height: 40px;
+
+            HorizontalLayout {
+                padding: 12px;
+                Text {
+                    text: @tr("Actual time");
+                    color: Theme.content-secondary;
+                    font-size: Theme.typography.label.size;
+                    font-weight: Theme.typography.label.weight;
+                    vertical-alignment: center;
+                }
+                Text {
+                    text: root.can-save ? root.duration : "--";
+                    color: root.can-save ? Theme.action-primary : Theme.content-muted;
+                    font-size: Theme.typography.body-strong.size;
+                    font-weight: Theme.typography.body-strong.weight;
+                    horizontal-alignment: right;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        if root.state.error != "": BodyText {
+            text: root.state.error;
+            color: Theme.action-danger;
+            wrap: word-wrap;
+        }
+
+        Rectangle { vertical-stretch: 1; }
+
+        HorizontalLayout {
+            spacing: 12px;
+            AppButton {
+                width: (parent.width - 12px) / 2;
+                label: @tr("Cancel");
+                intent: AppButtonIntent.secondary;
+                variant: AppButtonVariant.outline;
+                size: AppButtonSize.medium;
+                clicked => { AppActions.navigate(Page.note); }
+            }
+            AppButton {
+                width: (parent.width - 12px) / 2;
+                label: @tr("Save time");
+                size: AppButtonSize.medium;
+                enabled: root.can-save;
+                clicked => { AppActions.save-adjusted-time(root.state.task-id, root.state.started-time, root.state.finished-time); }
+            }
+        }
+    }
+}

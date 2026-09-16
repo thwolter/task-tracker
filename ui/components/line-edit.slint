@@ -8,11 +8,12 @@ export component LineEdit inherits Rectangle {
     background: Theme.surface-input;
     border-color: Theme.border-default;
     border-width: 1px;
+    forward-focus: input;
 
     HorizontalLayout {
         padding: 10px;
 
-        TextInput {
+        input := TextInput {
             font-size: Theme.typography.body.size;
             color: Theme.content-primary;
             text <=> root.text;

@@ -6,8 +6,8 @@
 
 use crate::{AppActions, AppWindow, NativeMenuStrings, Page};
 use muda::{
+    accelerator::{Accelerator, Code, Modifiers, CMD_OR_CTRL},
     Menu, MenuEvent, MenuItem, PredefinedMenuItem, Submenu,
-    accelerator::{Accelerator, CMD_OR_CTRL, Code, Modifiers},
 };
 use slint::{ComponentHandle, Model};
 use std::cell::RefCell;
@@ -129,7 +129,7 @@ fn build_menu(ui: &AppWindow) -> Menu {
         ),
     );
 
-    let projects = ui.get_home().projects;
+    let projects = ui.get_home_state().projects;
     if projects.row_count() > 0 {
         append(&view, &PredefinedMenuItem::separator());
         append(&view, &MenuItem::new(strings.get_projects(), false, None));

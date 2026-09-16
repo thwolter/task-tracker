@@ -8,6 +8,8 @@ export enum UiCommandKind {
     end-tracking,
     toggle-tracking-pause,
     save-task-note,
+    open-adjust-time,
+    save-adjusted-time,
     update-evaluation-task,
     delete-evaluation-task,
     choose-range,
@@ -34,6 +36,7 @@ export struct UiCommand {
     page: Page,
     id: string,
     text: string,
+    secondary-text: string,
     range: Range,
     export-format: ExportFormat,
 }
@@ -48,6 +51,9 @@ export global AppActions {
     callback end-tracking();
     callback toggle-tracking-pause();
     callback save-task-note(string);
+    callback open-adjust-time();
+    callback save-adjusted-time(string, string, string);
+    pure callback adjusted-duration(string, string, string) -> string;
     callback update-evaluation-task(string, string);
     callback delete-evaluation-task(string);
     callback choose-range(Range);
@@ -77,6 +83,10 @@ export global AppActions {
     toggle-tracking-pause => { dispatch({ kind: UiCommandKind.toggle-tracking-pause }); }
 
     save-task-note(note) => { dispatch({ kind: UiCommandKind.save-task-note, text: note }); }
+    open-adjust-time => { dispatch({ kind: UiCommandKind.open-adjust-time }); }
+    save-adjusted-time(id, started, finished) => {
+        dispatch({ kind: UiCommandKind.save-adjusted-time, id: id, text: started, secondary-text: finished });
+    }
 
     update-evaluation-task(id, note) => { dispatch({ kind: UiCommandKind.update-evaluation-task, id: id, text: note }); }
     delete-evaluation-task(id) => { dispatch({ kind: UiCommandKind.delete-evaluation-task, id: id }); }

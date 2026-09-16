@@ -1,6 +1,7 @@
 import {
     EvaluationState,
     EvaluationTasksState,
+    AdjustTimeState,
     ExportState,
     HomeState,
     FirstRunState,
@@ -20,6 +21,7 @@ import { HomeView } from "views/home.slint";
 import { FirstRunView } from "views/first-run.slint";
 import { TrackingView } from "views/tracking.slint";
 import { NoteView } from "views/note.slint";
+import { AdjustTimeView } from "views/adjust-time.slint";
 import { SettingsView } from "views/settings.slint";
 import { ProjectEditor } from "views/project-editor.slint";
 import { EvaluationView } from "views/evaluation.slint";
@@ -36,7 +38,7 @@ export component AppWindow inherits Window {
     background: Theme.surface-canvas;
 
     in property <Page> current-page: Page.home;
-    in property <HomeState> home;
+    in property <HomeState> home-state;
     in-out property <FirstRunState> first-run;
     in property <ProjectSettingsState> project-settings;
     in-out property <ProjectEditorState> project-editor;
@@ -45,6 +47,9 @@ export component AppWindow inherits Window {
     in property <EvaluationTasksState> evaluation-drilldown;
     in property <ExportState> export-state;
     in property <Status> transient-status: { message: "", kind: StatusKind.success };
+    in property <int> note-focus-request: 0;
+    in-out property <AdjustTimeState> adjust-time;
+    in property <int> adjust-time-focus-request: 0;
 
     Timer {
         interval: 1s;
@@ -59,7 +64,7 @@ export component AppWindow inherits Window {
             vertical-stretch: 1;
 
             if root.current-page == Page.home: HomeView {
-                state: root.home;
+                state: root.home-state;
                 tracker: root.tracking;
             }
             if root.current-page == Page.first-run: FirstRunView {
@@ -68,8 +73,13 @@ export component AppWindow inherits Window {
             if root.current-page == Page.tracking: TrackingView {
                 state: root.tracking;
             }
-            if root.current-page == Page.note: NoteView {
-                last-task: root.home.last-task;
+            if root.current-page == Page.note: note-view := NoteView {
+                last-task: root.home-state.last-task;
+                focus-request: root.note-focus-request;
+            }
+            if root.current-page == Page.adjust-time: AdjustTimeView {
+                state <=> root.adjust-time;
+                focus-request: root.adjust-time-focus-request;
             }
             if root.current-page == Page.settings: SettingsView {
                 projects: root.project-settings;

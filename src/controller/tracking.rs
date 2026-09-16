@@ -1,7 +1,7 @@
 //! Tracking-specific UI command handlers.
 //!
 //! This private controller module translates tracking actions from Slint into
-//! [`Tracker`](crate::application::Tracker) operations, then keeps the active
+//! [`Tracker`](crate::tracker::Tracker) operations, then keeps the active
 //! session and related view projections synchronized. It owns the workflow
 //! transitions between Home, Tracking, and Note, while the tracker owns domain
 //! state and persistence.
@@ -35,13 +35,13 @@ impl UiController {
 
     pub(super) fn open_last_task(&mut self, ui: &AppWindow) {
         if self.tracker.data().has_tasks() {
-            ui.set_current_page(Page::Note);
+            self.show_note(ui);
         }
     }
 
     pub(super) fn end_tracking(&mut self, ui: &AppWindow) {
         match self.tracker.end_tracking(domain::now()) {
-            Ok(true) => ui.set_current_page(Page::Note),
+            Ok(true) => self.show_note(ui),
             Ok(false) => {}
             Err(error) => self.set_error(ui, format!("Could not save data: {error}")),
         }
@@ -61,5 +61,33 @@ impl UiController {
         }
         ui.set_current_page(Page::Home);
         self.refresh(ui);
+    }
+
+    pub(super) fn save_adjusted_time(
+        &mut self,
+        ui: &AppWindow,
+        id: SharedString,
+        started: SharedString,
+        finished: SharedString,
+    ) {
+        let Some((started_at, finished_at)) = self.adjusted_interval(&id, &started, &finished)
+        else {
+            let mut state = ui.get_adjust_time();
+            state.error = "Use 24-hour times and make sure finished is after started.".into();
+            ui.set_adjust_time(state);
+            return;
+        };
+
+        match self
+            .tracker
+            .update_task_interval(id.to_string(), started_at, finished_at)
+        {
+            Ok(true) => {
+                self.refresh(ui);
+                self.show_note(ui);
+            }
+            Ok(false) => self.set_error(ui, "That task is no longer available"),
+            Err(error) => self.set_error(ui, format!("Could not save time: {error}")),
+        }
     }
 }

@@ -67,6 +67,15 @@ impl Task {
     pub(super) fn set_note(&mut self, note: String) {
         self.note = note;
     }
+    /// Replaces the recorded interval only when it remains a positive duration.
+    pub(super) fn set_interval(&mut self, started: i64, ended: i64) -> bool {
+        if ended <= started {
+            return false;
+        }
+        self.started = started;
+        self.ended = ended;
+        true
+    }
 }
 
 /// The single task currently being tracked, if the aggregate has one.

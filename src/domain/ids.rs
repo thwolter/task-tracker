@@ -8,7 +8,6 @@
 pub(crate) struct ProjectId(String);
 
 impl ProjectId {
-
     #[cfg(test)]
     pub(super) fn new(value: impl Into<String>) -> Self {
         Self(value.into())

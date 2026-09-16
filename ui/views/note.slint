@@ -1,4 +1,4 @@
-import { AppButton } from "../components/app-button.slint";
+import { AppButton, AppButtonSize } from "../components/app-button.slint";
 import {
     TitleText,
     BodyText,
@@ -17,9 +17,12 @@ import { TextEdit } from "../components/text-edit.slint";
 
 export component NoteView inherits Rectangle {
     in property <TaskItem> last-task;
+    in property <int> focus-request;
     property <string> note-draft: last-task.note;
 
-    init => {
+    // Change callbacks are queued for the next event-loop turn, after this
+    // dynamically created view has finished initializing.
+    changed focus-request => {
         note.focus();
     }
 
@@ -53,6 +56,31 @@ export component NoteView inherits Rectangle {
             }
         }
 
+		Rectangle {
+			background: Theme.surface-subtle;
+	        VerticalLayout {
+	            padding: 10px;
+	            spacing:10px;
+	            Text {
+	                text: @tr("Session time");
+	                font-size: Theme.typography.caption.size;
+	                font-weight: Theme.typography.caption.weight;
+	            }
+	            HorizontalLayout {
+	                alignment: space-between;
+	                Text {
+                    text: root.last-task.started-time + " – " + root.last-task.finished-time;
+	                    font-size: Theme.typography.body-strong.size;
+	                    font-weight: Theme.typography.body-strong.weight;
+	                }
+	                TextLink {
+	                    text: @tr("Adjust time");
+	                    clicked => { AppActions.open-adjust-time(); }
+	                }
+	            }
+	        }
+        }
+
         VerticalLayout {
             preferred-height: parent.height;
             alignment: space-between;
@@ -78,6 +106,7 @@ export component NoteView inherits Rectangle {
 	                width: parent.width;
 	                label: @tr("Save note");
 	                enabled: root.note-draft != "";
+	                size: AppButtonSize.large;
 	                clicked => { AppActions.save-task-note(root.note-draft); }
 	                horizontal-stretch: 1;
 	            }

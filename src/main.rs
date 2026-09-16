@@ -1,6 +1,6 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
-mod application;
+mod tracker;
 mod controller;
 mod domain;
 mod error;
@@ -41,7 +41,7 @@ fn main() -> Result<(), slint::PlatformError> {
     slint::select_bundled_translation(language.slint_locale())
         .expect("the selected bundled translation is available");
 
-    let tracker = application::Tracker::load_default();
+    let tracker = tracker::Tracker::load_default();
     controller::bind(&ui, tracker, language);
 
     ui.run()
@@ -58,7 +58,7 @@ fn install_native_menu_platform() -> Result<(), slint::PlatformError> {
                 .with_titlebar_transparent(false)
                 .with_fullsize_content_view(false)
                 .with_movable_by_window_background(true)
-                .with_titlebar_hidden(true)
+                // .with_titlebar_hidden(true)
         })
         .with_default_menu_bar(false)
         .build()?;

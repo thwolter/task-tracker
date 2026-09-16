@@ -4,17 +4,17 @@
 //! reads [`Tracker`] state but does not mutate domain state or persist data.
 
 use crate::{
-    EvaluationState, EvaluationTaskItem, EvaluationTasksState, HomeState, ProjectItem,
-    ProjectSettingsState, ProjectTotalItem, Range, TaskItem, TrackingState,
-    application::Tracker,
     domain::{self, Data, ProjectId, Range as DomainRange, Task},
     language::Language,
+    tracker::Tracker,
+    AdjustTimeState, EvaluationState, EvaluationTaskItem, EvaluationTasksState, HomeState,
+    ProjectItem, ProjectSettingsState, ProjectTotalItem, Range, TaskItem, TrackingState,
 };
 use chrono::{Datelike, Local, TimeZone, Weekday};
 use slint::{ModelRc, SharedString, VecModel};
 
 /// Builds the Home-page snapshot, omitting archived projects.
-pub(crate) fn home(tracker: &Tracker) -> HomeState {
+pub(crate) fn home_state(tracker: &Tracker) -> HomeState {
     let projects = ModelRc::new(VecModel::from(
         tracker
             .data()
@@ -35,10 +35,13 @@ pub(crate) fn home(tracker: &Tracker) -> HomeState {
         .last()
         .map(|task| task_item(tracker.data(), task))
         .unwrap_or_else(|| TaskItem {
+            id: SharedString::new(),
             project: SharedString::new(),
             note: SharedString::new(),
             duration_seconds: 0,
             timestamp: SharedString::new(),
+            started_time: SharedString::new(),
+            finished_time: SharedString::new(),
         });
     HomeState {
         projects,
@@ -49,6 +52,7 @@ pub(crate) fn home(tracker: &Tracker) -> HomeState {
 
 fn task_item(data: &Data, task: &Task) -> TaskItem {
     TaskItem {
+        id: task.id().as_str().into(),
         project: data.project_name(task.project_id()).into(),
         note: task.note().into(),
         duration_seconds: slint_seconds(task.ended() - task.started()),
@@ -59,7 +63,40 @@ fn task_item(data: &Data, task: &Task) -> TaskItem {
             .format("%b %-d, %H:%M")
             .to_string()
             .into(),
+        started_time: local_time(task.started()),
+        finished_time: local_time(task.ended()),
     }
+}
+
+/// Builds the transient draft for editing the newest completed task.
+pub(crate) fn adjust_time_state(tracker: &Tracker) -> AdjustTimeState {
+    let Some(task) = tracker.data().tasks().last() else {
+        return AdjustTimeState::default();
+    };
+    AdjustTimeState {
+        task_id: task.id().as_str().into(),
+        project: tracker.data().project_name(task.project_id()).into(),
+        day_label: Local
+            .timestamp_opt(task.started(), 0)
+            .single()
+            .unwrap_or_else(Local::now)
+            .format("%a, %-d %b")
+            .to_string()
+            .into(),
+        started_time: local_time(task.started()),
+        finished_time: local_time(task.ended()),
+        error: SharedString::new(),
+    }
+}
+
+fn local_time(timestamp: i64) -> SharedString {
+    Local
+        .timestamp_opt(timestamp, 0)
+        .single()
+        .unwrap_or_else(Local::now)
+        .format("%H:%M")
+        .to_string()
+        .into()
 }
 
 /// Groups settings rows by lifecycle while preserving order within each group.
@@ -258,10 +295,7 @@ pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
         || (SharedString::new(), SharedString::from("00:00"), false),
         |active| {
             (
-                tracker
-                    .data()
-                    .project_name(active.project_id())
-                    .into(),
+                tracker.data().project_name(active.project_id()).into(),
                 format_elapsed(active.elapsed_until(timestamp)).into(),
                 active.paused(),
             )
@@ -282,7 +316,7 @@ pub(crate) fn refresh(
     timestamp: i64,
     language: Language,
 ) {
-    ui.set_home(home(tracker));
+    ui.set_home_state(home_state(tracker));
     ui.set_project_settings(project_settings(tracker));
     ui.set_evaluation(evaluation(tracker, timestamp, language));
     if let Some(project) = tracker.evaluating_project() {
@@ -317,7 +351,7 @@ fn format_elapsed(seconds: i64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{application::Tracker, domain, language::Language};
+    use crate::{domain, language::Language, tracker::Tracker};
     use slint::Model;
 
     #[test]
@@ -328,7 +362,7 @@ mod tests {
             domain::now()
         ));
         let mut tracker = Tracker::at(path.clone());
-        assert!(!home(&tracker).has_last_task);
+        assert!(!home_state(&tracker).has_last_task);
         assert_eq!(tracking(&tracker, 0).elapsed, "00:00");
 
         tracker.start_tracking("project-1".into(), 10).unwrap();
@@ -336,8 +370,8 @@ mod tests {
         tracker.toggle_tracking_pause(70).unwrap();
         assert!(tracking(&tracker, 90).paused);
         tracker.end_tracking(130).unwrap();
-        assert!(home(&tracker).has_last_task);
-        assert_eq!(home(&tracker).last_task.duration_seconds, 60);
+        assert!(home_state(&tracker).has_last_task);
+        assert_eq!(home_state(&tracker).last_task.duration_seconds, 60);
         let evaluation = evaluation(&tracker, 130, Language::English);
         assert_eq!(evaluation.tasks.row_count(), 1);
         assert_eq!(evaluation.tasks.row_data(0).unwrap().duration_seconds, 60);
@@ -399,7 +433,7 @@ mod tests {
 
         tracker.archive_project("project-1".into()).unwrap();
 
-        assert_eq!(home(&tracker).projects.row_count(), 3);
+        assert_eq!(home_state(&tracker).projects.row_count(), 3);
         let settings = project_settings(&tracker);
         assert_eq!(settings.active.row_count(), 3);
         assert_eq!(settings.archived.row_count(), 1);

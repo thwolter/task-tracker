@@ -1,7 +1,6 @@
 use super::bind;
 use crate::{
-    AppActions, AppWindow, FirstRunPhase, Page, Range, application::Tracker, domain,
-    language::Language,
+    domain, language::Language, tracker::Tracker, AppActions, AppWindow, FirstRunPhase, Page, Range,
 };
 use slint::{ComponentHandle, Model};
 use std::{path::PathBuf, thread, time::Duration};
@@ -27,6 +26,11 @@ fn navigation_command_changes_the_controller_owned_page() {
     actions.invoke_navigate(Page::Home);
     assert_eq!(ui.get_current_page(), Page::Home);
 
+    let note_focus_request = ui.get_note_focus_request();
+    actions.invoke_navigate(Page::Note);
+    assert_eq!(ui.get_current_page(), Page::Note);
+    assert_eq!(ui.get_note_focus_request(), note_focus_request + 1);
+
     std::fs::remove_file(path).unwrap();
 }
 
@@ -47,7 +51,7 @@ fn first_run_creates_projects_then_starts_or_returns_home() {
         first_run.created_projects.row_data(0).unwrap().name,
         "Studio website"
     );
-    assert_eq!(ui.get_home().projects.row_count(), 1);
+    assert_eq!(ui.get_home_state().projects.row_count(), 1);
 
     let first_project_id = first_run.created_projects.row_data(0).unwrap().id;
     let mut adding = first_run;
@@ -65,7 +69,7 @@ fn first_run_creates_projects_then_starts_or_returns_home() {
     assert_eq!(ui.get_current_page(), Page::Tracking);
     actions.invoke_navigate(Page::Home);
     assert_eq!(ui.get_current_page(), Page::Home);
-    assert_eq!(ui.get_home().projects.row_count(), 2);
+    assert_eq!(ui.get_home_state().projects.row_count(), 2);
 
     std::fs::remove_file(path).unwrap();
 }
@@ -147,14 +151,14 @@ fn project_commands_archive_and_restore_the_home_projection() {
     bind(&ui, Tracker::at(path.clone()), Language::English);
     let actions = ui.global::<AppActions>();
 
-    assert_eq!(ui.get_home().projects.row_count(), 4);
+    assert_eq!(ui.get_home_state().projects.row_count(), 4);
     actions.invoke_archive_project("project-1".into());
-    assert_eq!(ui.get_home().projects.row_count(), 3);
+    assert_eq!(ui.get_home_state().projects.row_count(), 3);
     assert_eq!(ui.get_project_settings().archived.row_count(), 1);
 
     actions.invoke_unarchive_project("project-1".into());
     assert_eq!(ui.get_current_page(), Page::Settings);
-    assert_eq!(ui.get_home().projects.row_count(), 4);
+    assert_eq!(ui.get_home_state().projects.row_count(), 4);
 
     std::fs::remove_file(path).unwrap();
 }
@@ -242,11 +246,36 @@ fn tracking_commands_refresh_the_ui_through_the_single_dispatcher() {
 
     actions.invoke_end_tracking();
     assert_eq!(ui.get_current_page(), Page::Note);
-    assert!(ui.get_home().has_last_task);
+    assert!(ui.get_home_state().has_last_task);
 
     actions.invoke_save_task_note("Finished the review".into());
     assert_eq!(ui.get_current_page(), Page::Home);
-    assert_eq!(ui.get_home().last_task.note, "Finished the review");
+    assert_eq!(ui.get_home_state().last_task.note, "Finished the review");
+
+    std::fs::remove_file(path).unwrap();
+}
+
+#[test]
+fn adjusted_time_updates_the_same_completed_task_and_returns_to_its_note() {
+    i_slint_backend_testing::init_no_event_loop();
+    let path = test_path("adjust-time");
+    let ui = AppWindow::new().unwrap();
+    bind(&ui, Tracker::at(path.clone()), Language::English);
+    let actions = ui.global::<AppActions>();
+
+    actions.invoke_start_tracking("project-1".into());
+    actions.invoke_end_tracking();
+    actions.invoke_open_adjust_time();
+    assert_eq!(ui.get_current_page(), Page::AdjustTime);
+
+    let mut draft = ui.get_adjust_time();
+    draft.started_time = "09:00".into();
+    draft.finished_time = "10:30".into();
+    ui.set_adjust_time(draft.clone());
+    actions.invoke_save_adjusted_time(draft.task_id, draft.started_time, draft.finished_time);
+
+    assert_eq!(ui.get_current_page(), Page::Note);
+    assert_eq!(ui.get_home_state().last_task.duration_seconds, 5_400);
 
     std::fs::remove_file(path).unwrap();
 }
@@ -340,11 +369,9 @@ fn project_actions_create_edit_restore_and_delete_archived_project() {
         .find(|project| project.name == "Focus work")
         .expect("new project should appear in the active-project projection");
     actions.invoke_save_project(created.id.clone(), "Renamed focus work".into());
-    assert!(
-        (0..ui.get_project_settings().active.row_count())
-            .map(|index| ui.get_project_settings().active.row_data(index).unwrap())
-            .any(|project| project.name == "Renamed focus work")
-    );
+    assert!((0..ui.get_project_settings().active.row_count())
+        .map(|index| ui.get_project_settings().active.row_data(index).unwrap())
+        .any(|project| project.name == "Renamed focus work"));
 
     actions.invoke_archive_project(created.id.clone());
     assert_eq!(ui.get_project_settings().archived.row_count(), 2);

@@ -1,4 +1,4 @@
-export enum Page { home, first-run, tracking, note, settings, project-editor, evaluation, drilldown, exportpage }
+export enum Page { home, first-run, tracking, note, adjust-time, settings, project-editor, evaluation, drilldown, exportpage }
 export enum Range { day, week, month, year }
 export enum StatusKind { success, error }
 export enum ExportFormat { csv, markdown, json }
@@ -23,10 +23,25 @@ export struct TrackingState {
 }
 
 export struct TaskItem {
+    id: string,
     project: string,
     note: string,
     duration-seconds: int,
     timestamp: string,
+    started-time: string,
+    finished-time: string,
+}
+
+// A transient draft for the focused time-correction workflow. The task id,
+// rather than a display label or row position, keeps the eventual mutation
+// bound to the completed task that opened this editor.
+export struct AdjustTimeState {
+    task-id: string,
+    project: string,
+    day-label: string,
+    started-time: string,
+    finished-time: string,
+    error: string,
 }
 
 export struct EvaluationTaskItem {

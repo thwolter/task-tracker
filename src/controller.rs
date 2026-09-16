@@ -11,16 +11,26 @@ mod projects;
 mod tests;
 mod tracking;
 
-use crate::application::Tracker;
-use crate::domain::ProjectId;
+use crate::domain::{ProjectId, TaskId};
 use crate::language::Language;
+use crate::tracker::Tracker;
 use crate::{
-    AppActions, AppWindow, Page, Status, StatusKind, UiCommand, UiCommandKind, domain, presentation,
+    domain, presentation, AppActions, AppWindow, Page, Status, StatusKind, UiCommand, UiCommandKind,
 };
+use chrono::{Local, NaiveTime, TimeZone};
 use slint::{ComponentHandle, SharedString, Timer, TimerMode, Weak};
 use std::{cell::RefCell, rc::Rc, time::Duration};
 
 const STATUS_DURATION: Duration = Duration::from_secs(3);
+
+fn format_duration(seconds: i64) -> String {
+    let minutes = seconds / 60;
+    if minutes < 60 {
+        format!("{minutes} min")
+    } else {
+        format!("{} h {} min", minutes / 60, minutes % 60)
+    }
+}
 
 /// Connects the Slint UI to the application tracker and begins dispatching commands.
 pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
@@ -37,7 +47,13 @@ pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
     let actions = ui.global::<AppActions>();
     let dispatch_controller = controller.clone();
     actions.on_dispatch(move |command| dispatch_controller.borrow_mut().handle(command));
+    let duration_controller = controller.clone();
     actions.on_project_name_exists(move |name| controller.borrow().project_name_exists(name));
+    actions.on_adjusted_duration(move |id, started, finished| {
+        duration_controller
+            .borrow()
+            .adjusted_duration(id, started, finished)
+    });
 }
 
 /// State holder and coordinator for Slint UI events and presentation projections.
@@ -78,6 +94,10 @@ impl UiController {
             UiCommandKind::EndTracking => self.end_tracking(&ui),
             UiCommandKind::ToggleTrackingPause => self.toggle_tracking_pause(&ui),
             UiCommandKind::SaveTaskNote => self.save_task_note(&ui, command.text),
+            UiCommandKind::OpenAdjustTime => self.open_adjust_time(&ui),
+            UiCommandKind::SaveAdjustedTime => {
+                self.save_adjusted_time(&ui, command.id, command.text, command.secondary_text)
+            }
             UiCommandKind::UpdateEvaluationTask => {
                 self.update_evaluation_task(&ui, command.id, command.text)
             }
@@ -107,7 +127,60 @@ impl UiController {
             self.set_error(ui, "Finish the interrupted task before returning home");
             return;
         }
-        ui.set_current_page(page);
+        if page == Page::Note {
+            self.show_note(ui);
+        } else {
+            ui.set_current_page(page);
+        }
+    }
+
+    /// Opens the note page and requests keyboard focus on the next event-loop turn.
+    ///
+    /// The view is conditionally instantiated, so focusing during its `init` callback
+    /// can re-enter Slint's live-preview accessibility update.
+    fn show_note(&self, ui: &AppWindow) {
+        ui.set_current_page(Page::Note);
+        ui.set_note_focus_request(ui.get_note_focus_request().saturating_add(1));
+    }
+
+    fn open_adjust_time(&self, ui: &AppWindow) {
+        if !self.tracker.data().has_tasks() {
+            self.set_error(ui, "There is no completed task to adjust");
+            return;
+        }
+        ui.set_adjust_time(presentation::adjust_time_state(&self.tracker));
+        ui.set_current_page(Page::AdjustTime);
+        ui.set_adjust_time_focus_request(ui.get_adjust_time_focus_request().saturating_add(1));
+    }
+
+    fn adjusted_duration(
+        &self,
+        id: SharedString,
+        started: SharedString,
+        finished: SharedString,
+    ) -> SharedString {
+        self.adjusted_interval(&id, &started, &finished)
+            .map(|(started, finished)| format_duration(finished - started).into())
+            .unwrap_or_default()
+    }
+
+    fn adjusted_interval(&self, id: &str, started: &str, finished: &str) -> Option<(i64, i64)> {
+        let task = self.tracker.data().task(&TaskId::from(id.to_owned()))?;
+        let date = Local
+            .timestamp_opt(task.started(), 0)
+            .single()?
+            .date_naive();
+        let started = NaiveTime::parse_from_str(started.trim(), "%H:%M").ok()?;
+        let finished = NaiveTime::parse_from_str(finished.trim(), "%H:%M").ok()?;
+        let started = Local
+            .from_local_datetime(&date.and_time(started))
+            .single()?
+            .timestamp();
+        let finished = Local
+            .from_local_datetime(&date.and_time(finished))
+            .single()?
+            .timestamp();
+        (finished > started).then_some((started, finished))
     }
 
     fn refresh(&self, ui: &AppWindow) {

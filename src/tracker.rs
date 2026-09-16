@@ -140,6 +140,22 @@ impl Tracker {
         self.save()
     }
 
+    /// Replaces a completed task's validated interval and persists atomically.
+    pub(crate) fn update_task_interval(
+        &mut self,
+        id: String,
+        started: i64,
+        ended: i64,
+    ) -> Result<bool> {
+        let mut next = self.data.clone();
+        let updated = next.update_task_interval(&TaskId::from(id), started, ended);
+        if updated {
+            self.store.save(&next)?;
+            self.data = next;
+        }
+        Ok(updated)
+    }
+
     /// Updates a completed task's note and persists only when the task exists.
     pub(crate) fn update_task_note(&mut self, id: String, note: String) -> Result<bool> {
         let updated = self.data.update_task_note(&TaskId::from(id), note);

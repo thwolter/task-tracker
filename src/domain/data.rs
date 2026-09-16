@@ -71,6 +71,9 @@ impl Data {
     pub(crate) fn tasks(&self) -> &[Task] {
         &self.tasks
     }
+    pub(crate) fn task(&self, id: &TaskId) -> Option<&Task> {
+        self.tasks.iter().find(|task| task.id() == id)
+    }
     pub(crate) fn active_task(&self) -> Option<&ActiveTask> {
         self.active_task.as_ref()
     }
@@ -163,6 +166,13 @@ impl Data {
         if let Some(task) = self.tasks.last_mut() {
             task.set_note(note);
         }
+    }
+    /// Replaces one completed task's recorded interval.
+    pub(crate) fn update_task_interval(&mut self, id: &TaskId, started: i64, ended: i64) -> bool {
+        self.tasks
+            .iter_mut()
+            .find(|task| task.id() == id)
+            .is_some_and(|task| task.set_interval(started, ended))
     }
     /// Replaces one completed task's note, returning whether its identifier was found.
     pub(crate) fn update_task_note(&mut self, id: &TaskId, note: String) -> bool {
@@ -386,11 +396,10 @@ mod tests {
         data.start_tracking(project_id.clone(), 10).unwrap();
         assert!(data.end_tracking(70));
         data.delete_project(&project_id);
-        assert!(
-            data.projects()
-                .iter()
-                .all(|project| project.id() != &project_id)
-        );
+        assert!(data
+            .projects()
+            .iter()
+            .all(|project| project.id() != &project_id));
         assert!(data.tasks().is_empty());
     }
 }

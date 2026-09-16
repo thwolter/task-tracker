@@ -227,7 +227,7 @@ fn range_key(range: Range) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::application::Tracker;
+    use crate::tracker::Tracker;
     use std::sync::atomic::{AtomicU64, Ordering};
 
     static NEXT_TEST_ID: AtomicU64 = AtomicU64::new(0);

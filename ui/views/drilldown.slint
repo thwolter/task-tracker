@@ -139,7 +139,7 @@ export component TaskCard inherits Rectangle {
                             cross-axis-alignment: center;
 
                             description := Text {
-                                text: root.entry.note == "" ? @tr("No details added") : root.entry.note;
+                                text: root.entry.note == "" ? "--" : root.entry.note;
                                 color: Theme.content-primary;
                                 font-size: Theme.typography.body.size;
                                 font-weight: Theme.typography.body.weight;
