@@ -7,6 +7,11 @@ mod error;
 mod language;
 #[cfg(all(target_os = "macos", not(test)))]
 mod macos_menu;
+#[cfg(target_os = "macos")]
+use i_slint_backend_winit::{
+    Backend,
+    winit::platform::macos::WindowAttributesExtMacOS
+};
 mod persistence;
 mod presentation;
 mod report;
@@ -46,7 +51,15 @@ fn main() -> Result<(), slint::PlatformError> {
 /// default application-only menu.
 #[cfg(target_os = "macos")]
 fn install_native_menu_platform() -> Result<(), slint::PlatformError> {
-    let backend = i_slint_backend_winit::Backend::builder()
+    let backend = Backend::builder()
+        .with_window_attributes_hook(|attributes| {
+            attributes
+                .with_transparent(false)
+                .with_titlebar_transparent(false)
+                .with_fullsize_content_view(false)
+                .with_movable_by_window_background(true)
+                .with_titlebar_hidden(true)
+        })
         .with_default_menu_bar(false)
         .build()?;
     slint::platform::set_platform(Box::new(backend))
