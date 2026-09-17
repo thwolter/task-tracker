@@ -10,23 +10,79 @@ permissions:
   contents: write
 
 jobs:
-  package:
-    name: Package for ${{ matrix.name }}
-    runs-on: ${{ matrix.os }}
+  package-macos:
+    name: Package for macOS
+    runs-on: macos-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: macOS
-            os: macos-latest
-            artifact: Tempo-macOS
-          - name: Windows
-            os: windows-latest
-            artifact: Tempo-Windows
-          - name: Linux
-            os: ubuntu-latest
-            artifact: Tempo-Linux
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Use the stable Rust toolchain
+        run: rustup update stable
+
+      - name: Install Cargo Make and cargo-bundle
+        run: |
+          cargo install cargo-make --locked
+          cargo install cargo-bundle --locked
+
+      - name: Build native Tempo package
+        run: cargo make bundle-host
+
+      - name: Prepare macOS release asset
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          ditto -c -k --sequesterRsrc --keepParent \
+            target/release/bundle/osx/Tempo.app \
+            release-assets/Tempo-macOS.zip
+
+      - name: Upload release asset
+        uses: actions/upload-artifact@v7
+        with:
+          name: Tempo-macOS
+          path: release-assets/*
+          if-no-files-found: error
+
+  package-windows:
+    name: Package for Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Use the stable Rust toolchain
+        run: rustup update stable
+
+      - name: Build native Windows executable
+        run: cargo build --release
+
+      - name: Package MSIX for Microsoft Store
+        shell: pwsh
+        env:
+          MSIX_IDENTITY_NAME: ${{ vars.MSIX_IDENTITY_NAME }}
+          MSIX_PUBLISHER: ${{ vars.MSIX_PUBLISHER }}
+          MSIX_PUBLISHER_DISPLAY_NAME: ${{ vars.MSIX_PUBLISHER_DISPLAY_NAME }}
+          MSIX_PACKAGE_VERSION: ${{ vars.MSIX_PACKAGE_VERSION }}
+        run: ./packaging/windows/package-msix.ps1
+
+      - name: Prepare Windows release asset
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force release-assets | Out-Null
+          Copy-Item target/release/msix/Tempo-Windows.msix release-assets/Tempo-Windows.msix
+
+      - name: Upload release asset
+        uses: actions/upload-artifact@v7
+        with:
+          name: Tempo-Windows
+          path: release-assets/*
+          if-no-files-found: error
+
+  package-linux:
+    name: Package for Linux
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check out source
@@ -36,7 +92,6 @@ jobs:
         run: rustup update stable
 
       - name: Install Linux packaging dependencies
-        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -64,32 +119,10 @@ jobs:
           cargo install cargo-make --locked
           cargo install cargo-bundle --locked
 
-      - name: Build native Windows executable
-        if: runner.os == 'Windows'
-        run: cargo build --release
-
       - name: Build native Tempo package
-        if: runner.os != 'Windows'
         run: cargo make bundle-host
 
-      - name: Prepare macOS release asset
-        if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          mkdir -p release-assets
-          ditto -c -k --sequesterRsrc --keepParent \
-            target/release/bundle/osx/Tempo.app \
-            release-assets/Tempo-macOS.zip
-
-      - name: Prepare Windows release asset
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force release-assets | Out-Null
-          Copy-Item target/release/task-tracker.exe release-assets/Tempo-Windows.exe
-
       - name: Prepare Linux release asset
-        if: runner.os == 'Linux'
         shell: bash
         run: |
           mkdir -p release-assets
@@ -100,13 +133,13 @@ jobs:
       - name: Upload release asset
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.artifact }}
+          name: Tempo-Linux
           path: release-assets/*
           if-no-files-found: error
 
   release:
     name: Create GitHub release
-    needs: package
+    needs: [package-macos, package-windows, package-linux]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
 

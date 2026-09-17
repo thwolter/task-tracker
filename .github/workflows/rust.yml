@@ -10,8 +10,8 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-
+  build-linux:
+    name: Build and test on Linux
     runs-on: ubuntu-latest
 
     steps:
@@ -19,6 +19,28 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y pkg-config libfontconfig1-dev
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose
+
+  build-macos:
+    name: Build and test on macOS
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose
+
+  build-windows:
+    name: Build and test on Windows
+    runs-on: windows-latest
+
+    steps:
       - uses: actions/checkout@v4
       - name: Build
         run: cargo build --verbose

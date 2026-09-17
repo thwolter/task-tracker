@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  IgnorableNamespaces="uap">
+  <Identity
+    Name="__MSIX_IDENTITY_NAME__"
+    Publisher="__MSIX_PUBLISHER__"
+    Version="__MSIX_VERSION__" />
+
+  <Properties>
+    <DisplayName>Tempo Task Tracker</DisplayName>
+    <PublisherDisplayName>__MSIX_PUBLISHER_DISPLAY_NAME__</PublisherDisplayName>
+    <Logo>Assets\\StoreLogo.png</Logo>
+  </Properties>
+
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Applications>
+    <Application Id="Tempo" Executable="Tempo.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Tempo Task Tracker"
+        Description="A local-first desktop app for focused task tracking and work sessions."
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\\Square150x150Logo.png"
+        Square44x44Logo="Assets\\Square44x44Logo.png">
+        <uap:DefaultTile
+          ShortName="Tempo"
+          Square310x310Logo="Assets\\Square310x310Logo.png"
+          Wide310x150Logo="Assets\\Wide310x150Logo.png" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+
+</Package>
