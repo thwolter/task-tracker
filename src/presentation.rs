@@ -291,17 +291,27 @@ fn localized_month(month: u32, language: Language) -> &'static str {
 
 /// Builds the active-tracking display, or the empty state when no task is active.
 pub(crate) fn tracking(tracker: &Tracker, timestamp: i64) -> TrackingState {
-    let (active_task, elapsed, paused) = tracker.data().active_task().map_or_else(
-        || (SharedString::new(), SharedString::from("00:00"), false),
-        |active| {
-            (
-                tracker.data().project_name(active.project_id()).into(),
-                format_elapsed(active.elapsed_until(timestamp)).into(),
-                active.paused(),
-            )
-        },
-    );
+    let (active_project_id, active_task, elapsed, paused) =
+        tracker.data().active_task().map_or_else(
+            || {
+                (
+                    SharedString::new(),
+                    SharedString::new(),
+                    SharedString::from("00:00"),
+                    false,
+                )
+            },
+            |active| {
+                (
+                    active.project_id().as_str().into(),
+                    tracker.data().project_name(active.project_id()).into(),
+                    format_elapsed(active.elapsed_until(timestamp)).into(),
+                    active.paused(),
+                )
+            },
+        );
     TrackingState {
+        active_project_id,
         active_task,
         elapsed,
         paused,
@@ -366,7 +376,9 @@ mod tests {
         assert_eq!(tracking(&tracker, 0).elapsed, "00:00");
 
         tracker.start_tracking("project-1".into(), 10).unwrap();
-        assert_eq!(tracking(&tracker, 70).elapsed, "01:00");
+        let active = tracking(&tracker, 70);
+        assert_eq!(active.active_project_id, "project-1");
+        assert_eq!(active.elapsed, "01:00");
         tracker.toggle_tracking_pause(70).unwrap();
         assert!(tracking(&tracker, 90).paused);
         tracker.end_tracking(130).unwrap();

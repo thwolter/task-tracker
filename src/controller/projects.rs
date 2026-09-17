@@ -119,8 +119,11 @@ impl UiController {
         match result {
             Ok(()) => {
                 self.refresh(ui);
-                ui.set_project_editor(Default::default());
+                // ProjectEditor is conditionally instantiated. Leave that page before
+                // replacing its two-way-bound state, otherwise Slint live preview can
+                // re-evaluate a binding while its conditional parent is being removed.
                 ui.set_current_page(Page::Settings);
+                ui.set_project_editor(Default::default());
             }
             Err(error) => {
                 let mut editor = ui.get_project_editor();

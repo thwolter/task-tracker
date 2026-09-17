@@ -7,6 +7,8 @@ mod instance_lock;
 mod language;
 #[cfg(all(target_os = "macos", not(test)))]
 mod macos_menu;
+#[cfg(all(target_os = "macos", not(test)))]
+mod macos_tray;
 mod tracker;
 #[cfg(target_os = "macos")]
 use i_slint_backend_winit::{Backend, winit::platform::macos::WindowAttributesExtMacOS};

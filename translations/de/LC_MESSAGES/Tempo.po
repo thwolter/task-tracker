@@ -244,6 +244,56 @@ msgctxt "TrackingView"
 msgid "Pause"
 msgstr "Pausieren"
 
+#: ui/tray.slint
+msgctxt "TempoTray"
+msgid "Paused"
+msgstr "Pausiert"
+
+#: ui/tray.slint
+msgctxt "TempoTray"
+msgid "Running"
+msgstr "Läuft"
+
+#: ui/tray.slint
+msgctxt "TempoTray"
+msgid "Resume"
+msgstr "Fortsetzen"
+
+#: ui/tray.slint
+msgctxt "TempoTray"
+msgid "Pause"
+msgstr "Pausieren"
+
+#: ui/tray.slint
+msgctxt "TempoTray"
+msgid "End task"
+msgstr "Aufgabe beenden"
+
+#: ui/tray.slint
+msgctxt "TempoTray"
+msgid "Interrupt with"
+msgstr "Unterbrechen für"
+
+#: ui/tray.slint
+msgctxt "TempoTray"
+msgid "Open Tempo"
+msgstr "Tempo öffnen"
+
+#: ui/tray.slint
+msgctxt "TempoTray"
+msgid "No timer running"
+msgstr "Kein Timer aktiv"
+
+#: ui/tray.slint
+msgctxt "TempoTray"
+msgid "Start tracking"
+msgstr "Zeiterfassung starten"
+
+#: ui/tray.slint
+msgctxt "TempoTray"
+msgid "Quit Tempo"
+msgstr "Tempo beenden"
+
 #: ui/views/project-editor.slint:27
 msgctxt "ProjectEditor"
 msgid "Hide this project from Home. Its recorded time stays available."

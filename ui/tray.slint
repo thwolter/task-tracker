@@ -1,0 +1,80 @@
+import { ProjectItem, TrackingState } from "models.slint";
+import { Palette } from "std-widgets.slint";
+
+// A separate top-level component is required because macOS hosts menu-bar
+// extras outside Tempo's application window.
+export component TempoTray inherits SystemTrayIcon {
+    in property <TrackingState> tracking;
+    in property <[ProjectItem]> projects;
+
+    // SystemTrayIcon requires a non-empty icon to register with the platform.
+    // The elapsed title is rendered beside this icon by macOS.
+    // Slint rasterises tray SVGs for AppKit instead of marking them as
+    // template images. Select the matching monochrome asset from the actual
+    // system appearance that SystemTrayIcon observes.
+    icon: Palette.color-scheme == ColorScheme.dark
+        ? @image-url("assets/icons/timer-dark.svg")
+        : @image-url("assets/icons/timer.svg");
+    title: root.tracking.active-task == "" ? "" : " " + root.tracking.elapsed;
+    tooltip: root.tracking.active-task == "" ? "Tempo" : root.tracking.active-task + " · " + root.tracking.elapsed;
+    visible: true;
+
+    callback open-tempo();
+    callback interrupt-with(string);
+    callback end-tracking();
+    callback toggle-tracking-pause();
+    callback quit();
+
+    Menu {
+        if root.tracking.active-task != "": MenuItem {
+            title: root.tracking.active-task + (root.tracking.paused
+                ? " · " + @tr("Paused")
+                : " · " + @tr("Running"));
+            enabled: false;
+        }
+        if root.tracking.active-task != "": MenuSeparator {}
+        if root.tracking.active-task != "": MenuItem {
+            title: root.tracking.paused ? @tr("Resume") : @tr("Pause");
+            activated => { root.toggle-tracking-pause(); }
+        }
+        if root.tracking.active-task != "": MenuItem {
+            title: @tr("End task") + "…";
+            activated => { root.end-tracking(); }
+        }
+        if root.tracking.active-task != "": MenuSeparator {}
+        if root.tracking.active-task != "": Menu {
+            title: @tr("Interrupt with");
+            enabled: !root.tracking.secondary-active;
+            for project in root.projects: MenuItem {
+                title: project.name;
+                checkable: true;
+                checked: project.id == root.tracking.active-project-id;
+                enabled: project.id != root.tracking.active-project-id;
+                activated => { root.interrupt-with(project.id); }
+            }
+        }
+        if root.tracking.active-task != "": MenuSeparator {}
+        if root.tracking.active-task == "": MenuItem {
+            title: @tr("No timer running");
+            enabled: false;
+        }
+        if root.tracking.active-task == "": MenuSeparator {}
+        if root.tracking.active-task == "": Menu {
+            title: @tr("Start tracking");
+            for project in root.projects: MenuItem {
+                title: project.name;
+                activated => { root.interrupt-with(project.id); }
+            }
+        }
+        if root.tracking.active-task == "": MenuSeparator {}
+        MenuItem {
+            title: @tr("Open Tempo");
+            activated => { root.open-tempo(); }
+        }
+        MenuSeparator {}
+        MenuItem {
+            title: @tr("Quit Tempo");
+            activated => { root.quit(); }
+        }
+    }
+}

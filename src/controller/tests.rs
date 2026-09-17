@@ -239,6 +239,7 @@ fn tracking_commands_refresh_the_ui_through_the_single_dispatcher() {
     actions.invoke_start_tracking("project-1".into());
     assert_eq!(ui.get_current_page(), Page::Tracking);
     assert_eq!(ui.get_tracking().active_task, "Project Atlas");
+    assert_eq!(ui.get_tracking().active_project_id, "project-1");
 
     actions.invoke_toggle_tracking_pause();
     assert!(ui.get_tracking().paused);

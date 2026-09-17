@@ -39,11 +39,6 @@ pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
     controller.borrow().persist_initial(ui);
     controller.borrow().open_first_run_if_needed(ui);
 
-    #[cfg(all(target_os = "macos", not(test)))]
-    {
-        crate::macos_menu::install(ui);
-    }
-
     let actions = ui.global::<AppActions>();
     let dispatch_controller = controller.clone();
     actions.on_dispatch(move |command| dispatch_controller.borrow_mut().handle(command));
@@ -54,6 +49,12 @@ pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
             .borrow()
             .adjusted_duration(id, started, finished)
     });
+
+    #[cfg(all(target_os = "macos", not(test)))]
+    {
+        crate::macos_menu::install(ui);
+        crate::macos_tray::install(ui);
+    }
 }
 
 /// State holder and coordinator for Slint UI events and presentation projections.
@@ -186,7 +187,10 @@ impl UiController {
     fn refresh(&self, ui: &AppWindow) {
         presentation::refresh(ui, &self.tracker, domain::now(), self.language);
         #[cfg(all(target_os = "macos", not(test)))]
-        crate::macos_menu::refresh(ui);
+        {
+            crate::macos_menu::refresh(ui);
+            crate::macos_tray::refresh(ui);
+        }
     }
 
     fn persist_initial(&self, ui: &AppWindow) {
