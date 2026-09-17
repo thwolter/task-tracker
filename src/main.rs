@@ -11,7 +11,11 @@ mod language;
 mod macos_menu;
 mod tracker;
 #[cfg(target_os = "macos")]
-use i_slint_backend_winit::{Backend, winit::platform::macos::WindowAttributesExtMacOS};
+use i_slint_backend_winit::{
+    Backend,
+    winit::platform::macos::WindowAttributesExtMacOS,
+};
+
 mod persistence;
 mod presentation;
 mod report;

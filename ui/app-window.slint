@@ -34,7 +34,10 @@ import { ExportView } from "views/export.slint";
 
 export component AppWindow inherits Window {
     title: tracking.paused ? tracking.active-task + " · " + @tr("paused") : "Tempo";
-    width: 280px;
+
+    preferred-width: 280px;
+    min-width: 280px;
+
     preferred-height: 460px;
     min-height: 400px;
     background: Theme.surface-canvas;

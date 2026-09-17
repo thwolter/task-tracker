@@ -68,7 +68,7 @@ fn open_tempo(action_ui: &slint::Weak<AppWindow>) {
     let Some(ui) = action_ui.upgrade() else {
         return;
     };
-    ui.global::<AppActions>().invoke_navigate(Page::Tracking);
+    ui.global::<AppActions>().invoke_navigate(Page::Home);
     let _ = ui.show();
 }
 
