@@ -53,7 +53,10 @@ pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
     #[cfg(all(target_os = "macos", not(test)))]
     {
         crate::macos_menu::install(ui);
-        crate::macos_tray::install(ui);
+    }
+    #[cfg(all(desktop_tray, not(test)))]
+    {
+        crate::desktop_tray::install(ui);
     }
 }
 
@@ -189,7 +192,10 @@ impl UiController {
         #[cfg(all(target_os = "macos", not(test)))]
         {
             crate::macos_menu::refresh(ui);
-            crate::macos_tray::refresh(ui);
+        }
+        #[cfg(all(desktop_tray, not(test)))]
+        {
+            crate::desktop_tray::refresh(ui);
         }
     }
 

@@ -1,7 +1,7 @@
-//! macOS menu-bar timer integration.
+//! Desktop tray timer integration.
 //!
-//! Slint owns the native `NSStatusItem`; this module only bridges its callbacks
-//! to Tempo's existing application action boundary and keeps its projection in
+//! Slint owns the native tray icon; this module only bridges its callbacks to
+//! Tempo's existing application action boundary and keeps its projection in
 //! step with the main window.
 
 use crate::{AppActions, AppWindow, Page, TempoTray};
@@ -14,9 +14,9 @@ thread_local! {
     static TRAY: RefCell<Option<TempoTray>> = const { RefCell::new(None) };
 }
 
-/// Creates the menu-bar extra and connects its native menu to AppActions.
+/// Creates the native tray icon and connects its menu to AppActions.
 pub(crate) fn install(ui: &AppWindow) {
-    let tray = TempoTray::new().expect("Tempo's menu-bar tray can be created");
+    let tray = TempoTray::new().expect("Tempo's tray icon can be created");
     let weak_ui = ui.as_weak();
     tray.on_open_tempo({
         let weak_ui = weak_ui.clone();

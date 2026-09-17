@@ -1,4 +1,12 @@
 fn main() {
+    println!("cargo::rustc-check-cfg=cfg(desktop_tray)");
+    if matches!(
+        std::env::var("CARGO_CFG_TARGET_OS").as_deref(),
+        Ok("macos" | "windows" | "linux")
+    ) {
+        println!("cargo::rustc-cfg=desktop_tray");
+    }
+
     println!("cargo:rerun-if-changed=translations");
 
     let config = slint_build::CompilerConfiguration::new()

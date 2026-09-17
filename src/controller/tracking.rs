@@ -20,8 +20,8 @@ impl UiController {
         // back to the active session, while other editable projections retain
         // their current drafts and focus.
         ui.set_tracking(crate::presentation::tracking(&self.tracker, domain::now()));
-        #[cfg(all(target_os = "macos", not(test)))]
-        crate::macos_tray::refresh(ui);
+        #[cfg(all(desktop_tray, not(test)))]
+        crate::desktop_tray::refresh(ui);
     }
 
     pub(super) fn start_tracking(&mut self, ui: &AppWindow, project_id: SharedString) {

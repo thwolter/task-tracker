@@ -1,14 +1,14 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
 mod controller;
+#[cfg(all(desktop_tray, not(test)))]
+mod desktop_tray;
 mod domain;
 mod error;
 mod instance_lock;
 mod language;
 #[cfg(all(target_os = "macos", not(test)))]
 mod macos_menu;
-#[cfg(all(target_os = "macos", not(test)))]
-mod macos_tray;
 mod tracker;
 #[cfg(target_os = "macos")]
 use i_slint_backend_winit::{Backend, winit::platform::macos::WindowAttributesExtMacOS};
