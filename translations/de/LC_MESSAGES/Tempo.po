@@ -616,12 +616,12 @@ msgstr "z. B. Projektbeschreibung für Q4 vorbereitet"
 #: ui/views/drilldown.slint:72
 msgctxt "TaskEditor"
 msgid "Cancel"
-msgstr "Abbrechen"
+msgstr "Abbruch"
 
 #: ui/views/drilldown.slint:79
 msgctxt "TaskEditor"
 msgid "Save"
-msgstr "Speichern"
+msgstr "Sichern"
 
 #: ui/views/drilldown.slint:142
 msgctxt "TaskCard"
