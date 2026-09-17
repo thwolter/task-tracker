@@ -5,6 +5,17 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform package to build
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - windows
+          - macos
+          - linux
 
 permissions:
   contents: write
@@ -12,6 +23,7 @@ permissions:
 jobs:
   package-macos:
     name: Package for macOS
+    if: github.event_name != 'workflow_dispatch' || inputs.platform == 'all' || inputs.platform == 'macos'
     runs-on: macos-latest
 
     steps:
@@ -46,6 +58,7 @@ jobs:
 
   package-windows:
     name: Package for Windows
+    if: github.event_name != 'workflow_dispatch' || inputs.platform == 'all' || inputs.platform == 'windows'
     runs-on: windows-latest
 
     steps:
@@ -82,6 +95,7 @@ jobs:
 
   package-linux:
     name: Package for Linux
+    if: github.event_name != 'workflow_dispatch' || inputs.platform == 'all' || inputs.platform == 'linux'
     runs-on: ubuntu-latest
 
     steps:
