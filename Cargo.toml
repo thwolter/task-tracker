@@ -1,6 +1,6 @@
 [package]
 name = "Tempo"
-version = "0.3.0"
+version = "0.4.0"
 description = "A minimalist desktop app for focused task tracking and work sessions."
 edition = "2024"
 authors = ["Thomas Wolter"]
@@ -27,6 +27,8 @@ fs2 = "0.4.3"
 [target.'cfg(target_os = "macos")'.dependencies]
 muda = { version = "0.19.3", default-features = false }
 i-slint-backend-winit = "1.17.1"
+objc2 = "0.6.4"
+objc2-app-kit = { version = "0.3.2", default-features = false, features = ["NSApplication"] }
 
 [dev-dependencies]
 i-slint-backend-testing = "1.17.1"

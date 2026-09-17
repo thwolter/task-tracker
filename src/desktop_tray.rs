@@ -70,7 +70,26 @@ fn open_tempo(action_ui: &slint::Weak<AppWindow>) {
     };
     ui.global::<AppActions>().invoke_navigate(Page::Home);
     let _ = ui.show();
+    activate_macos_app();
 }
+
+/// Makes Tempo the active macOS application after the tray action restored its
+/// window. Raising only the window does not transfer keyboard focus from the
+/// application that was active before the tray click.
+#[cfg(target_os = "macos")]
+fn activate_macos_app() {
+    use objc2::MainThreadMarker;
+    use objc2_app_kit::NSApplication;
+
+    let Some(main_thread) = MainThreadMarker::new() else {
+        return;
+    };
+    #[allow(deprecated)]
+    NSApplication::sharedApplication(main_thread).activateIgnoringOtherApps(true);
+}
+
+#[cfg(not(target_os = "macos"))]
+fn activate_macos_app() {}
 
 /// A tray action can originate while Tempo's window is hidden. The controller
 /// selects the completion-note page; the tray then makes that required input
