@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap');
-
 :root {
     --ink: #13201d;
     --muted: #62716b;
@@ -9,9 +7,9 @@
     --lime: #d4ef58;
     --night: #10231f;
     --coral: #ec866e;
-    --serif: "Fraunces", Georgia, serif;
-    --sans: "DM Sans", Arial, sans-serif;
-    --mono: "DM Mono", monospace
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
 }
 
 * {
@@ -71,6 +69,12 @@ nav a, .header-link {
 .header-link {
     border-bottom: 1px solid var(--ink);
     padding-bottom: 2px
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px
 }
 
 .hero {
@@ -200,6 +204,19 @@ nav a, .header-link {
 .app-window img {
     width: 100%;
     display: block
+}
+
+.app-window-current {
+    width: 290px;
+    border: 0;
+    border-radius: 20px;
+    background: transparent;
+    box-shadow: none
+}
+
+.app-window-current img {
+    border-radius: 20px;
+    box-shadow: 0 30px 55px rgba(20, 48, 38, .27)
 }
 
 .window-bar {
@@ -491,6 +508,130 @@ figcaption {
     color: #6c9b73
 }
 
+.workflow-section {
+    background: var(--sage);
+    padding: 105px max(28px, calc((100vw - 1120px) / 2));
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap: 70px;
+    align-items: center
+}
+
+.workflow-copy h2 {
+    font-size: clamp(42px, 5vw, 65px);
+    line-height: .98;
+    letter-spacing: -.035em;
+    margin: 0;
+    font-weight: 600
+}
+
+.workflow-copy > p:not(.eyebrow) {
+    font-size: 17px;
+    color: #445a50;
+    max-width: 540px;
+    margin: 23px 0
+}
+
+.workflow-copy ul {
+    list-style: none;
+    padding: 0;
+    margin: 28px 0 0
+}
+
+.workflow-copy li {
+    padding: 9px 0;
+    border-top: 1px solid rgba(23, 66, 44, .18);
+    font-size: 14px
+}
+
+.workflow-copy li:before {
+    content: "✓";
+    color: #497d53;
+    margin-right: 10px
+}
+
+.workflow-screens {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: end
+}
+
+.workflow-screens figure {
+    margin: 0;
+    text-align: center
+}
+
+.workflow-screens img {
+    display: block;
+    width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 18px 38px rgba(25, 47, 36, .17)
+}
+
+.availability-section {
+    background: var(--night);
+    color: #f8f8f1;
+    padding: 110px 28px;
+    text-align: center
+}
+
+.availability-section .eyebrow {
+    color: #adbeb4;
+    justify-content: center
+}
+
+.availability-section .eyebrow span {
+    background: var(--lime)
+}
+
+.availability-section h2 {
+    font-size: clamp(45px, 5vw, 66px);
+    line-height: .98;
+    letter-spacing: -.035em;
+    margin: 0;
+    font-weight: 600
+}
+
+.availability-section h2 em {
+    font-family: var(--serif);
+    font-weight: 500;
+    color: var(--lime)
+}
+
+.availability-note {
+    color: #b4c4ba;
+    max-width: 620px;
+    margin: 24px auto 36px
+}
+
+.availability-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    max-width: 910px;
+    margin: auto;
+    text-align: left
+}
+
+.availability-cards article {
+    border: 1px solid #385348;
+    border-radius: 15px;
+    padding: 20px
+}
+
+.availability-cards h3 {
+    margin: 14px 0 6px;
+    font-size: 16px
+}
+
+.availability-cards p {
+    margin: 0;
+    color: #afc2b7;
+    font-size: 13px;
+    line-height: 1.45
+}
+
 .download-section {
     background: var(--night);
     color: #f8f8f1;
@@ -762,6 +903,16 @@ footer p {
         gap: 42px
     }
 
+    .workflow-section {
+        padding: 70px 20px;
+        grid-template-columns: 1fr;
+        gap: 42px
+    }
+
+    .workflow-screens {
+        gap: 10px
+    }
+
     .desktop-art {
         height: 270px
     }
@@ -779,6 +930,10 @@ footer p {
 
     .downloads {
         grid-template-columns:1fr
+    }
+
+    .availability-cards {
+        grid-template-columns: 1fr
     }
 
     .download-section {
@@ -803,6 +958,10 @@ footer p {
 
     .app-window {
         width: 210px
+    }
+
+    .app-window-current {
+        width: 245px
     }
 
     .floating-card {
