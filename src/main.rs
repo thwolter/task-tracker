@@ -54,12 +54,11 @@ fn language() -> Language {
     // The live preview has no bundled translation catalog, so its visible UI
     // remains English. Keep Rust-projected strings, such as completion dates,
     // in the same language.
-    let language = if cfg!(feature = "live-preview") {
-        language::Language::English
+    if cfg!(feature = "live-preview") {
+        Language::English
     } else {
-        language::Language::system()
-    };
-    language
+        Language::system()
+    }
 }
 
 /// Lets Tempo install the complete macOS application menu instead of Slint's
@@ -73,7 +72,6 @@ fn install_native_menu_platform() -> Result<(), slint::PlatformError> {
                 .with_titlebar_transparent(false)
                 .with_fullsize_content_view(false)
                 .with_movable_by_window_background(true)
-            // .with_titlebar_hidden(true)
         })
         .with_default_menu_bar(false)
         .build()?;
