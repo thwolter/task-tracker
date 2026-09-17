@@ -15,7 +15,7 @@ use crate::domain::{ProjectId, TaskId};
 use crate::language::Language;
 use crate::tracker::Tracker;
 use crate::{
-    domain, presentation, AppActions, AppWindow, Page, Status, StatusKind, UiCommand, UiCommandKind,
+    AppActions, AppWindow, Page, Status, StatusKind, UiCommand, UiCommandKind, domain, presentation,
 };
 use chrono::{Local, NaiveTime, TimeZone};
 use slint::{ComponentHandle, SharedString, Timer, TimerMode, Weak};

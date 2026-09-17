@@ -1,6 +1,6 @@
 use super::bind;
 use crate::{
-    domain, language::Language, tracker::Tracker, AppActions, AppWindow, FirstRunPhase, Page, Range,
+    AppActions, AppWindow, FirstRunPhase, Page, Range, domain, language::Language, tracker::Tracker,
 };
 use slint::{ComponentHandle, Model};
 use std::{path::PathBuf, thread, time::Duration};
@@ -369,9 +369,11 @@ fn project_actions_create_edit_restore_and_delete_archived_project() {
         .find(|project| project.name == "Focus work")
         .expect("new project should appear in the active-project projection");
     actions.invoke_save_project(created.id.clone(), "Renamed focus work".into());
-    assert!((0..ui.get_project_settings().active.row_count())
-        .map(|index| ui.get_project_settings().active.row_data(index).unwrap())
-        .any(|project| project.name == "Renamed focus work"));
+    assert!(
+        (0..ui.get_project_settings().active.row_count())
+            .map(|index| ui.get_project_settings().active.row_data(index).unwrap())
+            .any(|project| project.name == "Renamed focus work")
+    );
 
     actions.invoke_archive_project(created.id.clone());
     assert_eq!(ui.get_project_settings().archived.row_count(), 2);

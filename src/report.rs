@@ -266,10 +266,12 @@ mod tests {
         assert_eq!(value["scope"]["kind"], "project");
         assert_eq!(value["tasks"].as_array().unwrap().len(), 1);
         assert_eq!(value["tasks"][0]["duration_seconds"], 2_520);
-        assert!(value["tasks"][0]["ended_at"]
-            .as_str()
-            .unwrap()
-            .contains('T'));
+        assert!(
+            value["tasks"][0]["ended_at"]
+                .as_str()
+                .unwrap()
+                .contains('T')
+        );
         std::fs::remove_file(path).unwrap();
     }
 

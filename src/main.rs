@@ -1,6 +1,5 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
-mod tracker;
 mod controller;
 mod domain;
 mod error;
@@ -8,11 +7,9 @@ mod instance_lock;
 mod language;
 #[cfg(all(target_os = "macos", not(test)))]
 mod macos_menu;
+mod tracker;
 #[cfg(target_os = "macos")]
-use i_slint_backend_winit::{
-    Backend,
-    winit::platform::macos::WindowAttributesExtMacOS
-};
+use i_slint_backend_winit::{Backend, winit::platform::macos::WindowAttributesExtMacOS};
 mod persistence;
 mod presentation;
 mod report;
@@ -76,7 +73,7 @@ fn install_native_menu_platform() -> Result<(), slint::PlatformError> {
                 .with_titlebar_transparent(false)
                 .with_fullsize_content_view(false)
                 .with_movable_by_window_background(true)
-                // .with_titlebar_hidden(true)
+            // .with_titlebar_hidden(true)
         })
         .with_default_menu_bar(false)
         .build()?;

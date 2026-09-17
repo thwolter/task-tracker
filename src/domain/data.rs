@@ -396,10 +396,11 @@ mod tests {
         data.start_tracking(project_id.clone(), 10).unwrap();
         assert!(data.end_tracking(70));
         data.delete_project(&project_id);
-        assert!(data
-            .projects()
-            .iter()
-            .all(|project| project.id() != &project_id));
+        assert!(
+            data.projects()
+                .iter()
+                .all(|project| project.id() != &project_id)
+        );
         assert!(data.tasks().is_empty());
     }
 }
