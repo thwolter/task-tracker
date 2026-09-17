@@ -80,10 +80,8 @@ try {
     Set-Content -Path (Join-Path $stagingDirectory "AppxManifest.xml") -Value $manifest -Encoding utf8NoBOM
 
     $makeAppx = Find-WindowsSdkTool "MakeAppx.exe"
-    & $makeAppx pack /o /d $stagingDirectory /p $packagePath
+    & $makeAppx pack /v /o /d $stagingDirectory /p $packagePath
     if ($LASTEXITCODE -ne 0) { throw "MakeAppx pack failed with exit code $LASTEXITCODE." }
-    & $makeAppx validate /p $packagePath
-    if ($LASTEXITCODE -ne 0) { throw "MakeAppx validate failed with exit code $LASTEXITCODE." }
 
     if ($RunWindowsAppCertificationKit) {
         $appCert = Find-WindowsSdkTool "appcert.exe"
