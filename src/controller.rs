@@ -14,10 +14,14 @@ mod tracking;
 use crate::domain::{ProjectId, TaskId};
 use crate::language::Language;
 use crate::tracker::Tracker;
+#[cfg(target_os = "macos")]
+use crate::AboutWindow;
 use crate::{
-    AppActions, AppWindow, Page, Status, StatusKind, UiCommand, UiCommandKind, domain, presentation,
+    domain, presentation, AppActions, AppWindow, Page, Status, StatusKind, UiCommand, UiCommandKind,
 };
 use chrono::{Local, NaiveTime, TimeZone};
+#[cfg(target_os = "macos")]
+use slint::CloseRequestResponse;
 use slint::{ComponentHandle, SharedString, Timer, TimerMode, Weak};
 use std::{cell::RefCell, rc::Rc, time::Duration};
 
@@ -34,6 +38,8 @@ fn format_duration(seconds: i64) -> String {
 
 /// Connects the Slint UI to the application tracker and begins dispatching commands.
 pub(crate) fn bind(ui: &AppWindow, tracker: Tracker, language: Language) {
+    ui.set_application_version(env!("CARGO_PKG_VERSION").into());
+    ui.set_show_about_button(!cfg!(target_os = "macos"));
     let controller = Rc::new(RefCell::new(UiController::new(ui, tracker, language)));
     controller.borrow().refresh(ui);
     controller.borrow().persist_initial(ui);
@@ -67,6 +73,8 @@ struct UiController {
     language: Language,
     status_timer: Timer,
     export_context: Option<ExportContext>,
+    #[cfg(target_os = "macos")]
+    about_window: Option<AboutWindow>,
 }
 
 #[derive(Clone)]
@@ -82,6 +90,8 @@ impl UiController {
             language,
             status_timer: Timer::default(),
             export_context: None,
+            #[cfg(target_os = "macos")]
+            about_window: None,
         }
     }
 
@@ -121,7 +131,32 @@ impl UiController {
             UiCommandKind::BackupData => self.backup_data(&ui),
             UiCommandKind::RestoreData => self.restore_data(&ui),
             UiCommandKind::ShowKeyboardShortcuts => self.show_keyboard_shortcuts(&ui),
+            UiCommandKind::ShowAbout => self.show_about(&ui),
+            UiCommandKind::CloseAbout => ui.set_about_visible(false),
         }
+    }
+
+    fn show_about(&mut self, ui: &AppWindow) {
+        #[cfg(target_os = "macos")]
+        {
+            if self.about_window.is_none() {
+                let about_window = AboutWindow::new().expect("the About window can be created");
+                about_window.set_application_version(ui.get_application_version());
+                about_window
+                    .window()
+                    .on_close_requested(|| CloseRequestResponse::HideWindow);
+                self.about_window = Some(about_window);
+            }
+
+            self.about_window
+                .as_ref()
+                .expect("the About window was initialized")
+                .show()
+                .expect("the About window can be shown");
+        }
+
+        #[cfg(not(target_os = "macos"))]
+        ui.set_about_visible(true);
     }
 
     /// Displays a simple user-requested destination. Workflow handlers select pages only

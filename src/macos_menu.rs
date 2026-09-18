@@ -6,13 +6,14 @@
 
 use crate::{AppActions, AppWindow, NativeMenuStrings, Page};
 use muda::{
+    accelerator::{Accelerator, Code, Modifiers, CMD_OR_CTRL},
     Menu, MenuEvent, MenuItem, PredefinedMenuItem, Submenu,
-    accelerator::{Accelerator, CMD_OR_CTRL, Code, Modifiers},
 };
 use slint::{ComponentHandle, Model};
 use std::cell::RefCell;
 
 const SETTINGS: &str = "tempo.settings";
+const ABOUT: &str = "tempo.about";
 const BACKUP: &str = "tempo.backup";
 const RESTORE: &str = "tempo.restore";
 const HOME: &str = "tempo.home";
@@ -50,6 +51,7 @@ pub(crate) fn refresh(ui: &AppWindow) {
 fn dispatch(ui: &AppWindow, id: &str) {
     let actions = ui.global::<AppActions>();
     match id {
+        ABOUT => actions.invoke_show_about(),
         SETTINGS => actions.invoke_navigate(Page::Settings),
         BACKUP => actions.invoke_backup_data(),
         RESTORE => actions.invoke_restore_data(),
@@ -79,7 +81,10 @@ fn build_menu(ui: &AppWindow) -> Menu {
         ),
     );
     append(&application, &PredefinedMenuItem::separator());
-    append(&application, &PredefinedMenuItem::about(None, None));
+    append(
+        &application,
+        &MenuItem::with_id(ABOUT, strings.get_about(), true, None),
+    );
     append(&application, &PredefinedMenuItem::separator());
     append(&application, &PredefinedMenuItem::services(None));
     append(&application, &PredefinedMenuItem::separator());

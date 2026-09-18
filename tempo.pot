@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-09-14 14:26+0000\n"
+"POT-Creation-Date: 2026-09-18 11:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ui/app-window.slint:32
+#: ui/app-window.slint:38
 msgctxt "AppWindow"
 msgid "paused"
 msgstr ""
@@ -99,106 +99,161 @@ msgstr ""
 
 #: ui/native-menu.slint:5
 msgctxt "NativeMenuStrings"
-msgid "Settings"
+msgid "About Tempo"
 msgstr ""
 
 #: ui/native-menu.slint:6
 msgctxt "NativeMenuStrings"
-msgid "File"
+msgid "Settings"
 msgstr ""
 
 #: ui/native-menu.slint:7
 msgctxt "NativeMenuStrings"
-msgid "Back Up Data…"
+msgid "File"
 msgstr ""
 
 #: ui/native-menu.slint:8
 msgctxt "NativeMenuStrings"
-msgid "Restore Data…"
+msgid "Back Up Data…"
 msgstr ""
 
 #: ui/native-menu.slint:9
 msgctxt "NativeMenuStrings"
-msgid "View"
+msgid "Restore Data…"
 msgstr ""
 
 #: ui/native-menu.slint:10
 msgctxt "NativeMenuStrings"
-msgid "Home"
+msgid "View"
 msgstr ""
 
 #: ui/native-menu.slint:11
 msgctxt "NativeMenuStrings"
-msgid "Evaluation"
+msgid "Home"
 msgstr ""
 
 #: ui/native-menu.slint:12
 msgctxt "NativeMenuStrings"
-msgid "Projects"
+msgid "Evaluation"
 msgstr ""
 
 #: ui/native-menu.slint:13
 msgctxt "NativeMenuStrings"
-msgid "Help"
+msgid "Projects"
 msgstr ""
 
 #: ui/native-menu.slint:14
 msgctxt "NativeMenuStrings"
-msgid "Keyboard Shortcuts"
+msgid "Help"
 msgstr ""
 
 #: ui/native-menu.slint:15
+msgctxt "NativeMenuStrings"
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: ui/native-menu.slint:16
 msgctxt "NativeMenuStrings"
 msgid ""
 "⌘,  Settings\n⌘B  Back Up Data\n⇧⌘R  Restore Data\n⌘E  "
 "Evaluation\n⌘1–⌘9  Start projects 1–9\n⌘Q  Quit Tempo"
 msgstr ""
 
-#: ui/native-menu.slint:16
+#: ui/native-menu.slint:17
 msgctxt "NativeMenuStrings"
 msgid "Tempo backup"
 msgstr ""
 
-#: ui/native-menu.slint:17
+#: ui/native-menu.slint:18
 msgctxt "NativeMenuStrings"
 msgid "Back Up Tempo Data"
 msgstr ""
 
-#: ui/native-menu.slint:18
+#: ui/native-menu.slint:19
 msgctxt "NativeMenuStrings"
 msgid "Restore Tempo Data"
 msgstr ""
 
-#: ui/native-menu.slint:19
+#: ui/native-menu.slint:20
 msgctxt "NativeMenuStrings"
 msgid "Restore Tempo Data?"
 msgstr ""
 
-#: ui/native-menu.slint:20
+#: ui/native-menu.slint:21
 msgctxt "NativeMenuStrings"
 msgid ""
 "This replaces all current Tempo data with the selected backup. This cannot "
 "be undone."
 msgstr ""
 
-#: ui/native-menu.slint:21
+#: ui/native-menu.slint:22
 msgctxt "NativeMenuStrings"
 msgid "Data backup completed"
 msgstr ""
 
-#: ui/native-menu.slint:22
+#: ui/native-menu.slint:23
 msgctxt "NativeMenuStrings"
 msgid "Data restored"
 msgstr ""
 
-#: ui/native-menu.slint:23
+#: ui/native-menu.slint:24
 msgctxt "NativeMenuStrings"
 msgid "Could not back up data"
 msgstr ""
 
-#: ui/native-menu.slint:24
+#: ui/native-menu.slint:25
 msgctxt "NativeMenuStrings"
 msgid "Could not restore data"
+msgstr ""
+
+#: ui/tray.slint:31
+msgctxt "TempoTray"
+msgid "Paused"
+msgstr ""
+
+#: ui/tray.slint:32
+msgctxt "TempoTray"
+msgid "Running"
+msgstr ""
+
+#: ui/tray.slint:37
+msgctxt "TempoTray"
+msgid "Resume"
+msgstr ""
+
+#: ui/tray.slint:37
+msgctxt "TempoTray"
+msgid "Pause"
+msgstr ""
+
+#: ui/tray.slint:41
+msgctxt "TempoTray"
+msgid "End task"
+msgstr ""
+
+#: ui/tray.slint:46
+msgctxt "TempoTray"
+msgid "Interrupt with"
+msgstr ""
+
+#: ui/tray.slint:58
+msgctxt "TempoTray"
+msgid "No timer running"
+msgstr ""
+
+#: ui/tray.slint:63
+msgctxt "TempoTray"
+msgid "Start tracking"
+msgstr ""
+
+#: ui/tray.slint:71
+msgctxt "TempoTray"
+msgid "Open Tempo"
+msgstr ""
+
+#: ui/tray.slint:76
+msgctxt "TempoTray"
+msgid "Quit Tempo"
 msgstr ""
 
 #: ui/views/tracking.slint:16
@@ -241,209 +296,304 @@ msgctxt "ProjectEditor"
 msgid "Enter a project name to create it"
 msgstr ""
 
-#: ui/views/project-editor.slint:54
-msgctxt "ProjectEditor"
-msgid "Settings"
-msgstr ""
-
-#: ui/views/project-editor.slint:62 ui/views/project-editor.slint:123
-msgctxt "ProjectEditor"
-msgid "Add project"
-msgstr ""
-
-#: ui/views/project-editor.slint:63
-msgctxt "ProjectEditor"
-msgid "Archived project"
-msgstr ""
-
-#: ui/views/project-editor.slint:63
-msgctxt "ProjectEditor"
-msgid "Edit project"
-msgstr ""
-
-#: ui/views/project-editor.slint:77
-msgctxt "ProjectEditor"
-msgid "Hidden from Home. Past time entries remain in Evaluation."
-msgstr ""
-
-#: ui/views/project-editor.slint:90
-msgctxt "ProjectEditor"
-msgid "Project name"
-msgstr ""
-
-#: ui/views/project-editor.slint:100
+#: ui/views/project-editor.slint:52
 msgctxt "ProjectEditor"
 msgid "Maximum {} characters."
 msgstr ""
 
-#: ui/views/project-editor.slint:115
+#: ui/views/project-editor.slint:57
+msgctxt "ProjectEditor"
+msgid "Project name already exists."
+msgstr ""
+
+#: ui/views/project-editor.slint:67
+msgctxt "ProjectEditor"
+msgid "Settings"
+msgstr ""
+
+#: ui/views/project-editor.slint:75 ui/views/project-editor.slint:133
+msgctxt "ProjectEditor"
+msgid "Add project"
+msgstr ""
+
+#: ui/views/project-editor.slint:76
+msgctxt "ProjectEditor"
+msgid "Archived project"
+msgstr ""
+
+#: ui/views/project-editor.slint:76
+msgctxt "ProjectEditor"
+msgid "Edit project"
+msgstr ""
+
+#: ui/views/project-editor.slint:90
+msgctxt "ProjectEditor"
+msgid "Hidden from Home. Past time entries remain in Evaluation."
+msgstr ""
+
+#: ui/views/project-editor.slint:103
+msgctxt "ProjectEditor"
+msgid "Project name"
+msgstr ""
+
+#: ui/views/project-editor.slint:125
 msgctxt "ProjectEditor"
 msgid "Cancel"
 msgstr ""
 
-#: ui/views/project-editor.slint:123
+#: ui/views/project-editor.slint:133
 msgctxt "ProjectEditor"
 msgid "Save"
 msgstr ""
 
-#: ui/views/project-editor.slint:145
+#: ui/views/project-editor.slint:155
 msgctxt "ProjectEditor"
 msgid "Archiving hides this project from Home and keeps its recorded work."
 msgstr ""
 
-#: ui/views/project-editor.slint:151
+#: ui/views/project-editor.slint:161
 msgctxt "ProjectEditor"
 msgid "Archive project"
 msgstr ""
 
-#: ui/views/project-editor.slint:164
+#: ui/views/project-editor.slint:174
 msgctxt "ProjectEditor"
 msgid "Restore project"
 msgstr ""
 
-#: ui/views/project-editor.slint:170
+#: ui/views/project-editor.slint:180
 msgctxt "ProjectEditor"
 msgid "Delete permanently"
 msgstr ""
 
-#: ui/views/project-editor.slint:185
+#: ui/views/project-editor.slint:195
 msgctxt "ProjectEditor"
 msgid "Delete permanently?"
 msgstr ""
 
-#: ui/views/project-editor.slint:190
+#: ui/views/project-editor.slint:200
 msgctxt "ProjectEditor"
 msgid ""
 "This permanently deletes the project and all its recorded work. This cannot "
 "be undone."
 msgstr ""
 
-#: ui/views/first-run.slint:37
+#: ui/views/first-run.slint:36
 msgctxt "FirstRunView"
 msgid "Maximum {} characters."
 msgstr ""
 
-#: ui/views/first-run.slint:50
+#: ui/views/first-run.slint:41
+msgctxt "FirstRunView"
+msgid "Project name already exists."
+msgstr ""
+
+#: ui/views/first-run.slint:57
 msgctxt "FirstRunView"
 msgid "Back"
 msgstr ""
 
-#: ui/views/first-run.slint:55
+#: ui/views/first-run.slint:62
 msgctxt "FirstRunView"
 msgid "First step"
 msgstr ""
 
-#: ui/views/first-run.slint:63
+#: ui/views/first-run.slint:70
 msgctxt "FirstRunView"
 msgid "Create your first project"
 msgstr ""
 
-#: ui/views/first-run.slint:64 ui/views/first-run.slint:139
+#: ui/views/first-run.slint:71 ui/views/first-run.slint:155
 msgctxt "FirstRunView"
 msgid "Add another project"
 msgstr ""
 
-#: ui/views/first-run.slint:70
+#: ui/views/first-run.slint:77
 msgctxt "FirstRunView"
 msgid ""
 "Projects keep related sessions together. You can add more whenever you need."
 msgstr ""
 
-#: ui/views/first-run.slint:71
+#: ui/views/first-run.slint:78
 msgctxt "FirstRunView"
 msgid "Keep projects separate when work belongs somewhere else."
 msgstr ""
 
-#: ui/views/first-run.slint:79
+#: ui/views/first-run.slint:86
 msgctxt "FirstRunView"
 msgid "Project name"
 msgstr ""
 
-#: ui/views/first-run.slint:100
+#: ui/views/first-run.slint:111
 msgctxt "FirstRunView"
 msgid "Create project"
 msgstr ""
 
-#: ui/views/first-run.slint:100
+#: ui/views/first-run.slint:111
 msgctxt "FirstRunView"
 msgid "Add project"
 msgstr ""
 
-#: ui/views/first-run.slint:110
+#: ui/views/first-run.slint:124
 msgctxt "FirstRunView"
 msgid "Project created"
 msgstr ""
 
-#: ui/views/first-run.slint:117
+#: ui/views/first-run.slint:131
 msgctxt "FirstRunView"
 msgid "Your projects are ready"
 msgstr ""
 
-#: ui/views/first-run.slint:121
+#: ui/views/first-run.slint:135
 msgctxt "FirstRunView"
 msgid ""
 "Start now, add another project, or return Home. You can do any of these "
 "later."
 msgstr ""
 
-#: ui/views/first-run.slint:146
+#: ui/views/first-run.slint:162
 msgctxt "FirstRunView"
 msgid "Finish"
 msgstr ""
 
-#: ui/views/home.slint:15
-msgctxt "HomeHeader"
-msgid "View activity and time reports"
+#: ui/views/about.slint:19
+msgctxt "AboutContent"
+msgid "Version {}"
+msgstr ""
+
+#: ui/views/about.slint:23
+msgctxt "AboutContent"
+msgid "A local-first desktop app for focused work sessions."
+msgstr ""
+
+#: ui/views/about.slint:32
+msgctxt "AboutContent"
+msgid "Tempo stores its data locally and does not require an account."
+msgstr ""
+
+#: ui/views/about.slint:37
+msgctxt "AboutContent"
+msgid "Third-party attribution"
+msgstr ""
+
+#: ui/views/about.slint:60
+msgctxt "AboutDialog"
+msgid "About Tempo"
+msgstr ""
+
+#: ui/views/about.slint:71
+msgctxt "AboutDialog"
+msgid "Close"
+msgstr ""
+
+#: ui/views/about.slint:81
+msgctxt "AboutWindow"
+msgid "About Tempo"
 msgstr ""
 
 #: ui/views/home.slint:16
 msgctxt "HomeHeader"
+msgid "View activity and time reports"
+msgstr ""
+
+#: ui/views/home.slint:17
+msgctxt "HomeHeader"
 msgid "Manage projects and settings"
 msgstr ""
 
-#: ui/views/home.slint:19
+#: ui/views/home.slint:18
+msgctxt "HomeHeader"
+msgid "About Tempo"
+msgstr ""
+
+#: ui/views/home.slint:21
 msgctxt "HomeHeader"
 msgid "What next?"
 msgstr ""
 
-#: ui/views/home.slint:76
+#: ui/views/home.slint:101
 msgctxt "LastTaskCard"
 msgid "Add a note to your last {} session"
 msgstr ""
 
-#: ui/views/home.slint:94
+#: ui/views/home.slint:119
 msgctxt "LastTaskCard"
 msgid "LAST SESSION · TAP TO ADD A NOTE"
 msgstr ""
 
-#: ui/views/home.slint:108
+#: ui/views/home.slint:133
 msgctxt "LastTaskCard"
 msgid "[No task description]"
 msgstr ""
 
-#: ui/views/home.slint:140
+#: ui/views/home.slint:165
 msgctxt "ResumeCard"
 msgid "PAUSED"
 msgstr ""
 
-#: ui/views/home.slint:152
+#: ui/views/home.slint:177
 msgctxt "ResumeCard"
 msgid "Timer stopped until you resume."
 msgstr ""
 
-#: ui/views/home.slint:161
+#: ui/views/home.slint:186
 msgctxt "ResumeCard"
 msgid "Resume"
 msgstr ""
 
-#: ui/views/home.slint:223
+#: ui/views/home.slint:250
 msgctxt "HomeView"
 msgid "Start a timer"
 msgstr ""
 
-#: ui/views/home.slint:243
+#: ui/views/home.slint:270
 msgctxt "HomeView"
 msgid "A quiet place to keep your day moving."
+msgstr ""
+
+#: ui/views/adjust-time.slint:37
+msgctxt "AdjustTimeView"
+msgid "Activity note"
+msgstr ""
+
+#: ui/views/adjust-time.slint:44
+msgctxt "AdjustTimeView"
+msgid "Adjust time"
+msgstr ""
+
+#: ui/views/adjust-time.slint:47
+msgctxt "AdjustTimeView"
+msgid "Set when work actually started and finished."
+msgstr ""
+
+#: ui/views/adjust-time.slint:57
+msgctxt "AdjustTimeView"
+msgid "Started"
+msgstr ""
+
+#: ui/views/adjust-time.slint:67
+msgctxt "AdjustTimeView"
+msgid "Finished"
+msgstr ""
+
+#: ui/views/adjust-time.slint:77
+msgctxt "AdjustTimeView"
+msgid "Enter a valid time"
+msgstr ""
+
+#: ui/views/adjust-time.slint:89
+msgctxt "AdjustTimeView"
+msgid "Actual time"
+msgstr ""
+
+#: ui/views/adjust-time.slint:118
+msgctxt "AdjustTimeView"
+msgid "Cancel"
+msgstr ""
+
+#: ui/views/adjust-time.slint:126
+msgctxt "AdjustTimeView"
+msgid "Save time"
 msgstr ""
 
 #: ui/views/export.slint:19
@@ -481,32 +631,42 @@ msgctxt "ExportView"
 msgid "JSON"
 msgstr ""
 
-#: ui/views/note.slint:30
+#: ui/views/note.slint:37
 msgctxt "NoteView"
 msgid "Home"
 msgstr ""
 
-#: ui/views/note.slint:38
+#: ui/views/note.slint:45
 msgctxt "NoteView"
 msgid "What did you get done?"
 msgstr ""
 
-#: ui/views/note.slint:61
+#: ui/views/note.slint:65
+msgctxt "NoteView"
+msgid "Session time"
+msgstr ""
+
+#: ui/views/note.slint:77
+msgctxt "NoteView"
+msgid "Adjust time"
+msgstr ""
+
+#: ui/views/note.slint:93
 msgctxt "NoteView"
 msgid "Add a brief note for your activity log."
 msgstr ""
 
-#: ui/views/note.slint:66
+#: ui/views/note.slint:98
 msgctxt "NoteView"
 msgid "e.g. prepared the Q4 project brief"
 msgstr ""
 
-#: ui/views/note.slint:75
+#: ui/views/note.slint:107
 msgctxt "NoteView"
 msgid "Save note"
 msgstr ""
 
-#: ui/views/note.slint:85
+#: ui/views/note.slint:118
 msgctxt "NoteView"
 msgid "Skip for now"
 msgstr ""
@@ -589,11 +749,6 @@ msgstr ""
 #: ui/views/drilldown.slint:79
 msgctxt "TaskEditor"
 msgid "Save"
-msgstr ""
-
-#: ui/views/drilldown.slint:142
-msgctxt "TaskCard"
-msgid "No details added"
 msgstr ""
 
 #: ui/views/drilldown.slint:216

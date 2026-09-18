@@ -34,8 +34,9 @@ pub(crate) fn install(ui: &AppWindow) {
         let weak_ui = weak_ui.clone();
         move || end_tracking(&weak_ui)
     });
-    tray.on_toggle_tracking_pause(move || {
-        invoke(&weak_ui, |actions| actions.invoke_toggle_tracking_pause())
+    tray.on_toggle_tracking_pause({
+        let weak_ui = weak_ui.clone();
+        move || invoke(&weak_ui, |actions| actions.invoke_toggle_tracking_pause())
     });
     tray.on_quit(|| {
         let _ = slint::quit_event_loop();

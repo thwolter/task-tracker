@@ -1,0 +1,100 @@
+import { AboutSlint } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { AppButton, AppButtonIntent } from "../components/app-button.slint";
+import { DialogCard } from "../components/dialog-card.slint";
+import { BodyText, LabelText } from "../components/typography.slint";
+
+// Shared content keeps the attribution identical in the platform-native window
+// and the in-window dialog.
+export component AboutContent inherits Rectangle {
+    in property <string> application-version;
+
+    background: transparent;
+    vertical-stretch: 0;
+
+    VerticalLayout {
+        spacing: 14px;
+
+        LabelText {
+            text: @tr("Version {}", root.application-version);
+        }
+
+        BodyText {
+            text: @tr("A local-first desktop app for focused work sessions.");
+            wrap: word-wrap;
+        }
+
+        LabelText {
+            text: "© 2026 Thomas Wolter. All rights reserved.";
+        }
+
+        BodyText {
+            text: @tr("Tempo stores its data locally and does not require an account.");
+            wrap: word-wrap;
+        }
+
+        LabelText {
+            text: @tr("Third-party attribution");
+        }
+
+        // Keep Slint's unmodified attribution component at its content height
+        // instead of allowing it to consume the remaining vertical space.
+        AboutSlint {
+            preferred-width: 160px;
+            preferred-height: 104px;
+            horizontal-stretch: 0;
+            vertical-stretch: 0;
+        }
+    }
+}
+
+export component AboutDialog inherits Rectangle {
+    in property <string> application-version;
+    callback close();
+
+    background: Theme.dialog-backdrop;
+
+    // Absorb pointer events before they reach the page beneath this overlay.
+    TouchArea { }
+
+    DialogCard {
+        background: transparent;
+        title: @tr("About Tempo");
+
+        AboutContent {
+            application-version: root.application-version;
+        }
+
+        HorizontalLayout {
+            padding-top: 12px;
+            alignment: end;
+
+            AppButton {
+                label: @tr("Close");
+                intent: AppButtonIntent.secondary;
+                width: 96px;
+                clicked => { root.close(); }
+            }
+        }
+    }
+}
+
+export component AboutWindow inherits Window {
+    title: @tr("About Tempo");
+
+    preferred-width: 360px;
+    min-width: 360px;
+    preferred-height: 360px;
+    min-height: 360px;
+    background: Theme.surface-canvas;
+
+    in property <string> application-version;
+
+    VerticalLayout {
+        padding: 20px;
+
+        AboutContent {
+            application-version: root.application-version;
+        }
+    }
+}

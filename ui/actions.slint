@@ -28,7 +28,9 @@ export enum UiCommandKind {
     open-drilldown,
     backup-data,
     restore-data,
-    show-keyboard-shortcuts
+    show-keyboard-shortcuts,
+    show-about,
+    close-about
 }
 
 export struct UiCommand {
@@ -74,6 +76,8 @@ export global AppActions {
     callback backup-data();
     callback restore-data();
     callback show-keyboard-shortcuts();
+    callback show-about();
+    callback close-about();
 
     tick => { dispatch({ kind: UiCommandKind.tick }); }
     navigate(page) => { dispatch({ kind: UiCommandKind.navigate, page: page }); }
@@ -108,4 +112,6 @@ export global AppActions {
     backup-data => { dispatch({ kind: UiCommandKind.backup-data }); }
     restore-data => { dispatch({ kind: UiCommandKind.restore-data }); }
     show-keyboard-shortcuts => { dispatch({ kind: UiCommandKind.show-keyboard-shortcuts }); }
+    show-about => { dispatch({ kind: UiCommandKind.show-about }); }
+    close-about => { dispatch({ kind: UiCommandKind.close-about }); }
 }

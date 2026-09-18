@@ -728,6 +728,18 @@ figcaption {
     margin: 26px 0 0
 }
 
+.slint-attribution {
+    display: inline-block;
+    margin-top: 28px;
+    line-height: 0
+}
+
+.slint-attribution img {
+    display: block;
+    height: 34px;
+    width: auto
+}
+
 .release-status a {
     color: #d4ef58
 }

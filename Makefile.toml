@@ -8,6 +8,14 @@ script = '''
 find . -name '*.slint' -print0 | xargs -0 slint-tr-extractor -o tempo.pot
 '''
 
+[tasks.update-translations]
+dependencies = ["extract-translations"]
+script = '''
+msgmerge --update --no-fuzzy-matching --backup=none \
+  translations/de/LC_MESSAGES/Tempo.po tempo.pot
+msgfmt --check translations/de/LC_MESSAGES/Tempo.po
+'''
+
 [tasks.bundle-host]
 script = '''
 cargo test --release

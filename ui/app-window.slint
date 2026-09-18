@@ -31,6 +31,8 @@ import { Theme } from "theme.slint";
 import { StatusText } from "components/status-text.slint";
 import { DrilldownView } from "views/drilldown.slint";
 import { ExportView } from "views/export.slint";
+import { AboutDialog } from "views/about.slint";
+export { AboutWindow } from "views/about.slint";
 
 export component AppWindow inherits Window {
     title: tracking.paused ? tracking.active-task + " · " + @tr("paused") : "Tempo";
@@ -55,6 +57,9 @@ export component AppWindow inherits Window {
     in property <int> note-focus-request: 0;
     in-out property <AdjustTimeState> adjust-time;
     in property <int> adjust-time-focus-request: 0;
+    in property <string> application-version;
+    in property <bool> show-about-button: true;
+    in property <bool> about-visible: false;
 
     Timer {
         interval: 1s;
@@ -71,6 +76,7 @@ export component AppWindow inherits Window {
             if root.current-page == Page.home: HomeView {
                 state: root.home-state;
                 tracker: root.tracking;
+                show-about-button: root.show-about-button;
             }
             if root.current-page == Page.first-run: FirstRunView {
                 state <=> root.first-run;
@@ -102,6 +108,13 @@ export component AppWindow inherits Window {
                 state: root.export-state;
             }
         }
+    }
+
+    if root.about-visible: AboutDialog {
+        width: parent.width;
+        height: parent.height;
+        application-version: root.application-version;
+        close => { AppActions.close-about(); }
     }
 
     if root.transient-status.message != "": StatusText {

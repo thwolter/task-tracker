@@ -9,11 +9,13 @@ import { ScrollableColumn } from "../components/scrollable-column.slint";
 import { DurationLabel } from "../components/duration-label.slint";
 
 component HomeHeader inherits HorizontalLayout {
+    in property <bool> show-about-button: true;
     alignment: stretch;
     cross-axis-alignment: center;
 
     private property <string> evaluation-tooltip: @tr("View activity and time reports");
     private property <string> project-settings-tooltip: @tr("Manage projects and settings");
+    private property <string> about-tooltip: @tr("About Tempo");
 
     ViewHeader {
         text: @tr("What next?");
@@ -65,6 +67,29 @@ component HomeHeader inherits HorizontalLayout {
 
             Tooltip {
                 text: @markdown("\{root.project-settings-tooltip}");
+            }
+        }
+
+        if root.show-about-button: Rectangle {
+            about-touch := TouchArea {
+                mouse-cursor: pointer;
+                clicked => { AppActions.show-about(); }
+            }
+
+            background: about-touch.pressed ? Theme.action-icon-pressed
+                : about-touch.has-hover ? Theme.action-icon-hover
+                : Theme.action-icon;
+            width: 20px;
+            height: 20px;
+
+            Image {
+                source: @image-url("../assets/icons/info.svg");
+                colorize: Theme.content-secondary;
+                width: 18px;
+            }
+
+            Tooltip {
+                text: @markdown("\{root.about-tooltip}");
             }
         }
     }
@@ -189,6 +214,7 @@ component Footer inherits Text {
 
 export component HomeView inherits Rectangle {
     in property <HomeState> state;
+    in property <bool> show-about-button: true;
     // AppWindow owns this projection, so an active session survives replacing
     // TrackingView with HomeView during navigation.
     in property <TrackingState> tracker;
@@ -205,6 +231,7 @@ export component HomeView inherits Rectangle {
             alignment: stretch;
 
             HomeHeader {
+                show-about-button: root.show-about-button;
             }
 
             if (root.state.has-last-task && root.tracker.active-task == ""): LastTaskCard {
