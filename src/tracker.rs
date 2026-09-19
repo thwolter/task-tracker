@@ -315,13 +315,11 @@ mod tests {
         assert!(tracker.evaluating_project().is_none());
         assert!(tracker.data().active_task().is_none());
         assert_eq!(tracker.data().tasks().len(), 1);
-        assert!(
-            tracker
-                .data()
-                .projects()
-                .iter()
-                .all(|project| project.name() != "Live only")
-        );
+        assert!(tracker
+            .data()
+            .projects()
+            .iter()
+            .all(|project| project.name() != "Live only"));
 
         std::fs::remove_file(live_path).unwrap();
         std::fs::remove_file(backup_path).unwrap();

@@ -8,7 +8,7 @@ use crate::{
     domain::{ActiveTask, Data, Project, ProjectId, Task, TaskId},
     error::{Result, TrackerError},
 };
-use rusqlite::{Connection, MAIN_DB, OpenFlags, OptionalExtension, params};
+use rusqlite::{params, Connection, OpenFlags, OptionalExtension, MAIN_DB};
 use std::{
     fs::{self, OpenOptions},
     path::{Path, PathBuf},

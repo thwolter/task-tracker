@@ -4,11 +4,11 @@
 //! reads [`Tracker`] state but does not mutate domain state or persist data.
 
 use crate::{
-    AdjustTimeState, EvaluationState, EvaluationTaskItem, EvaluationTasksState, HomeState,
-    ProjectItem, ProjectSettingsState, ProjectTotalItem, Range, TaskItem, TrackingState,
     domain::{self, Data, ProjectId, Range as DomainRange, Task},
     language::Language,
     tracker::Tracker,
+    AdjustTimeState, EvaluationState, EvaluationTaskItem, EvaluationTasksState, HomeState,
+    ProjectItem, ProjectSettingsState, ProjectTotalItem, Range, TaskItem, TrackingState,
 };
 use chrono::{Datelike, Local, TimeZone, Weekday};
 use slint::{ModelRc, SharedString, VecModel};

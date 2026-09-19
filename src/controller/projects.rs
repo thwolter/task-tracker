@@ -1,6 +1,6 @@
 use super::UiController;
 use crate::{
-    AppWindow, FirstRunPhase, Page, ProjectEditorMode, ProjectEditorState, ProjectItem, domain,
+    domain, AppWindow, FirstRunPhase, Page, ProjectEditorMode, ProjectEditorState, ProjectItem,
 };
 use slint::{Model, ModelRc, SharedString, VecModel};
 

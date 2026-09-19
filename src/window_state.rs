@@ -3,7 +3,7 @@
 //! Window state is deliberately separate from the task database: failure to
 //! read or write it must never prevent Tempo from opening or saving work.
 
-use crate::{AppWindow, persistence::SqliteStore};
+use crate::{persistence::SqliteStore, AppWindow};
 use serde::{Deserialize, Serialize};
 use slint::{CloseRequestResponse, ComponentHandle, LogicalPosition, LogicalSize, Window};
 use std::{
