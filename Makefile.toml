@@ -40,3 +40,32 @@ docker run --rm -v "$(pwd)/target-linux:/out:ro" debian:bookworm-slim sh -c 'dpk
 script = '''
 find . -type f -name "*.slint" -exec slint-lsp format -i {} \;
 '''
+
+[tasks.release]
+description = "Prepare a new release: cargo make release 0.4.0"
+script_runner = "@duckscript"
+script = '''
+version = exec git cliff --bumped-version
+version = trim ${version.stdout}
+version = substring ${version} 1
+
+echo "Preparing release v${version}"
+
+exec --fail-on-error cargo set-version ${version}
+
+if is_file CHANGELOG.md
+    exec --fail-on-error git cliff --unreleased --tag v${version} --prepend CHANGELOG.md
+else
+    exec --fail-on-error git cliff --unreleased --tag v${version} --output CHANGELOG.md
+end
+
+exec --fail-on-error cargo check
+exec --fail-on-error cargo test
+
+exec --fail-on-error git add Cargo.toml Cargo.lock CHANGELOG.md
+exec --fail-on-error git commit -m "chore(release): v${version}"
+exec --fail-on-error git tag v${version}
+
+echo "Release v${version} prepared."
+echo "Push with: git push && git push --tags"
+'''
