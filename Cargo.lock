@@ -23,6 +23,7 @@ dependencies = [
  "slint-build",
  "sys-locale",
  "thiserror 2.0.20",
+ "windows-sys 0.59.0",
  "winres",
 ]
 

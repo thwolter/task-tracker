@@ -24,6 +24,10 @@ single-instance = "0.3.3"
 [target.'cfg(any(target_os = "macos", target_os = "windows"))'.dependencies]
 fs2 = "0.4.3"
 
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { version = "0.59.0", features = ["Win32_Foundation", "Win32_Security", "Win32_System_Threading"] }
+i-slint-backend-winit = "1.18.0"
+
 [target.'cfg(target_os = "macos")'.dependencies]
 muda = { version = "0.19.3", default-features = false }
 i-slint-backend-winit = "1.17.1"
