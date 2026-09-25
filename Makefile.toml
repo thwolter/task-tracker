@@ -42,7 +42,7 @@ find . -type f -name "*.slint" -exec slint-lsp format -i {} \;
 '''
 
 [tasks.release]
-description = "Prepare a new release: cargo make release 0.4.0"
+description = "Prepare a new release: cargo make release"
 script_runner = "@duckscript"
 script = '''
 version = exec git cliff --bumped-version
