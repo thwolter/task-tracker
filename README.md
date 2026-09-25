@@ -18,7 +18,7 @@ Tempo does **not** currently provide automatic activity monitoring, invoicing, b
 
 | Choose a project | Track a session | Review time |
 | --- | --- | --- |
-| ![Tempo Home screen in dark mode](website/assets/screenshots/home.jpg) | ![Tempo active timer in dark mode](website/assets/screenshots/tracking.jpg) | ![Tempo evaluation screen in dark mode](website/assets/screenshots/evaluation.jpg) |
+| ![Tempo Home screen in dark mode](docs/screenshots/home.png) | ![Tempo active timer in dark mode](docs/screenshots/tracking.png) | ![Tempo evaluation screen in dark mode](docs/screenshots/evaluation.png) |
 
 The screenshots show the German dark appearance. Tempo follows the operating system’s appearance and chooses German only when the system locale begins with `de`; otherwise it uses English.
 
