@@ -1,3 +1,13 @@
+## [0.4.1] - 2026-09-25
+
+### 📚 Documentation
+
+- *(agents)* Add agent guide with rules and verification steps
+
+### ⚙️ Miscellaneous Tasks
+
+- *(build)* Remove Dockerfile.linux and update release tasks in Makefile.toml
+- *(build)* Update release task description in Makefile.toml
 ## [0.4.0] - 2026-09-19
 
 ### 🚀 Features

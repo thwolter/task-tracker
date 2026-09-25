@@ -1,6 +1,6 @@
 [package]
 name = "Tempo"
-version = "0.4.0"
+version = "0.4.1"
 description = "A minimalist desktop app for focused task tracking and work sessions."
 edition = "2024"
 authors = ["Thomas Wolter"]
